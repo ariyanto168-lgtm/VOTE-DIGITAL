@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.4.7</title>
+    <title>VOTEKU DIGITAL - v1.4.8</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -75,7 +75,7 @@
         </div>
     </div>
 
-    <!-- Modal Kamuflase Login Admin -->
+    <!-- Modal Kamuflase -->
     <div class="modal fade" id="kamuflaseModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content p-3">
@@ -97,7 +97,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.4.7 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.4.8 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark d-none" id="badge-plan"><span id="lbl-plan">Gratis</span></span>
             </div>
         </div>
@@ -115,7 +115,7 @@
         <div id="page-dashboard" class="page-section active">
             <div class="alert alert-info shadow-sm" id="auth-status-alert"><i class="bi bi-info-circle"></i> Memeriksa Server...</div>
             <div class="card p-3 mb-3 text-center bg-primary text-white shadow" onclick="fetchElectionsUI()">
-                <i class="bi bi-cloud-arrow-down fs-2"></i><div class="fw-bold mt-1">Tarik Data Acara</div>
+                <i class="bi bi-cloud-arrow-down fs-2"></i><div class="fw-bold mt-1">Tarik Ulang Data Acara</div>
             </div>
             
             <div class="row g-2 text-center mb-3">
@@ -184,10 +184,15 @@
             </div>
         </div>
 
-        <!-- DAFTAR VOTING -->
+        <!-- DAFTAR VOTING (REVISI AUTO-LOAD) -->
         <div id="page-voting" class="page-section">
-            <h5 class="fw-bold mb-3">Daftar Voting Tersedia</h5>
-            <div id="list-voting"></div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Daftar Voting</h5>
+                <button class="btn btn-sm btn-primary fw-bold" onclick="fetchElectionsUI()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+            </div>
+            <div id="list-voting">
+                <p class="text-center text-muted mt-4 small">Memuat data dari server...</p>
+            </div>
         </div>
 
         <!-- GENERATE TOKEN -->
@@ -240,26 +245,22 @@
         <!-- PENGATURAN & ADMIN -->
         <div id="page-pengaturan" class="page-section">
             <h5 class="fw-bold mb-3">Pengaturan & Admin</h5>
-            
             <div class="card p-3 border-info mb-3 shadow-sm">
                 <h6 class="fw-bold text-info"><i class="bi bi-save"></i> Backup & Restore Lokal</h6>
                 <p class="small text-muted mb-2">Simpan atau pulihkan data kredensial/PIN Anda (File JSON).</p>
                 <button class="btn btn-outline-info btn-sm w-100 mb-2 fw-bold" onclick="exportData()"><i class="bi bi-download"></i> Download Data Backup</button>
                 <input type="file" id="file-restore" class="form-control form-control-sm" accept=".json" onchange="importData(event)">
             </div>
-            
             <div class="card p-3 border-primary mb-3">
                 <h6 class="fw-bold text-primary">Koneksi API Server</h6>
                 <input type="url" id="set-api" class="form-control mb-2" placeholder="URL Web App Google">
                 <button class="btn btn-sm btn-outline-primary w-100" onclick="saveSettings()">Simpan URL API</button>
             </div>
-            
             <div class="card p-3 border-danger mb-3">
                 <h6 class="fw-bold text-danger"><i class="bi bi-trash-fill"></i> Reset Data Riwayat</h6>
                 <p class="small text-muted">Membersihkan cache lokal dan mengosongkan riwayat sesi aplikasi.</p>
                 <button class="btn btn-danger btn-sm w-100" onclick="resetLocalData()">Hapus Riwayat / Reset Data</button>
             </div>
-            
             <div class="card p-3 border-success mb-3 shadow-sm">
                 <div id="auth-logged-in" class="text-center">
                     <h5 class="text-success fw-bold"><i class="bi bi-person-check-fill"></i> <span id="lbl-logged-user">Terhubung!</span></h5>
@@ -277,381 +278,13 @@
             <a href="#" class="nav-item" onclick="nav('pengaturan', this)"><i class="bi bi-gear"></i>Admin</a>
         </div>
 
-        <!-- Footer Branding -->
+        <!-- Footer -->
         <div class="text-center py-3 text-muted" style="font-size: 0.8rem;">
             Powered by Ari GPM
         </div>
     </div>
 
-    <!-- Modal Bilik Suara -->
+    <!-- Modal Bilik Suara Admin -->
     <div class="modal fade" id="voteModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white border-0 pb-2">
-                    <h5 class="modal-title fw-bold" id="vote-title">Judul</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body bg-light">
-                    <div id="vote-options" class="mb-3"></div>
-                    <input type="text" id="vote-token" class="form-control text-center text-uppercase fw-bold border-primary" placeholder="TOKEN UNIK" maxlength="10">
-                </div>
-                <div class="modal-footer border-0 pt-0 bg-light">
-                    <button type="button" class="btn btn-primary w-100 fw-bold" onclick="executeVote()">KIRIM SUARA</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const LOCAL_KEY = 'VOTEKU_V147'; 
-        
-        // ⚠️ SANGAT PENTING: GANTI "apiUrl" DI BAWAH INI DENGAN URL GOOGLE APPS SCRIPT ANDA SEBELUM DI-UPLOAD KE GITHUB PAGES ⚠️
-        const DEFAULT_DATA = { 
-            pin: "ADMIN123", phishing: "Ari GPM", secAns: "ARI GPM", 
-            apiUrl: "https://script.google.com/macros/s/AKfycbw6qjXlH1K_K6Y9gLgV3zQjH5xY7w8s9d0f1g2h3j4k5l6z/exec", // <--- GANTI BAGIAN INI
-            serverToken: "HARDCODED_ADMIN_TOKEN_VOTEKU", serverUser: "Ari GPM", serverPlan: "Komunitas" 
-        };
-
-        let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
-        
-        if (!APP_DATA && localStorage.getItem('VOTEKU_V146')) {
-            APP_DATA = JSON.parse(localStorage.getItem('VOTEKU_V146'));
-        } else if (!APP_DATA && localStorage.getItem('VOTEKU_V145')) {
-            APP_DATA = JSON.parse(localStorage.getItem('VOTEKU_V145'));
-        } 
-        
-        if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
-        else if (!APP_DATA.serverUser) { APP_DATA.serverUser = DEFAULT_DATA.serverUser; APP_DATA.serverPlan = DEFAULT_DATA.serverPlan; }
-        
-        localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
-
-        let cachedElections = [], activeVoteId = null, chartInstance = null, shareActiveId = null;
-
-        window.onload = () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const shareVoteId = urlParams.get('vote');
-            const shareHasilId = urlParams.get('hasil');
-
-            if (shareVoteId || shareHasilId) {
-                document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-                document.getElementById('main-bottom-nav').style.display = 'none';
-                
-                // Panggil UI dulu agar tidak blank
-                if (shareVoteId) initShareVoting(shareVoteId);
-                if (shareHasilId) initShareHasil(shareHasilId);
-                return;
-            }
-
-            document.getElementById('set-api').value = APP_DATA.apiUrl || "";
-            checkServerAuthStatus();
-        };
-
-        // --- AUTH & LOCK SCREEN ---
-        function unlockApp() {
-            const inputPin = document.getElementById('pin-input').value.trim().toUpperCase();
-            if (inputPin === APP_DATA.pin) {
-                document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-                document.getElementById('main-bottom-nav').style.display = 'flex';
-                applyBranding();
-                nav('dashboard', document.querySelectorAll('.bottom-nav .nav-item')[0]);
-            } else { alert("PIN Salah"); }
-        }
-
-        function lockApp() { window.location.href = window.location.pathname; }
-        function showForgotView(show) { document.getElementById('view-login').style.display = show ? 'none' : 'block'; document.getElementById('view-forgot').style.display = show ? 'block' : 'none'; }
-        function verifyForgotAnswer() {
-            const ans = document.getElementById('forgot-answer').value.trim().toUpperCase();
-            const correctAns = (APP_DATA.secAns || "ARI GPM").toUpperCase();
-            if (ans === correctAns) { document.getElementById('view-forgot').style.display = 'none'; document.getElementById('view-new-pin').style.display = 'block'; } else { alert("Jawaban Keamanan Salah!"); }
-        }
-        function saveNewPin() {
-            const newPin = document.getElementById('new-pin-input').value.trim().toUpperCase();
-            if (!newPin) return alert("PIN baru tidak boleh kosong!");
-            APP_DATA.pin = newPin; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
-            alert("PIN Berhasil Diperbarui! Silakan Masuk."); location.reload();
-        }
-        function triggerKamuflase() { new bootstrap.Modal(document.getElementById('kamuflaseModal')).show(); }
-        function verifyKamuflase() {
-            const pin = document.getElementById('kamuflase-pin').value.trim().toUpperCase();
-            if (pin === APP_DATA.pin) {
-                bootstrap.Modal.getInstance(document.getElementById('kamuflaseModal')).hide();
-                document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-                document.getElementById('main-bottom-nav').style.display = 'flex'; 
-                applyBranding(); checkServerAuthStatus(); nav('pengaturan', document.querySelectorAll('.bottom-nav .nav-item')[3]); 
-            } else { alert("PIN Salah!"); }
-        }
-
-        // --- DATA MANAGEMENT ---
-        function resetLocalData() { if (confirm("Yakin ingin mereset seluruh data riwayat?")) { localStorage.removeItem(LOCAL_KEY); location.reload(); } }
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(APP_DATA));
-            const dl = document.createElement('a'); dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", `Voteku_Backup_${new Date().toISOString().split('T')[0]}.json`); dl.click(); showToast("Backup Berhasil Diunduh!");
-        }
-        function importData(event) {
-            const file = event.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (imported.pin !== undefined) {
-                        APP_DATA = imported; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
-                        alert("Restore Berhasil! Aplikasi akan dimuat ulang."); location.reload();
-                    } else { alert("File JSON tidak valid!"); }
-                } catch(err) { alert("Gagal membaca file backup!"); }
-            };
-            reader.readAsText(file);
-        }
-
-        // --- SHARE LINK LOGIC (DIPERBAIKI AGAR TIDAK BLANK) ---
-        async function initShareVoting(id) {
-            // Tampilkan UI Halaman Voting secara paksa sebelum koneksi ke server agar layar tidak blank
-            nav('share-vote');
-            
-            try {
-                const res = await apiCall("getElections");
-                const found = res.data.find(e => e.id === id);
-                if (!found) { 
-                    document.getElementById('share-vote-title').innerText = "Acara Tidak Ditemukan";
-                    document.getElementById('share-vote-desc').innerText = "Link salah atau acara telah ditutup.";
-                    document.getElementById('share-vote-options').innerHTML = "";
-                    return; 
-                }
-                
-                shareActiveId = id;
-                document.getElementById('share-vote-title').innerText = found.title;
-                document.getElementById('share-vote-desc').innerText = found.description || "Pilih opsi di bawah:";
-                
-                let opts = [];
-                try { opts = typeof found.options === 'string' ? JSON.parse(found.options) : found.options; } 
-                catch(e) { opts = [found.options]; }
-                if(!Array.isArray(opts)) opts = [opts];
-
-                document.getElementById('share-vote-options').innerHTML = opts.map((opt, i) => `
-                    <div class="form-check p-3 border rounded bg-white mb-2 shadow-sm">
-                        <input class="form-check-input ms-1" type="radio" name="sharePilihan" value="${opt}" id="sopt${i}">
-                        <label class="form-check-label w-100 ms-2 fw-bold" for="sopt${i}">${opt}</label>
-                    </div>`).join('');
-            } catch(e) { 
-                document.getElementById('share-vote-title').innerText = "Gagal Memuat Data";
-                document.getElementById('share-vote-desc').innerText = "Kesalahan: " + e.message;
-                document.getElementById('share-vote-options').innerHTML = "";
-            }
-        }
-
-        async function executeShareVote() {
-            const selected = document.querySelector('input[name="sharePilihan"]:checked');
-            const tokenStr = document.getElementById('share-vote-token').value.trim().toUpperCase();
-            if (!selected || !tokenStr) return alert("Pilih opsi dan masukkan token unik Anda!");
-            try {
-                const res = await apiCall("submitVote", { electionId: shareActiveId, option: selected.value, token: tokenStr });
-                alert(res.message); location.reload();
-            } catch(err) { alert(err.message); }
-        }
-
-        async function initShareHasil(id) {
-            nav('share-hasil');
-            try {
-                const res = await apiCall("getResults", { electionId: id });
-                document.getElementById('share-hasil-title').innerText = "Hasil Pemilihan Real-Time";
-                document.getElementById('share-hasil-total').innerText = `Total Suara Masuk: ${res.totalVotes}`;
-                const ctx = document.getElementById('chartShareHasil').getContext('2d');
-                new Chart(ctx, { type: 'bar', data: { labels: Object.keys(res.results), datasets: [{ label: 'Suara', data: Object.values(res.results), backgroundColor: '#2e7d32' }] }, options: { plugins:{legend:{display:false}}} });
-            } catch(e) { 
-                document.getElementById('share-hasil-title').innerText = "Gagal Memuat Hasil";
-                document.getElementById('share-hasil-total').innerText = "Kesalahan: " + e.message;
-            }
-        }
-
-        function shareTokenWA() {
-            const text = document.getElementById('token-result-text').value;
-            if(text) { window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent("Token Voting Rahasia Anda:\n" + text), '_blank'); }
-        }
-
-        // --- UTILS & CORE API ---
-        function showToast(msg, color = "bg-success") {
-            const t = document.getElementById('liveToast'); t.className = `toast align-items-center text-white border-0 ${color}`;
-            document.getElementById('toast-msg').innerText = msg; new bootstrap.Toast(t).show();
-        }
-        function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
-        function saveSettings() { APP_DATA.apiUrl = document.getElementById('set-api').value; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); showToast("URL Disimpan!"); }
-
-        function nav(pageId, element = null) {
-            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(`page-${pageId}`).classList.add('active');
-            if (element && element.classList.contains('nav-item')) {
-                document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active')); element.classList.add('active');
-            }
-            if(pageId === 'hasil' || pageId === 'peserta' || pageId === 'input-bebas') renderSelectElections();
-        }
-
-        async function apiCall(action, payload = {}) {
-            if (!APP_DATA.apiUrl || APP_DATA.apiUrl === "") throw new Error("URL API Belum Dikonfigurasi Oleh Admin.");
-            if (APP_DATA.serverToken) payload.adminToken = APP_DATA.serverToken;
-            try {
-                toggleLoading(true);
-                const res = await fetch(APP_DATA.apiUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, payload: payload }) });
-                const data = await res.json();
-                toggleLoading(false);
-                if (data.error) throw new Error(data.error); return data;
-            } catch (err) { toggleLoading(false); throw err; }
-        }
-
-        function applyBranding() {
-            document.getElementById('badge-plan').classList.remove('d-none'); document.getElementById('lbl-plan').innerText = APP_DATA.serverPlan || "Komunitas";
-            document.getElementById('dynamic-header').style.background = "#1b5e20"; document.getElementById('ui-branding-subtitle').innerText = "Premium White-Label Member";
-        }
-
-        function checkServerAuthStatus() {
-            const statusEl = document.getElementById('auth-status-alert');
-            statusEl.innerHTML = `<i class="bi bi-shield-check"></i> <b>${APP_DATA.serverUser}</b> (${APP_DATA.serverPlan}) - Hardcoded Active`;
-            statusEl.className = "alert alert-success shadow-sm"; document.getElementById('lbl-logged-user').innerText = `Halo, ${APP_DATA.serverUser}!`;
-            applyBranding();
-        }
-
-        // --- DASHBOARD ACTIONS (VOTING, TOKENS, RESULTS) ---
-        async function handleBuatVoting(e) {
-            e.preventDefault();
-            try {
-                const res = await apiCall("createElection", {
-                    title: document.getElementById('v-judul').value, description: document.getElementById('v-desc').value,
-                    type: "satu", start_date: document.getElementById('v-start').value, end_date: document.getElementById('v-end').value,
-                    options: document.getElementById('v-opsi').value.split(',').map(o=>o.trim()).filter(o=>o)
-                });
-                showToast(res.message); document.querySelector('form').reset(); fetchElectionsUI(); nav('voting', document.querySelectorAll('.bottom-nav .nav-item')[2]);
-            } catch (err) { showToast(err.message, "bg-danger"); }
-        }
-
-        async function fetchElectionsUI() {
-            try {
-                const res = await apiCall("getElections");
-                cachedElections = res.data;
-                const container = document.getElementById('list-voting'); container.innerHTML = "";
-                
-                cachedElections.forEach(el => {
-                    const shareLinkVote = `${window.location.origin}${window.location.pathname}?vote=${el.id}`;
-                    const shareLinkHasil = `${window.location.origin}${window.location.pathname}?hasil=${el.id}`;
-                    
-                    // REVISI: Grup Tombol Share WA untuk Bilik Voting & Hasil Publik
-                    container.innerHTML += `
-                        <div class="card p-3 shadow-sm border-start border-primary border-4">
-                            <h6 class="fw-bold mb-1 text-primary">${el.title}</h6>
-                            <p class="small text-muted mb-2">${el.description || ""}</p>
-                            
-                            <!-- Tombol Bilik Suara Internal Admin -->
-                            <button class="btn btn-sm btn-primary w-100 mb-3 fw-bold" onclick="openVoteModal('${el.id}')"><i class="bi bi-box-arrow-in-right"></i> Masuk Bilik Suara (Admin)</button>
-                            
-                            <!-- Bagian Share Voting Publik -->
-                            <div class="p-2 bg-light rounded border mb-2">
-                                <p class="small text-dark fw-bold mb-2 text-center"><i class="bi bi-person-check"></i> Bagikan Link Voting Publik:</p>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-outline-success flex-fill fw-bold" onclick="navigator.clipboard.writeText('${shareLinkVote}'); showToast('Link Voting Disalin!');"><i class="bi bi-link"></i> Salin Link</button>
-                                    <button class="btn btn-sm btn-success flex-fill fw-bold" onclick="window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Silakan berikan suara Anda pada bilik voting berikut:\\n\\n${shareLinkVote}'), '_blank')"><i class="bi bi-whatsapp"></i> Share Vote WA</button>
-                                </div>
-                            </div>
-
-                            <!-- Bagian Share Hasil Publik -->
-                            <div class="p-2 bg-light rounded border">
-                                <p class="small text-dark fw-bold mb-2 text-center"><i class="bi bi-bar-chart"></i> Bagikan Link Hasil Publik:</p>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-outline-secondary flex-fill fw-bold" onclick="navigator.clipboard.writeText('${shareLinkHasil}'); showToast('Link Hasil Disalin!');"><i class="bi bi-link"></i> Salin Link</button>
-                                    <button class="btn btn-sm btn-secondary flex-fill fw-bold" style="background-color: #198754; color:white; border:none;" onclick="window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Lihat Hasil Voting Real-Time di sini:\\n\\n${shareLinkHasil}'), '_blank')"><i class="bi bi-whatsapp"></i> Share Hasil WA</button>
-                                </div>
-                            </div>
-                        </div>`;
-                });
-            } catch (err) { showToast("Gagal menarik data: " + err.message, "bg-danger"); }
-        }
-
-        function renderSelectElections() {
-            let opts = '<option value="">-- Pilih Acara Voting --</option>';
-            cachedElections.forEach(el => opts += `<option value="${el.id}">${el.title}</option>`);
-            if(document.getElementById('select-hasil')) document.getElementById('select-hasil').innerHTML = opts;
-            if(document.getElementById('select-token-event')) document.getElementById('select-token-event').innerHTML = opts;
-            if(document.getElementById('select-bebas-event')) document.getElementById('select-bebas-event').innerHTML = opts;
-        }
-
-        function openVoteModal(id) {
-            const el = cachedElections.find(e => e.id === id); if (!el) return;
-            activeVoteId = id; document.getElementById('vote-title').innerText = el.title; document.getElementById('vote-token').value = "";
-            document.getElementById('vote-options').innerHTML = el.options.map((opt, i) => `
-                <div class="form-check p-3 border rounded bg-white mb-2 shadow-sm"><input class="form-check-input ms-1" type="radio" name="serverPilihan" value="${opt}" id="opt${i}">
-                <label class="form-check-label w-100 ms-2 fw-bold" for="opt${i}">${opt}</label></div>`).join('');
-            new bootstrap.Modal(document.getElementById('voteModal')).show();
-        }
-
-        async function executeVote() {
-            const selected = document.querySelector('input[name="serverPilihan"]:checked');
-            const tokenStr = document.getElementById('vote-token').value.trim().toUpperCase();
-            if(!selected || !tokenStr) return showToast("Isi semua data!", "bg-warning text-dark");
-            try {
-                const res = await apiCall("submitVote", { electionId: activeVoteId, option: selected.value, token: tokenStr });
-                bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide(); showToast(res.message, "bg-success");
-            } catch (err) { showToast(err.message, "bg-danger"); }
-        }
-
-        // --- FITUR BARU: INPUT DATA PESERTA (VOTING TANPA TOKEN) ---
-        function renderBebasOptions() {
-            const id = document.getElementById('select-bebas-event').value;
-            const el = cachedElections.find(e => e.id === id);
-            const container = document.getElementById('bebas-options');
-            if(!el) { container.innerHTML = ""; return; }
-            
-            const opts = typeof el.options === 'string' ? JSON.parse(el.options) : el.options;
-            container.innerHTML = opts.map((opt, i) => `
-                <div class="form-check p-3 border rounded bg-white mb-2 shadow-sm">
-                    <input class="form-check-input ms-1" type="radio" name="bebasPilihan" value="${opt}" id="bopt${i}">
-                    <label class="form-check-label w-100 ms-2 fw-bold" for="bopt${i}">${opt}</label>
-                </div>`).join('');
-        }
-
-        async function executeBebasVote() {
-            const elId = document.getElementById('select-bebas-event').value;
-            const selected = document.querySelector('input[name="bebasPilihan"]:checked');
-            if(!elId || !selected) return alert("Pilih acara dan kandidat terlebih dahulu!");
-            
-            try {
-                const resToken = await apiCall("generateTokens", { electionId: elId, count: 1 });
-                const autoToken = resToken.tokens[0];
-                const resVote = await apiCall("submitVote", { electionId: elId, option: selected.value, token: autoToken });
-                alert("Suara berhasil dimasukkan secara langsung (Tanpa Input Token)!\n" + resVote.message);
-                document.getElementById('bebas-nama').value = ''; selected.checked = false;
-            } catch(e) { alert("Gagal memproses suara: " + e.message); }
-        }
-
-        // --- MANAJEMEN HASIL & TOKEN LAINNYA ---
-        async function handleGenerateToken() {
-            const id = document.getElementById('select-token-event').value;
-            const count = parseInt(document.getElementById('token-count').value);
-            try {
-                const res = await apiCall("generateTokens", { electionId: id, count: count });
-                document.getElementById('token-result-card').classList.remove('d-none');
-                document.getElementById('token-result-text').value = res.tokens.join('\n'); showToast(res.message);
-            } catch (err) { showToast(err.message, "bg-danger"); }
-        }
-
-        async function fetchResultsUI() {
-            try {
-                const res = await apiCall("getResults", { electionId: document.getElementById('select-hasil').value });
-                const ctx = document.getElementById('chartHasil').getContext('2d');
-                if (chartInstance) chartInstance.destroy();
-                chartInstance = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(res.results), datasets: [{ label: 'Suara', data: Object.values(res.results), backgroundColor: '#0277bd' }] }, options: { plugins:{legend:{display:false}}} });
-                showToast(`Total Suara: ${res.totalVotes}`);
-            } catch (err) { showToast(err.message, "bg-danger"); }
-        }
-
-        async function reqUpgrade(planName) {
-            try {
-                const res = await apiCall("createInvoice", { plan: planName });
-                let activeInvoice = res.invoiceId;
-                document.getElementById('payment-box').classList.remove('d-none');
-                document.getElementById('inv-id').innerText = res.invoiceId; showToast(res.message);
-            } catch (err) { showToast(err.message, "bg-danger"); }
-        }
-    </script>
-</body>
-</html>
+    
