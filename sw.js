@@ -1,6 +1,6 @@
 /**
  * VOTEKU DIGITAL - Service Worker
- * Versi: v1.4.5
+ * Versi: v1.4.8
  */
 
 const CACHE_NAME = 'voteku-cache-v1.4.8';
