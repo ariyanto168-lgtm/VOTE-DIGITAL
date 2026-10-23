@@ -3,7 +3,7 @@
  * Versi: v1.4.5
  */
 
-const CACHE_NAME = 'voteku-cache-v1.4.5';
+const CACHE_NAME = 'voteku-cache-v1.4.8';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
