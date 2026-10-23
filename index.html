@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.4.9</title>
+    <title>VOTEKU DIGITAL - v1.5.1</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -40,7 +40,6 @@
             <h4 class="fw-bold mb-1">VOTEKU DIGITAL</h4>
             <div class="mb-3"><span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="bi bi-shield-check"></i> Verified: Sistem Resmi</span></div>
             <p class="text-muted small mb-3">Masukkan PIN untuk membuka aplikasi</p>
-            <!-- REVISI: Tambahan event onkeypress untuk dukungan tombol Enter -->
             <input type="text" id="pin-input" class="form-control mb-3 text-center text-uppercase py-2" placeholder="Masukkan PIN" onkeypress="if(event.key === 'Enter') unlockApp()">
             <button class="btn btn-primary w-100 py-2 mb-3 fw-bold rounded-pill" onclick="unlockApp()"><i class="bi bi-lock-fill"></i> Masuk Aplikasi</button>
             <a href="#" onclick="showForgotView(true)" class="text-decoration-none text-primary small fw-bold d-block mb-4"><i class="bi bi-question-circle"></i> Lupa PIN?</a>
@@ -98,7 +97,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.4.9 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.5.1 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark d-none" id="badge-plan"><span id="lbl-plan">Gratis</span></span>
             </div>
         </div>
@@ -170,18 +169,24 @@
             </div>
         </div>
 
-        <!-- INPUT DATA PESERTA (VOTING TANPA TOKEN) -->
+        <!-- REVISI: INPUT DATA PESERTA & DROPDOWN PILIHAN KANDIDAT -->
         <div id="page-input-bebas" class="page-section">
             <h5 class="fw-bold mb-3 text-info"><i class="bi bi-person-badge"></i> Input Voting Langsung</h5>
             <div class="card p-3 shadow-sm border-info">
-                <p class="small text-muted mb-3">Sistem akan otomatis men-generate dan memvalidasi token rahasia secara otomatis di layar belakang.</p>
+                <p class="small text-muted mb-3">Masukkan data nama peserta/kandidat dengan pemisah koma. Pilihan coblos di bawah akan otomatis terisi dalam bentuk dropdown.</p>
+                
                 <label class="fw-bold small">Pilih Voting Aktif:</label>
-                <select class="form-select mb-2 border-info" id="select-bebas-event" onchange="renderBebasOptions()"></select>
-                <label class="fw-bold small">Nama Peserta (Opsional):</label>
-                <input type="text" class="form-control mb-3" id="bebas-nama" placeholder="Masukkan nama peserta pencoblos">
-                <label class="fw-bold small">Pilih Kandidat / Opsi:</label>
-                <div id="bebas-options" class="mb-3"></div>
-                <button class="btn btn-info text-white w-100 fw-bold" onclick="executeBebasVote()">KIRIM SUARA PESERTA</button>
+                <select class="form-select mb-2 border-info" id="select-bebas-event"></select>
+                
+                <label class="fw-bold small">Daftar Nama Peserta / Kandidat (Pisahkan dengan koma):</label>
+                <input type="text" class="form-control mb-3 border-info" id="bebas-peserta-list" placeholder="Contoh: Bambang, Yudhoyono, Jojon, ZZ" oninput="updateBebasDropdown()">
+                
+                <label class="fw-bold small">Pilih Kandidat / Opsi (Dropdown):</label>
+                <select class="form-select mb-3 border-info fw-bold text-primary py-2" id="select-bebas-kandidat">
+                    <option value="">-- Ketik nama peserta di atas terlebih dahulu --</option>
+                </select>
+
+                <button class="btn btn-info text-white w-100 fw-bold py-2" onclick="executeBebasVote()"><i class="bi bi-check2-circle"></i> KIRIM SUARA PESERTA</button>
             </div>
         </div>
 
@@ -246,22 +251,32 @@
         <!-- PENGATURAN & ADMIN -->
         <div id="page-pengaturan" class="page-section">
             <h5 class="fw-bold mb-3">Pengaturan & Admin</h5>
+            
+            <div class="card p-3 border-primary mb-3 shadow-sm">
+                <h6 class="fw-bold text-primary">Koneksi API Server</h6>
+                <p class="small text-muted mb-2">URL dikunci otomatis agar tidak tidak sengaja terhapus.</p>
+                <div class="input-group mb-2">
+                    <input type="url" id="set-api" class="form-control" placeholder="URL Web App Google" readonly>
+                    <button class="btn btn-outline-secondary" type="button" id="btn-lock-api" onclick="toggleApiLock()" title="Buka/Kunci URL">
+                        <i class="bi bi-lock-fill"></i>
+                    </button>
+                </div>
+                <button class="btn btn-sm btn-primary w-100 fw-bold" id="btn-save-api" onclick="saveSettings()" style="display:none;"><i class="bi bi-save"></i> Simpan Perubahan URL</button>
+            </div>
+
             <div class="card p-3 border-info mb-3 shadow-sm">
                 <h6 class="fw-bold text-info"><i class="bi bi-save"></i> Backup & Restore Lokal</h6>
                 <p class="small text-muted mb-2">Simpan atau pulihkan data kredensial/PIN Anda (File JSON).</p>
                 <button class="btn btn-outline-info btn-sm w-100 mb-2 fw-bold" onclick="exportData()"><i class="bi bi-download"></i> Download Data Backup</button>
                 <input type="file" id="file-restore" class="form-control form-control-sm" accept=".json" onchange="importData(event)">
             </div>
-            <div class="card p-3 border-primary mb-3">
-                <h6 class="fw-bold text-primary">Koneksi API Server</h6>
-                <input type="url" id="set-api" class="form-control mb-2" placeholder="URL Web App Google">
-                <button class="btn btn-sm btn-outline-primary w-100" onclick="saveSettings()">Simpan URL API</button>
+            
+            <div class="card p-3 border-danger mb-3 shadow-sm" style="background:#fffcfc;">
+                <h6 class="fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Reset Total Database Server</h6>
+                <p class="small text-muted mb-2">Menghapus <b>SELURUH ACARA, TOKEN, dan SUARA</b> dari server Google Sheets beserta riwayat lokal memori HP.</p>
+                <button class="btn btn-danger btn-sm w-100 fw-bold" onclick="resetDatabaseUI()"><i class="bi bi-trash-fill"></i> Hapus Semua Data</button>
             </div>
-            <div class="card p-3 border-danger mb-3">
-                <h6 class="fw-bold text-danger"><i class="bi bi-trash-fill"></i> Reset Data Riwayat</h6>
-                <p class="small text-muted">Membersihkan cache lokal dan mengosongkan riwayat sesi aplikasi.</p>
-                <button class="btn btn-danger btn-sm w-100" onclick="resetLocalData()">Hapus Riwayat / Reset Data</button>
-            </div>
+            
             <div class="card p-3 border-success mb-3 shadow-sm">
                 <div id="auth-logged-in" class="text-center">
                     <h5 class="text-success fw-bold"><i class="bi bi-person-check-fill"></i> <span id="lbl-logged-user">Terhubung!</span></h5>
@@ -306,35 +321,29 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const LOCAL_KEY = 'VOTEKU_V149'; 
+        const LOCAL_KEY = 'VOTEKU_V151'; 
         
-        // ⚠️ SANGAT PENTING: GANTI "apiUrl" DI BAWAH INI DENGAN URL GOOGLE APPS SCRIPT ANDA SENDIRI ⚠️
+        // ⚠️ SANGAT PENTING: GANTI "apiUrl" DI BAWAH INI DENGAN URL GOOGLE APPS SCRIPT ANDA ⚠️
         const DEFAULT_DATA = { 
             pin: "ADMIN123", phishing: "Ari GPM", secAns: "ARI GPM", 
-            apiUrl: "https://script.google.com/macros/s/AKfycbw6qjXlH1K_K6Y9gLgV3zQjH5xY7w8s9d0f1g2h3j4k5l6z/exec", // <--- PASTIKAN GANTI INI
+            apiUrl: "https://script.google.com/macros/s/AKfycbw6qjXlH1K_K6Y9gLgV3zQjH5xY7w8s9d0f1g2h3j4k5l6z/exec", // <--- GANTI INI
             serverToken: "HARDCODED_ADMIN_TOKEN_VOTEKU", serverUser: "Ari GPM", serverPlan: "Komunitas" 
         };
 
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
-        // REVISI AUTO-RESCUE: Mencari PIN kustom dari SEMUA versi lama jika update terloncat
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V148', 'VOTEKU_V147', 'VOTEKU_V146', 'VOTEKU_V145', 'VOTEKU_V143', 'VOTEKU_V142', 'VOTEKU_V141'];
+            const oldKeys = ['VOTEKU_V150', 'VOTEKU_V149', 'VOTEKU_V148', 'VOTEKU_V147', 'VOTEKU_V146', 'VOTEKU_V145'];
             for(let key of oldKeys) {
                 let oldData = localStorage.getItem(key);
-                if(oldData) {
-                    APP_DATA = JSON.parse(oldData);
-                    break;
-                }
+                if(oldData) { APP_DATA = JSON.parse(oldData); break; }
             }
         }
-        
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
         else if (!APP_DATA.serverUser) { APP_DATA.serverUser = DEFAULT_DATA.serverUser; APP_DATA.serverPlan = DEFAULT_DATA.serverPlan; }
-        
         localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
 
-        let cachedElections = [], activeVoteId = null, chartInstance = null, shareActiveId = null;
+        let cachedElections = [], activeVoteId = null, chartInstance = null, shareActiveId = null, apiLocked = true;
 
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -354,32 +363,22 @@
             checkServerAuthStatus();
         };
 
-        // --- REVISI AUTH & KUNCI ANTI-MACET ---
+        // --- AUTH & KUNCI ---
         function unlockApp() {
             try {
                 const inputPin = document.getElementById('pin-input').value.trim().toUpperCase();
                 if (inputPin === APP_DATA.pin) {
-                    // 1. Tampilkan UI seketika agar tidak terkesan macet
                     document.getElementById('lock-screen').style.display = 'none';
                     document.getElementById('main-app').style.display = 'block';
                     document.getElementById('main-bottom-nav').style.display = 'flex';
-                    applyBranding();
-                    nav('dashboard', document.querySelectorAll('.bottom-nav .nav-item')[0]);
+                    applyBranding(); nav('dashboard', document.querySelectorAll('.bottom-nav .nav-item')[0]);
                     
-                    // 2. Beri jeda 500ms sebelum menarik data server agar UI mulus
                     setTimeout(() => {
-                        if(APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) {
-                            fetchElectionsUI(); 
-                        } else {
-                            showToast("Info: Silakan set URL API di menu Admin", "bg-warning text-dark");
-                        }
+                        if(APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) { fetchElectionsUI(); } 
+                        else { showToast("Info: Silakan set URL API di menu Admin", "bg-warning text-dark"); }
                     }, 500);
-                } else { 
-                    alert("PIN Salah! Silakan coba lagi."); 
-                }
-            } catch(e) {
-                alert("Kesalahan Sistem: " + e.message);
-            }
+                } else { alert("PIN Salah! Silakan coba lagi."); }
+            } catch(e) { alert("Kesalahan Sistem: " + e.message); }
         }
 
         function lockApp() { window.location.href = window.location.pathname; }
@@ -420,8 +419,44 @@
             } else { alert("PIN Salah!"); }
         }
 
-        // --- MANAJEMEN DATA ---
-        function resetLocalData() { if (confirm("Yakin ingin mereset seluruh data riwayat?")) { localStorage.removeItem(LOCAL_KEY); location.reload(); } }
+        // --- PENGATURAN API & KUNCI URL ---
+        function toggleApiLock() {
+            apiLocked = !apiLocked;
+            const input = document.getElementById('set-api');
+            const btnLock = document.getElementById('btn-lock-api');
+            const btnSave = document.getElementById('btn-save-api');
+            
+            if(apiLocked) {
+                input.setAttribute('readonly', true);
+                btnLock.innerHTML = '<i class="bi bi-lock-fill"></i>';
+                btnLock.classList.replace('btn-outline-primary', 'btn-outline-secondary');
+                btnSave.style.display = 'none';
+            } else {
+                input.removeAttribute('readonly');
+                btnLock.innerHTML = '<i class="bi bi-unlock-fill"></i>';
+                btnLock.classList.replace('btn-outline-secondary', 'btn-outline-primary');
+                btnSave.style.display = 'block';
+            }
+        }
+
+        // --- RESET DATABASE SERVER ---
+        async function resetDatabaseUI() { 
+            if (confirm("⚠️ PERINGATAN BERBAHAYA!\n\nYakin ingin MENGHAPUS SEMUA DATA (Acara, Token, Suara) dari Server Database (Google Sheets) sekaligus reset memori HP ini?\n\nData yang dihapus TIDAK BISA DIKEMBALIKAN!")) {
+                try {
+                    if (APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) {
+                        const res = await apiCall("resetDatabase");
+                        alert(res.message);
+                    }
+                    localStorage.removeItem(LOCAL_KEY); 
+                    location.reload(); 
+                } catch (err) { 
+                    alert("Gagal koneksi ke server: " + err.message + "\n\nHanya mereset cache lokal.");
+                    localStorage.removeItem(LOCAL_KEY); 
+                    location.reload();
+                }
+            } 
+        }
+        
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(APP_DATA));
             const dl = document.createElement('a'); dl.setAttribute("href", dataStr);
@@ -502,7 +537,13 @@
             document.getElementById('toast-msg').innerText = msg; new bootstrap.Toast(t).show();
         }
         function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
-        function saveSettings() { APP_DATA.apiUrl = document.getElementById('set-api').value; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); showToast("URL Disimpan!"); }
+        
+        function saveSettings() { 
+            APP_DATA.apiUrl = document.getElementById('set-api').value; 
+            localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); 
+            showToast("URL Disimpan!"); 
+            toggleApiLock();
+        }
 
         function nav(pageId, element = null) {
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
@@ -618,6 +659,43 @@
             if(document.getElementById('select-bebas-event')) document.getElementById('select-bebas-event').innerHTML = opts;
         }
 
+        // --- REVISI: UPDATE DROPDOWN KANDIDAT DARI KOLOM TEKS PESERTA ---
+        function updateBebasDropdown() {
+            const rawText = document.getElementById('bebas-peserta-list').value;
+            const dropdown = document.getElementById('select-bebas-kandidat');
+            
+            const list = rawText.split(',').map(item => item.trim()).filter(item => item.length > 0);
+            
+            if (list.length === 0) {
+                dropdown.innerHTML = '<option value="">-- Ketik nama peserta di atas terlebih dahulu --</option>';
+                return;
+            }
+            
+            let optionsHtml = '<option value="">-- Pilih Kandidat / Peserta --</option>';
+            list.forEach(name => {
+                optionsHtml += `<option value="${name}">${name}</option>`;
+            });
+            dropdown.innerHTML = optionsHtml;
+        }
+
+        async function executeBebasVote() {
+            const elId = document.getElementById('select-bebas-event').value;
+            const selectedKandidat = document.getElementById('select-bebas-kandidat').value;
+            
+            if(!elId) return alert("Pilih acara voting terlebih dahulu!");
+            if(!selectedKandidat) return alert("Pilih kandidat dari menu dropdown!");
+            
+            try {
+                const resToken = await apiCall("generateTokens", { electionId: elId, count: 1 });
+                const autoToken = resToken.tokens[0];
+                const resVote = await apiCall("submitVote", { electionId: elId, option: selectedKandidat, token: autoToken });
+                alert("Suara untuk (" + selectedKandidat + ") berhasil dimasukkan secara langsung!\n" + resVote.message);
+                
+                // Reset dropdown dan pilihan setelah sukses
+                document.getElementById('select-bebas-kandidat').value = "";
+            } catch(e) { alert("Gagal memproses suara: " + e.message); }
+        }
+
         function openVoteModal(id) {
             const el = cachedElections.find(e => e.id === id); if (!el) return;
             activeVoteId = id; document.getElementById('vote-title').innerText = el.title; document.getElementById('vote-token').value = "";
@@ -640,35 +718,6 @@
                 const res = await apiCall("submitVote", { electionId: activeVoteId, option: selected.value, token: tokenStr });
                 bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide(); showToast(res.message, "bg-success");
             } catch (err) { showToast(err.message, "bg-danger"); }
-        }
-
-        // --- FITUR BARU: INPUT DATA PESERTA ---
-        function renderBebasOptions() {
-            const id = document.getElementById('select-bebas-event').value;
-            const el = cachedElections.find(e => e.id === id);
-            const container = document.getElementById('bebas-options');
-            if(!el) { container.innerHTML = ""; return; }
-            
-            let opts = [];
-            try { opts = typeof el.options === 'string' ? JSON.parse(el.options) : el.options; } catch(e) { opts = [el.options]; }
-            
-            container.innerHTML = opts.map((opt, i) => `
-                <div class="form-check p-3 border rounded bg-white mb-2 shadow-sm">
-                    <input class="form-check-input ms-1" type="radio" name="bebasPilihan" value="${opt}" id="bopt${i}">
-                    <label class="form-check-label w-100 ms-2 fw-bold" for="bopt${i}">${opt}</label>
-                </div>`).join('');
-        }
-        async function executeBebasVote() {
-            const elId = document.getElementById('select-bebas-event').value;
-            const selected = document.querySelector('input[name="bebasPilihan"]:checked');
-            if(!elId || !selected) return alert("Pilih acara dan kandidat terlebih dahulu!");
-            try {
-                const resToken = await apiCall("generateTokens", { electionId: elId, count: 1 });
-                const autoToken = resToken.tokens[0];
-                const resVote = await apiCall("submitVote", { electionId: elId, option: selected.value, token: autoToken });
-                alert("Suara berhasil dimasukkan secara langsung!\n" + resVote.message);
-                document.getElementById('bebas-nama').value = ''; selected.checked = false;
-            } catch(e) { alert("Gagal memproses suara: " + e.message); }
         }
 
         // --- MANAJEMEN HASIL & TOKEN ---
