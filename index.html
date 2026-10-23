@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.4.6</title>
+    <title>VOTEKU DIGITAL - v1.4.7</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -92,13 +92,12 @@
     </div>
 
     <div id="main-app" style="display:none;">
-        <!-- HEADER (Berisi Tombol Kamuflase) -->
         <div class="app-header" id="dynamic-header">
             <img src="logovotedigital.png" alt="Logo Voteku" style="height: 45px; width: auto; margin-bottom: 5px; border-radius: 6px; background: rgba(255,255,255,0.9); padding: 3px;">
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.4.6 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.4.7 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark d-none" id="badge-plan"><span id="lbl-plan">Gratis</span></span>
             </div>
         </div>
@@ -123,7 +122,6 @@
                 <div class="col-4"><button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('peserta')"><i class="bi bi-key fs-3 d-block text-warning"></i><small>Buat Token</small></button></div>
                 <div class="col-4"><button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('hasil')"><i class="bi bi-bar-chart fs-3 d-block text-success"></i><small>Hasil</small></button></div>
                 <div class="col-4"><button class="btn btn-light w-100 py-3 border shadow-sm premium-card" onclick="nav('premium')"><i class="bi bi-star-fill fs-3 d-block text-warning"></i><small>Premium</small></button></div>
-                
                 <div class="col-12 mt-2">
                     <button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('input-bebas')">
                         <i class="bi bi-person-badge fs-3 d-block text-info"></i>
@@ -137,9 +135,11 @@
         <div id="page-share-vote" class="page-section">
             <div class="card p-3 shadow border-top border-primary border-4">
                 <h4 class="fw-bold text-primary mb-1" id="share-vote-title">Memuat Voting...</h4>
-                <p class="text-muted small" id="share-vote-desc"></p>
+                <p class="text-muted small" id="share-vote-desc">Mohon tunggu, sedang mengambil data dari server.</p>
                 <hr>
-                <div id="share-vote-options" class="mb-3"></div>
+                <div id="share-vote-options" class="mb-3">
+                    <div class="text-center text-primary"><div class="spinner-border" role="status"></div></div>
+                </div>
                 <input type="text" id="share-vote-token" class="form-control text-center text-uppercase fw-bold border-primary mb-3" placeholder="MASUKKAN TOKEN UNIK" maxlength="10">
                 <button class="btn btn-primary w-100 fw-bold py-2" onclick="executeShareVote()">KIRIM SUARA SAH</button>
             </div>
@@ -148,8 +148,8 @@
         <!-- SHARE LINK: HASIL -->
         <div id="page-share-hasil" class="page-section">
             <div class="card p-3 shadow text-center">
-                <h4 class="fw-bold text-success mb-2" id="share-hasil-title">Hasil Pemilihan Real-Time</h4>
-                <p class="text-muted small" id="share-hasil-total">Total Suara: 0</p>
+                <h4 class="fw-bold text-success mb-2" id="share-hasil-title">Memuat Hasil Real-Time...</h4>
+                <p class="text-muted small" id="share-hasil-total">Mohon tunggu.</p>
                 <canvas id="chartShareHasil" width="100%" height="100%"></canvas>
             </div>
         </div>
@@ -237,7 +237,7 @@
             </div>
         </div>
 
-        <!-- PENGATURAN & ADMIN (Diperbarui) -->
+        <!-- PENGATURAN & ADMIN -->
         <div id="page-pengaturan" class="page-section">
             <h5 class="fw-bold mb-3">Pengaturan & Admin</h5>
             
@@ -304,31 +304,26 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const LOCAL_KEY = 'VOTEKU_V146'; 
+        const LOCAL_KEY = 'VOTEKU_V147'; 
         
-        // HARDCODE DEFAULT DATA
+        // ⚠️ SANGAT PENTING: GANTI "apiUrl" DI BAWAH INI DENGAN URL GOOGLE APPS SCRIPT ANDA SEBELUM DI-UPLOAD KE GITHUB PAGES ⚠️
         const DEFAULT_DATA = { 
             pin: "ADMIN123", phishing: "Ari GPM", secAns: "ARI GPM", 
-            apiUrl: "https://script.google.com/macros/s/AKfycbw6qjXlH1K_K6Y9gLgV3zQjH5xY7w8s9d0f1g2h3j4k5l6z/exec",
+            apiUrl: "https://script.google.com/macros/s/AKfycbw6qjXlH1K_K6Y9gLgV3zQjH5xY7w8s9d0f1g2h3j4k5l6z/exec", // <--- GANTI BAGIAN INI
             serverToken: "HARDCODED_ADMIN_TOKEN_VOTEKU", serverUser: "Ari GPM", serverPlan: "Komunitas" 
         };
 
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
-        // Mengamankan data dari versi sebelumnya agar tidak hilang
-        if (!APP_DATA && localStorage.getItem('VOTEKU_V145')) {
+        if (!APP_DATA && localStorage.getItem('VOTEKU_V146')) {
+            APP_DATA = JSON.parse(localStorage.getItem('VOTEKU_V146'));
+        } else if (!APP_DATA && localStorage.getItem('VOTEKU_V145')) {
             APP_DATA = JSON.parse(localStorage.getItem('VOTEKU_V145'));
-        } else if (!APP_DATA && localStorage.getItem('VOTEKU_V143')) {
-            APP_DATA = JSON.parse(localStorage.getItem('VOTEKU_V143'));
         } 
         
-        // Memastikan parameter yang wajib selalu ada
-        if (!APP_DATA || !APP_DATA.pin) {
-            APP_DATA = DEFAULT_DATA;
-        } else if (!APP_DATA.serverUser) {
-            APP_DATA.serverUser = DEFAULT_DATA.serverUser;
-            APP_DATA.serverPlan = DEFAULT_DATA.serverPlan;
-        }
+        if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
+        else if (!APP_DATA.serverUser) { APP_DATA.serverUser = DEFAULT_DATA.serverUser; APP_DATA.serverPlan = DEFAULT_DATA.serverPlan; }
+        
         localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
 
         let cachedElections = [], activeVoteId = null, chartInstance = null, shareActiveId = null;
@@ -339,17 +334,16 @@
             const shareHasilId = urlParams.get('hasil');
 
             if (shareVoteId || shareHasilId) {
-                // Tampilan Publik
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
-                document.getElementById('main-bottom-nav').style.display = 'none'; // Navigasi disembunyikan untuk publik
+                document.getElementById('main-bottom-nav').style.display = 'none';
                 
+                // Panggil UI dulu agar tidak blank
                 if (shareVoteId) initShareVoting(shareVoteId);
                 if (shareHasilId) initShareHasil(shareHasilId);
                 return;
             }
 
-            // Tampilan Admin Normal (Meminta Kunci)
             document.getElementById('set-api').value = APP_DATA.apiUrl || "";
             checkServerAuthStatus();
         };
@@ -360,118 +354,99 @@
             if (inputPin === APP_DATA.pin) {
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
-                document.getElementById('main-bottom-nav').style.display = 'flex'; // Memastikan Navigasi Muncul
+                document.getElementById('main-bottom-nav').style.display = 'flex';
                 applyBranding();
                 nav('dashboard', document.querySelectorAll('.bottom-nav .nav-item')[0]);
             } else { alert("PIN Salah"); }
         }
 
-        function lockApp() {
-            // Menghapus query URL (Share link) dan mengembalikan ke layar utama agar terkunci
-            window.location.href = window.location.pathname;
-        }
-
-        function showForgotView(show) {
-            document.getElementById('view-login').style.display = show ? 'none' : 'block';
-            document.getElementById('view-forgot').style.display = show ? 'block' : 'none';
-        }
-
+        function lockApp() { window.location.href = window.location.pathname; }
+        function showForgotView(show) { document.getElementById('view-login').style.display = show ? 'none' : 'block'; document.getElementById('view-forgot').style.display = show ? 'block' : 'none'; }
         function verifyForgotAnswer() {
             const ans = document.getElementById('forgot-answer').value.trim().toUpperCase();
             const correctAns = (APP_DATA.secAns || "ARI GPM").toUpperCase();
-            if (ans === correctAns) {
-                document.getElementById('view-forgot').style.display = 'none';
-                document.getElementById('view-new-pin').style.display = 'block';
-            } else { alert("Jawaban Keamanan Salah!"); }
+            if (ans === correctAns) { document.getElementById('view-forgot').style.display = 'none'; document.getElementById('view-new-pin').style.display = 'block'; } else { alert("Jawaban Keamanan Salah!"); }
         }
-
         function saveNewPin() {
             const newPin = document.getElementById('new-pin-input').value.trim().toUpperCase();
             if (!newPin) return alert("PIN baru tidak boleh kosong!");
-            APP_DATA.pin = newPin;
-            localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
-            alert("PIN Berhasil Diperbarui! Silakan Masuk.");
-            location.reload();
+            APP_DATA.pin = newPin; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
+            alert("PIN Berhasil Diperbarui! Silakan Masuk."); location.reload();
         }
-
-        // --- FITUR KAMUFLASE (PERBAIKAN BUG) ---
         function triggerKamuflase() { new bootstrap.Modal(document.getElementById('kamuflaseModal')).show(); }
-        
         function verifyKamuflase() {
             const pin = document.getElementById('kamuflase-pin').value.trim().toUpperCase();
             if (pin === APP_DATA.pin) {
                 bootstrap.Modal.getInstance(document.getElementById('kamuflaseModal')).hide();
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
-                
-                // KUNCI PERBAIKAN: Memastikan navigasi bawah dipanggil ulang setelah masuk dari Link Publik
                 document.getElementById('main-bottom-nav').style.display = 'flex'; 
-                
-                applyBranding();
-                checkServerAuthStatus();
-                // Arahkan otomatis ke Menu Pengaturan
-                nav('pengaturan', document.querySelectorAll('.bottom-nav .nav-item')[3]); 
+                applyBranding(); checkServerAuthStatus(); nav('pengaturan', document.querySelectorAll('.bottom-nav .nav-item')[3]); 
             } else { alert("PIN Salah!"); }
         }
 
         // --- DATA MANAGEMENT ---
-        function resetLocalData() {
-            if (confirm("Yakin ingin mereset seluruh data riwayat?")) {
-                localStorage.removeItem(LOCAL_KEY);
-                location.reload();
-            }
-        }
-
+        function resetLocalData() { if (confirm("Yakin ingin mereset seluruh data riwayat?")) { localStorage.removeItem(LOCAL_KEY); location.reload(); } }
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(APP_DATA));
-            const dl = document.createElement('a');
-            dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", `Voteku_Backup_${new Date().toISOString().split('T')[0]}.json`);
-            dl.click();
-            showToast("Backup Berhasil Diunduh!");
+            const dl = document.createElement('a'); dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", `Voteku_Backup_${new Date().toISOString().split('T')[0]}.json`); dl.click(); showToast("Backup Berhasil Diunduh!");
         }
-
         function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const file = event.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
                     if (imported.pin !== undefined) {
-                        APP_DATA = imported;
-                        localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
-                        alert("Restore Berhasil! Aplikasi akan dimuat ulang.");
-                        location.reload();
+                        APP_DATA = imported; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
+                        alert("Restore Berhasil! Aplikasi akan dimuat ulang."); location.reload();
                     } else { alert("File JSON tidak valid!"); }
                 } catch(err) { alert("Gagal membaca file backup!"); }
             };
             reader.readAsText(file);
         }
 
-        // --- SHARE LINK LOGIC ---
+        // --- SHARE LINK LOGIC (DIPERBAIKI AGAR TIDAK BLANK) ---
         async function initShareVoting(id) {
+            // Tampilkan UI Halaman Voting secara paksa sebelum koneksi ke server agar layar tidak blank
+            nav('share-vote');
+            
             try {
                 const res = await apiCall("getElections");
                 const found = res.data.find(e => e.id === id);
-                if (!found) { alert("Acara voting tidak ditemukan."); return; }
+                if (!found) { 
+                    document.getElementById('share-vote-title').innerText = "Acara Tidak Ditemukan";
+                    document.getElementById('share-vote-desc').innerText = "Link salah atau acara telah ditutup.";
+                    document.getElementById('share-vote-options').innerHTML = "";
+                    return; 
+                }
+                
                 shareActiveId = id;
                 document.getElementById('share-vote-title').innerText = found.title;
                 document.getElementById('share-vote-desc').innerText = found.description || "Pilih opsi di bawah:";
-                const opts = typeof found.options === 'string' ? JSON.parse(found.options) : found.options;
+                
+                let opts = [];
+                try { opts = typeof found.options === 'string' ? JSON.parse(found.options) : found.options; } 
+                catch(e) { opts = [found.options]; }
+                if(!Array.isArray(opts)) opts = [opts];
+
                 document.getElementById('share-vote-options').innerHTML = opts.map((opt, i) => `
                     <div class="form-check p-3 border rounded bg-white mb-2 shadow-sm">
                         <input class="form-check-input ms-1" type="radio" name="sharePilihan" value="${opt}" id="sopt${i}">
                         <label class="form-check-label w-100 ms-2 fw-bold" for="sopt${i}">${opt}</label>
                     </div>`).join('');
-                nav('share-vote');
-            } catch(e) { alert("Gagal memuat bilik suara."); }
+            } catch(e) { 
+                document.getElementById('share-vote-title').innerText = "Gagal Memuat Data";
+                document.getElementById('share-vote-desc').innerText = "Kesalahan: " + e.message;
+                document.getElementById('share-vote-options').innerHTML = "";
+            }
         }
 
         async function executeShareVote() {
             const selected = document.querySelector('input[name="sharePilihan"]:checked');
             const tokenStr = document.getElementById('share-vote-token').value.trim().toUpperCase();
-            if (!selected || !tokenStr) return alert("Pilih opsi dan masukkan token!");
+            if (!selected || !tokenStr) return alert("Pilih opsi dan masukkan token unik Anda!");
             try {
                 const res = await apiCall("submitVote", { electionId: shareActiveId, option: selected.value, token: tokenStr });
                 alert(res.message); location.reload();
@@ -479,13 +454,17 @@
         }
 
         async function initShareHasil(id) {
+            nav('share-hasil');
             try {
                 const res = await apiCall("getResults", { electionId: id });
+                document.getElementById('share-hasil-title').innerText = "Hasil Pemilihan Real-Time";
                 document.getElementById('share-hasil-total').innerText = `Total Suara Masuk: ${res.totalVotes}`;
                 const ctx = document.getElementById('chartShareHasil').getContext('2d');
                 new Chart(ctx, { type: 'bar', data: { labels: Object.keys(res.results), datasets: [{ label: 'Suara', data: Object.values(res.results), backgroundColor: '#2e7d32' }] }, options: { plugins:{legend:{display:false}}} });
-                nav('share-hasil');
-            } catch(e) { alert("Gagal memuat hasil."); }
+            } catch(e) { 
+                document.getElementById('share-hasil-title').innerText = "Gagal Memuat Hasil";
+                document.getElementById('share-hasil-total').innerText = "Kesalahan: " + e.message;
+            }
         }
 
         function shareTokenWA() {
@@ -495,10 +474,8 @@
 
         // --- UTILS & CORE API ---
         function showToast(msg, color = "bg-success") {
-            const t = document.getElementById('liveToast');
-            t.className = `toast align-items-center text-white border-0 ${color}`;
-            document.getElementById('toast-msg').innerText = msg;
-            new bootstrap.Toast(t).show();
+            const t = document.getElementById('liveToast'); t.className = `toast align-items-center text-white border-0 ${color}`;
+            document.getElementById('toast-msg').innerText = msg; new bootstrap.Toast(t).show();
         }
         function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
         function saveSettings() { APP_DATA.apiUrl = document.getElementById('set-api').value; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); showToast("URL Disimpan!"); }
@@ -507,37 +484,32 @@
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
             if (element && element.classList.contains('nav-item')) {
-                document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
-                element.classList.add('active');
+                document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active')); element.classList.add('active');
             }
             if(pageId === 'hasil' || pageId === 'peserta' || pageId === 'input-bebas') renderSelectElections();
         }
 
         async function apiCall(action, payload = {}) {
-            if (!APP_DATA.apiUrl) throw new Error("URL API belum dikonfigurasi!");
+            if (!APP_DATA.apiUrl || APP_DATA.apiUrl === "") throw new Error("URL API Belum Dikonfigurasi Oleh Admin.");
             if (APP_DATA.serverToken) payload.adminToken = APP_DATA.serverToken;
             try {
                 toggleLoading(true);
                 const res = await fetch(APP_DATA.apiUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, payload: payload }) });
                 const data = await res.json();
                 toggleLoading(false);
-                if (data.error) throw new Error(data.error);
-                return data;
+                if (data.error) throw new Error(data.error); return data;
             } catch (err) { toggleLoading(false); throw err; }
         }
 
         function applyBranding() {
-            document.getElementById('badge-plan').classList.remove('d-none');
-            document.getElementById('lbl-plan').innerText = APP_DATA.serverPlan || "Komunitas";
-            document.getElementById('dynamic-header').style.background = "#1b5e20";
-            document.getElementById('ui-branding-subtitle').innerText = "Premium White-Label Member";
+            document.getElementById('badge-plan').classList.remove('d-none'); document.getElementById('lbl-plan').innerText = APP_DATA.serverPlan || "Komunitas";
+            document.getElementById('dynamic-header').style.background = "#1b5e20"; document.getElementById('ui-branding-subtitle').innerText = "Premium White-Label Member";
         }
 
         function checkServerAuthStatus() {
             const statusEl = document.getElementById('auth-status-alert');
             statusEl.innerHTML = `<i class="bi bi-shield-check"></i> <b>${APP_DATA.serverUser}</b> (${APP_DATA.serverPlan}) - Hardcoded Active`;
-            statusEl.className = "alert alert-success shadow-sm";
-            document.getElementById('lbl-logged-user').innerText = `Halo, ${APP_DATA.serverUser}!`;
+            statusEl.className = "alert alert-success shadow-sm"; document.getElementById('lbl-logged-user').innerText = `Halo, ${APP_DATA.serverUser}!`;
             applyBranding();
         }
 
@@ -546,13 +518,11 @@
             e.preventDefault();
             try {
                 const res = await apiCall("createElection", {
-                    title: document.getElementById('v-judul').value,
-                    description: document.getElementById('v-desc').value,
+                    title: document.getElementById('v-judul').value, description: document.getElementById('v-desc').value,
                     type: "satu", start_date: document.getElementById('v-start').value, end_date: document.getElementById('v-end').value,
                     options: document.getElementById('v-opsi').value.split(',').map(o=>o.trim()).filter(o=>o)
                 });
-                showToast(res.message); document.querySelector('form').reset(); fetchElectionsUI();
-                nav('voting', document.querySelectorAll('.bottom-nav .nav-item')[2]);
+                showToast(res.message); document.querySelector('form').reset(); fetchElectionsUI(); nav('voting', document.querySelectorAll('.bottom-nav .nav-item')[2]);
             } catch (err) { showToast(err.message, "bg-danger"); }
         }
 
@@ -561,25 +531,40 @@
                 const res = await apiCall("getElections");
                 cachedElections = res.data;
                 const container = document.getElementById('list-voting'); container.innerHTML = "";
+                
                 cachedElections.forEach(el => {
                     const shareLinkVote = `${window.location.origin}${window.location.pathname}?vote=${el.id}`;
                     const shareLinkHasil = `${window.location.origin}${window.location.pathname}?hasil=${el.id}`;
+                    
+                    // REVISI: Grup Tombol Share WA untuk Bilik Voting & Hasil Publik
                     container.innerHTML += `
                         <div class="card p-3 shadow-sm border-start border-primary border-4">
-                            <h6 class="fw-bold mb-1">${el.title}</h6>
-                            <div class="d-flex gap-2 mt-2 mb-2">
-                                <button class="btn btn-sm btn-outline-primary flex-fill" onclick="openVoteModal('${el.id}')">Bilik Suara</button>
-                                <button class="btn btn-sm btn-outline-success flex-fill" onclick="navigator.clipboard.writeText('${shareLinkVote}'); showToast('Link Voting Disalin!');"><i class="bi bi-clipboard"></i> Link Vote</button>
+                            <h6 class="fw-bold mb-1 text-primary">${el.title}</h6>
+                            <p class="small text-muted mb-2">${el.description || ""}</p>
+                            
+                            <!-- Tombol Bilik Suara Internal Admin -->
+                            <button class="btn btn-sm btn-primary w-100 mb-3 fw-bold" onclick="openVoteModal('${el.id}')"><i class="bi bi-box-arrow-in-right"></i> Masuk Bilik Suara (Admin)</button>
+                            
+                            <!-- Bagian Share Voting Publik -->
+                            <div class="p-2 bg-light rounded border mb-2">
+                                <p class="small text-dark fw-bold mb-2 text-center"><i class="bi bi-person-check"></i> Bagikan Link Voting Publik:</p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-success flex-fill fw-bold" onclick="navigator.clipboard.writeText('${shareLinkVote}'); showToast('Link Voting Disalin!');"><i class="bi bi-link"></i> Salin Link</button>
+                                    <button class="btn btn-sm btn-success flex-fill fw-bold" onclick="window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Silakan berikan suara Anda pada bilik voting berikut:\\n\\n${shareLinkVote}'), '_blank')"><i class="bi bi-whatsapp"></i> Share Vote WA</button>
+                                </div>
                             </div>
-                            <hr class="my-2">
-                            <p class="small text-muted mb-1 text-center">Bagikan Hasil Secara Publik:</p>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-outline-secondary flex-fill" onclick="navigator.clipboard.writeText('${shareLinkHasil}'); showToast('Link Hasil Disalin!');"><i class="bi bi-link"></i> Salin Link Hasil</button>
-                                <button class="btn btn-sm btn-success flex-fill" onclick="window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Lihat Hasil Voting Real-Time di sini:\\n${shareLinkHasil}'), '_blank')"><i class="bi bi-whatsapp"></i> Share Hasil WA</button>
+
+                            <!-- Bagian Share Hasil Publik -->
+                            <div class="p-2 bg-light rounded border">
+                                <p class="small text-dark fw-bold mb-2 text-center"><i class="bi bi-bar-chart"></i> Bagikan Link Hasil Publik:</p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary flex-fill fw-bold" onclick="navigator.clipboard.writeText('${shareLinkHasil}'); showToast('Link Hasil Disalin!');"><i class="bi bi-link"></i> Salin Link</button>
+                                    <button class="btn btn-sm btn-secondary flex-fill fw-bold" style="background-color: #198754; color:white; border:none;" onclick="window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Lihat Hasil Voting Real-Time di sini:\\n\\n${shareLinkHasil}'), '_blank')"><i class="bi bi-whatsapp"></i> Share Hasil WA</button>
+                                </div>
                             </div>
                         </div>`;
                 });
-            } catch (err) { showToast("Gagal menarik data", "bg-danger"); }
+            } catch (err) { showToast("Gagal menarik data: " + err.message, "bg-danger"); }
         }
 
         function renderSelectElections() {
@@ -634,8 +619,7 @@
                 const autoToken = resToken.tokens[0];
                 const resVote = await apiCall("submitVote", { electionId: elId, option: selected.value, token: autoToken });
                 alert("Suara berhasil dimasukkan secara langsung (Tanpa Input Token)!\n" + resVote.message);
-                document.getElementById('bebas-nama').value = '';
-                selected.checked = false;
+                document.getElementById('bebas-nama').value = ''; selected.checked = false;
             } catch(e) { alert("Gagal memproses suara: " + e.message); }
         }
 
@@ -646,8 +630,7 @@
             try {
                 const res = await apiCall("generateTokens", { electionId: id, count: count });
                 document.getElementById('token-result-card').classList.remove('d-none');
-                document.getElementById('token-result-text').value = res.tokens.join('\n');
-                showToast(res.message);
+                document.getElementById('token-result-text').value = res.tokens.join('\n'); showToast(res.message);
             } catch (err) { showToast(err.message, "bg-danger"); }
         }
 
@@ -666,8 +649,7 @@
                 const res = await apiCall("createInvoice", { plan: planName });
                 let activeInvoice = res.invoiceId;
                 document.getElementById('payment-box').classList.remove('d-none');
-                document.getElementById('inv-id').innerText = res.invoiceId;
-                showToast(res.message);
+                document.getElementById('inv-id').innerText = res.invoiceId; showToast(res.message);
             } catch (err) { showToast(err.message, "bg-danger"); }
         }
     </script>
