@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.4.0</title>
+    <title>VOTEKU DIGITAL - v1.4.1</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -32,18 +32,30 @@
     </style>
 </head>
 <body>
+    <!-- Kunci Lokal / Layar PIN Dinamis (Huruf & Angka) -->
     <div id="lock-screen">
         <div class="lock-card" id="view-login">
             <h3 class="text-primary fw-bold"><i class="bi bi-shield-lock"></i> VOTEKU</h3>
             <div id="phishing-display" class="bg-light p-2 rounded mb-3 border text-success fw-bold"></div>
-            <input type="password" id="pin-input" class="form-control mb-3 text-center" placeholder="PIN Lokal" maxlength="6">
+            <input type="text" id="pin-input" class="form-control mb-3 text-center text-uppercase" placeholder="PIN Lokal (Huruf/Angka)">
             <button class="btn btn-primary w-100" onclick="unlockApp()">MASUK</button>
         </div>
         <div class="lock-card" id="view-setup" style="display: none;">
             <h4>Setup Kunci Lokal</h4>
-            <input type="password" id="setup-pin" class="form-control mb-2 text-center" placeholder="Buat PIN" maxlength="6">
+            <input type="text" id="setup-pin" class="form-control mb-2 text-center text-uppercase" placeholder="Buat PIN (Huruf/Angka)">
             <input type="text" id="setup-phishing" class="form-control mb-3 text-center" placeholder="Frasa Anti-Phishing">
             <button class="btn btn-success w-100" onclick="saveInitialSetup()">SIMPAN</button>
+        </div>
+    </div>
+
+    <!-- Modal Kamuflase Login Admin (Terbuka via klik nomor versi) -->
+    <div class="modal fade" id="kamuflaseModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-3">
+                <h5 class="fw-bold text-primary mb-3"><i class="bi bi-shield-shaded"></i> Akses Panel Admin</h5>
+                <input type="text" id="kamuflase-pin" class="form-control mb-3 text-center text-uppercase" placeholder="Masukkan PIN Lokal">
+                <button class="btn btn-primary w-100" onclick="verifyKamuflase()">BUKA PANEL ADMIN</button>
+            </div>
         </div>
     </div>
 
@@ -54,12 +66,13 @@
 
     <div id="main-app" style="display:none;">
         <div class="app-header" id="dynamic-header">
-            <img src="logovotedigital.png" alt="Logo Voteku" style="height: 50px; width: auto; margin-bottom: 8px; border-radius: 8px; background: rgba(255,255,255,0.9); padding: 4px;">
-            <h5 id="ui-app-name" class="fw-bold mb-0 mt-1">VOTEKU DIGITAL</h5>
+            <img src="logovotedigital.png" alt="Logo Voteku" style="height: 45px; width: auto; margin-bottom: 5px; border-radius: 6px; background: rgba(255,255,255,0.9); padding: 3px;">
+            <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
-            <div class="mt-2 d-flex justify-content-center gap-1">
-                <span class="badge bg-light text-dark">v1.4.0</span>
-                <span class="badge bg-warning text-dark d-none" id="badge-plan"><i class="bi bi-star-fill"></i> <span id="lbl-plan">Gratis</span></span>
+            <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
+                <!-- Tombol Kamuflase pada Nomor Versi -->
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.4.1 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-warning text-dark d-none" id="badge-plan"><span id="lbl-plan">Gratis</span></span>
             </div>
         </div>
 
@@ -82,6 +95,27 @@
                 <div class="col-4"><button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('peserta')"><i class="bi bi-key fs-3 d-block text-warning"></i><small>Token</small></button></div>
                 <div class="col-4"><button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('hasil')"><i class="bi bi-bar-chart fs-3 d-block text-success"></i><small>Hasil</small></button></div>
                 <div class="col-4"><button class="btn btn-light w-100 py-3 border shadow-sm premium-card" onclick="nav('premium')"><i class="bi bi-star-fill fs-3 d-block text-warning"></i><small>Premium</small></button></div>
+            </div>
+        </div>
+
+        <!-- MODE SHARE LINK: BILIK VOTING KHUSUS -->
+        <div id="page-share-vote" class="page-section">
+            <div class="card p-3 shadow border-top border-primary border-4">
+                <h4 class="fw-bold text-primary mb-1" id="share-vote-title">Memuat Voting...</h4>
+                <p class="text-muted small" id="share-vote-desc"></p>
+                <hr>
+                <div id="share-vote-options" class="mb-3"></div>
+                <input type="text" id="share-vote-token" class="form-control text-center text-uppercase fw-bold border-primary mb-3" placeholder="MASUKKAN TOKEN UNIK" maxlength="10">
+                <button class="btn btn-primary w-100 fw-bold py-2" onclick="executeShareVote()">KIRIM SUARA SAH</button>
+            </div>
+        </div>
+
+        <!-- MODE SHARE LINK: HASIL KHUSUS -->
+        <div id="page-share-hasil" class="page-section">
+            <div class="card p-3 shadow text-center">
+                <h4 class="fw-bold text-success mb-2" id="share-hasil-title">Hasil Pemilihan Real-Time</h4>
+                <p class="text-muted small" id="share-hasil-total">Total Suara: 0</p>
+                <canvas id="chartShareHasil" width="100%" height="100%"></canvas>
             </div>
         </div>
 
@@ -112,7 +146,7 @@
             <div class="card p-3 mb-3">
                 <label class="fw-bold small">Pilih Voting:</label>
                 <select class="form-select mb-2" id="select-token-event"></select>
-                <label class="fw-bold small">Jumlah Token (Validasi Server):</label>
+                <label class="fw-bold small">Jumlah Token:</label>
                 <input type="number" class="form-control mb-3" id="token-count" value="10" min="1" max="1000">
                 <button class="btn btn-warning w-100 fw-bold" onclick="handleGenerateToken()">BUAT TOKEN ACAK</button>
             </div>
@@ -133,52 +167,44 @@
             </div>
         </div>
 
-        <!-- LAYANAN PREMIUM (BARU) -->
+        <!-- LAYANAN PREMIUM -->
         <div id="page-premium" class="page-section">
             <h5 class="fw-bold mb-3 text-warning"><i class="bi bi-stars"></i> Tingkatkan Paket</h5>
-            
-            <div class="card p-3 mb-3 shadow-sm border">
-                <h6 class="fw-bold">Paket Gratis <span class="badge bg-secondary">Aktif Default</span></h6>
-                <ul class="small text-muted ps-3 mb-2"><li>Max 1 Acara</li><li>Max 30 Token</li></ul>
-            </div>
-            
             <div class="card p-3 mb-3 premium-card shadow">
                 <h6 class="fw-bold text-dark">Paket Acara <span class="badge bg-primary">Rp 50.000</span></h6>
-                <ul class="small text-dark ps-3 mb-2"><li>Max 5 Acara Berbeda</li><li>Max 500 Token per Acara</li></ul>
-                <button class="btn btn-primary btn-sm w-100" onclick="reqUpgrade('Acara')">Beli Paket Acara</button>
+                <button class="btn btn-primary btn-sm w-100 mt-2" onclick="reqUpgrade('Acara')">Beli Paket Acara</button>
             </div>
-
             <div class="card p-3 mb-3 border-success shadow" style="background:#f4fcf6;">
                 <h6 class="fw-bold text-success">Paket Komunitas <span class="badge bg-success">Rp 150.000</span></h6>
-                <ul class="small text-success ps-3 mb-2"><li>Acara Tak Terbatas</li><li>Token Tak Terbatas</li><li>Custom Branding (White-label)</li></ul>
-                <button class="btn btn-success btn-sm w-100" onclick="reqUpgrade('Komunitas')">Beli Paket Komunitas</button>
+                <button class="btn btn-success btn-sm w-100 mt-2" onclick="reqUpgrade('Komunitas')">Beli Paket Komunitas</button>
             </div>
-
             <div class="card p-3 d-none border-info" id="payment-box">
                 <h6 class="fw-bold text-info border-bottom pb-2">Status Pembayaran</h6>
-                <small class="d-block mb-2">ID Invoice: <b id="inv-id"></b></small>
-                <small class="text-muted d-block mb-3">Simulasi: Lakukan transfer ke rekening sistem. Klik verifikasi jika sudah.</small>
-                <button class="btn btn-info text-white w-100" onclick="verifyInvoice()">Verifikasi Pembayaran ke Server</button>
+                <small class="d-block mb-2">Invoice: <b id="inv-id"></b></small>
+                <button class="btn btn-info text-white w-100" onclick="verifyInvoice()">Verifikasi Pembayaran</button>
             </div>
         </div>
 
         <!-- PENGATURAN -->
         <div id="page-pengaturan" class="page-section">
             <h5 class="fw-bold mb-3">Pengaturan & Admin</h5>
-            
             <div class="card p-3 border-primary mb-3">
                 <h6 class="fw-bold text-primary">Koneksi API Server</h6>
                 <input type="url" id="set-api" class="form-control mb-2" placeholder="URL Web App Google">
                 <button class="btn btn-sm btn-outline-primary w-100" onclick="saveSettings()">Simpan URL API</button>
             </div>
-
+            <div class="card p-3 border-danger mb-3">
+                <h6 class="fw-bold text-danger"><i class="bi bi-trash-fill"></i> Reset Data Riwayat</h6>
+                <p class="small text-muted">Membersihkan cache lokal dan mengosongkan riwayat sesi aplikasi.</p>
+                <button class="btn btn-danger btn-sm w-100" onclick="resetLocalData()">Hapus Riwayat / Reset Data</button>
+            </div>
             <div class="card p-3 border-success mb-3">
                 <div id="auth-form-container">
                     <input type="text" id="auth-user" class="form-control mb-2" placeholder="Username Admin">
-                    <input type="password" id="auth-pass" class="form-control mb-2" placeholder="Password">
+                    <input type="text" id="auth-pass" class="form-control mb-2" placeholder="Password">
                     <div class="d-flex gap-2">
                         <button class="btn btn-success w-100" onclick="handleServerAuth('loginAdmin')">Login</button>
-                        <button class="btn btn-outline-success w-100" onclick="handleServerAuth('registerAdmin')">Daftar (Gratis)</button>
+                        <button class="btn btn-outline-success w-100" onclick="handleServerAuth('registerAdmin')">Daftar</button>
                     </div>
                 </div>
                 <div id="auth-logged-in" class="d-none text-center">
@@ -189,15 +215,21 @@
             </div>
         </div>
 
-        <div class="bottom-nav">
+        <!-- BOTTOM NAV -->
+        <div class="bottom-nav" id="main-bottom-nav">
             <a href="#" class="nav-item active" onclick="nav('dashboard', this)"><i class="bi bi-house"></i>Home</a>
             <a href="#" class="nav-item" onclick="nav('buat', this)"><i class="bi bi-plus-circle"></i>Buat</a>
             <a href="#" class="nav-item" onclick="nav('voting', this)"><i class="bi bi-card-list"></i>Voting</a>
             <a href="#" class="nav-item" onclick="nav('pengaturan', this)"><i class="bi bi-gear"></i>Admin</a>
         </div>
+
+        <!-- Footer Branding Wajib -->
+        <div class="text-center py-3 text-muted" style="font-size: 0.8rem;">
+            Powered by Ari GPM
+        </div>
     </div>
 
-    <!-- Modal Konfirmasi Kirim Suara -->
+    <!-- Modal Bilik Suara Utama -->
     <div class="modal fade" id="voteModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -218,14 +250,31 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const LOCAL_KEY = 'VOTEKU_V14'; 
+        const LOCAL_KEY = 'VOTEKU_V141'; 
         const DEFAULT_DATA = { pin: "", phishing: "", apiUrl: "", serverToken: "", serverUser: "", serverPlan: "Gratis" };
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         if (!APP_DATA) APP_DATA = DEFAULT_DATA;
 
         let cachedElections = [], activeVoteId = null, chartInstance = null, activeInvoice = "";
+        let shareActiveId = null;
 
         window.onload = () => {
+            // Periksa URL Query Parameter untuk Mode Share Link (Bilik Voting / Hasil)
+            const urlParams = new URLSearchParams(window.location.search);
+            const shareVoteId = urlParams.get('vote');
+            const shareHasilId = urlParams.get('hasil');
+
+            if (shareVoteId || shareHasilId) {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('main-bottom-nav').style.display = 'none'; // Sembunyikan navigasi admin
+                
+                if (shareVoteId) initShareVoting(shareVoteId);
+                if (shareHasilId) initShareHasil(shareHasilId);
+                return;
+            }
+
+            // Normal Flow
             if (!APP_DATA.pin) {
                 document.getElementById('view-login').style.display = 'none';
                 document.getElementById('view-setup').style.display = 'block';
@@ -235,18 +284,97 @@
         };
 
         function saveInitialSetup() {
-            APP_DATA.pin = document.getElementById('setup-pin').value;
-            APP_DATA.phishing = document.getElementById('setup-phishing').value;
-            localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); location.reload();
+            const pinVal = document.getElementById('setup-pin').value.trim();
+            const phVal = document.getElementById('setup-phishing').value.trim();
+            if (!pinVal || !phVal) return alert("Isi PIN dan Frasa!");
+            APP_DATA.pin = pinVal.toUpperCase(); 
+            APP_DATA.phishing = phVal;
+            localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); 
+            location.reload();
         }
+
         function unlockApp() {
-            if (document.getElementById('pin-input').value === APP_DATA.pin) {
+            const inputPin = document.getElementById('pin-input').value.trim().toUpperCase();
+            if (inputPin === APP_DATA.pin) {
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
                 applyBranding();
-            } else alert("PIN Salah");
+            } else {
+                alert("PIN Salah");
+            }
         }
 
+        // Tombol Kamuflase lewat Versi
+        function triggerKamuflase() {
+            new bootstrap.Modal(document.getElementById('kamuflaseModal')).show();
+        }
+        function verifyKamuflase() {
+            const pin = document.getElementById('kamuflase-pin').value.trim().toUpperCase();
+            if (pin === APP_DATA.pin) {
+                bootstrap.Modal.getInstance(document.getElementById('kamuflaseModal')).hide();
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                applyBranding();
+                nav('pengaturan');
+            } else {
+                alert("PIN Salah!");
+            }
+        }
+
+        // Reset Data Riwayat Admin
+        function resetLocalData() {
+            if (confirm("Yakin ingin menghapus seluruh riwayat dan cache lokal?")) {
+                localStorage.removeItem(LOCAL_KEY);
+                location.reload();
+            }
+        }
+
+        // --- MODE SHARE LINK LOGIC ---
+        async function initShareVoting(id) {
+            try {
+                const res = await apiCall("getElections");
+                const found = res.data.find(e => e.id === id);
+                if (!found) { alert("Acara voting tidak ditemukan atau sudah ditutup."); return; }
+                shareActiveId = id;
+                document.getElementById('share-vote-title').innerText = found.title;
+                document.getElementById('share-vote-desc').innerText = found.description || "Silakan pilih salah satu opsi di bawah:";
+                
+                const opts = typeof found.options === 'string' ? JSON.parse(found.options) : found.options;
+                document.getElementById('share-vote-options').innerHTML = opts.map((opt, i) => `
+                    <div class="form-check p-3 border rounded bg-white mb-2 shadow-sm">
+                        <input class="form-check-input ms-1" type="radio" name="sharePilihan" value="${opt}" id="sopt${i}">
+                        <label class="form-check-label w-100 ms-2 fw-bold" for="sopt${i}">${opt}</label>
+                    </div>`).join('');
+                nav('share-vote');
+            } catch(e) { alert("Gagal memuat bilik suara: " + e.message); }
+        }
+
+        async function executeShareVote() {
+            const selected = document.querySelector('input[name="sharePilihan"]:checked');
+            const tokenStr = document.getElementById('share-vote-token').value.trim().toUpperCase();
+            if (!selected || !tokenStr) return alert("Pilih opsi dan masukkan token unik Anda!");
+            try {
+                const res = await apiCall("submitVote", { electionId: shareActiveId, option: selected.value, token: tokenStr });
+                alert(res.message);
+                location.reload();
+            } catch(err) { alert(err.message); }
+        }
+
+        async function initShareHasil(id) {
+            try {
+                const res = await apiCall("getResults", { electionId: id });
+                document.getElementById('share-hasil-total').innerText = `Total Suara Masuk: ${res.totalVotes}`;
+                const ctx = document.getElementById('chartShareHasil').getContext('2d');
+                new Chart(ctx, { 
+                    type: 'bar', 
+                    data: { labels: Object.keys(res.results), datasets: [{ label: 'Suara', data: Object.values(res.results), backgroundColor: '#2e7d32' }] }, 
+                    options: { plugins:{legend:{display:false}}} 
+                });
+                nav('share-hasil');
+            } catch(e) { alert("Gagal memuat hasil."); }
+        }
+
+        // --- UTILS & API ---
         function showToast(msg, color = "bg-success") {
             const t = document.getElementById('liveToast');
             t.className = `toast align-items-center text-white border-0 ${color}`;
@@ -279,13 +407,11 @@
             } catch (err) { toggleLoading(false); throw err; }
         }
 
-        // --- AUTH & BRANDING ---
         function applyBranding() {
             document.getElementById('badge-plan').classList.remove('d-none');
             document.getElementById('lbl-plan').innerText = APP_DATA.serverPlan || "Gratis";
-            
             if (APP_DATA.serverPlan === "Komunitas") {
-                document.getElementById('dynamic-header').style.background = "#1b5e20"; // Hijau Komunitas
+                document.getElementById('dynamic-header').style.background = "#1b5e20";
                 document.getElementById('ui-branding-subtitle').innerText = "Premium White-Label Member";
             } else {
                 document.getElementById('dynamic-header').style.background = "#0277bd";
@@ -311,7 +437,7 @@
 
         async function handleServerAuth(action) {
             try {
-                const res = await apiCall(action, { username: document.getElementById('auth-user').value.trim(), password: document.getElementById('auth-pass').value });
+                const res = await apiCall(action, { username: document.getElementById('auth-user').value.trim(), password: document.getElementById('auth-pass').value.trim() });
                 APP_DATA.serverToken = res.token; APP_DATA.serverUser = res.username; APP_DATA.serverPlan = res.plan;
                 localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
                 showToast(`Masuk sebagai ${res.username} (${res.plan})`);
@@ -326,7 +452,6 @@
             checkServerAuthStatus(); showToast("Logout Server Berhasil.");
         }
 
-        // --- KOMERSIAL: UPGRADE & INVOICE ---
         async function reqUpgrade(planName) {
             if(!APP_DATA.serverToken) return showToast("Silakan login Admin dahulu!", "bg-warning text-dark");
             try {
@@ -335,14 +460,13 @@
                 document.getElementById('payment-box').classList.remove('d-none');
                 document.getElementById('inv-id').innerText = res.invoiceId;
                 showToast(res.message);
-                window.scrollTo(0, document.body.scrollHeight);
             } catch (err) { showToast(err.message, "bg-danger"); }
         }
 
         async function verifyInvoice() {
             try {
                 const res = await apiCall("verifyPayment", { invoiceId: activeInvoice });
-                APP_DATA.serverPlan = res.plan; // Update plan di lokal
+                APP_DATA.serverPlan = res.plan; 
                 localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
                 document.getElementById('payment-box').classList.add('d-none');
                 showToast(res.message, "bg-success");
@@ -350,21 +474,18 @@
             } catch (err) { showToast(err.message, "bg-danger"); }
         }
 
-        // --- CRUD VOTING & TOKENS ---
         async function handleBuatVoting(e) {
             e.preventDefault();
             try {
                 const res = await apiCall("createElection", {
                     title: document.getElementById('v-judul').value,
+                    description: document.getElementById('v-desc').value,
                     type: "satu", start_date: document.getElementById('v-start').value, end_date: document.getElementById('v-end').value,
                     options: document.getElementById('v-opsi').value.split(',').map(o=>o.trim()).filter(o=>o)
                 });
                 showToast(res.message); document.querySelector('form').reset(); fetchElectionsUI();
                 nav('voting', document.querySelectorAll('.bottom-nav .nav-item')[2]);
-            } catch (err) { 
-                showToast(err.message, "bg-danger"); 
-                if(err.message.includes("Batas Paket")) nav('premium'); // Arahkan ke Premium
-            }
+            } catch (err) { showToast(err.message, "bg-danger"); if(err.message.includes("Batas Paket")) nav('premium'); }
         }
 
         async function handleGenerateToken() {
@@ -384,8 +505,17 @@
                 cachedElections = res.data;
                 const container = document.getElementById('list-voting'); container.innerHTML = "";
                 cachedElections.forEach(el => {
-                    container.innerHTML += `<div class="card p-3 shadow-sm border-start border-primary border-4"><h6 class="fw-bold mb-1">${el.title}</h6>
-                    <button class="btn btn-sm btn-outline-primary mt-3 w-100" onclick="openVoteModal('${el.id}')">Masuk Bilik Suara</button></div>`;
+                    const shareLinkVote = `${window.location.origin}${window.location.pathname}?vote=${el.id}`;
+                    const shareLinkHasil = `${window.location.origin}${window.location.pathname}?hasil=${el.id}`;
+                    container.innerHTML += `
+                        <div class="card p-3 shadow-sm border-start border-primary border-4">
+                            <h6 class="fw-bold mb-1">${el.title}</h6>
+                            <div class="d-flex gap-2 mt-2">
+                                <button class="btn btn-sm btn-outline-primary flex-fill" onclick="openVoteModal('${el.id}')">Bilik Suara</button>
+                                <button class="btn btn-sm btn-outline-success flex-fill" onclick="navigator.clipboard.writeText('${shareLinkVote}'); showToast('Link Voting Disalin!');">Salin Link Vote</button>
+                            </div>
+                            <button class="btn btn-sm btn-outline-secondary mt-2 w-100" onclick="navigator.clipboard.writeText('${shareLinkHasil}'); showToast('Link Hasil Disalin!');">Salin Link Hasil Publik</button>
+                        </div>`;
                 });
             } catch (err) { showToast("Gagal menarik data", "bg-danger"); }
         }
