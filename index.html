@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.4.3</title>
+    <title>VOTEKU DIGITAL - v1.4.5</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -26,6 +26,7 @@
         .page-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
+        /* Lock Screen Elegan */
         #lock-screen { position: fixed; top:0; left:0; right:0; bottom:0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;}
         .lock-card { background: #fff; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
         .loading-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.8); z-index: 1050; display: none; align-items: center; justify-content: center; flex-direction: column;}
@@ -33,7 +34,7 @@
     </style>
 </head>
 <body>
-    <!-- Kunci Lokal / Layar PIN -->
+    <!-- Kunci Lokal / Layar PIN Elegan -->
     <div id="lock-screen">
         <div class="lock-card" id="view-login">
             <img src="logovotedigital.png" alt="Logo" style="height: 60px; width: auto; margin-bottom: 10px; border-radius: 12px;">
@@ -75,7 +76,7 @@
         </div>
     </div>
 
-    <!-- Modal Kamuflase -->
+    <!-- Modal Kamuflase Admin -->
     <div class="modal fade" id="kamuflaseModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content p-3">
@@ -97,7 +98,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.4.3 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.4.5 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark d-none" id="badge-plan"><span id="lbl-plan">Gratis</span></span>
             </div>
         </div>
@@ -111,7 +112,7 @@
             </div>
         </div>
 
-        <!-- DASHBOARD -->
+        <!-- DASHBOARD (Diperbarui dengan Fitur Lengkap) -->
         <div id="page-dashboard" class="page-section active">
             <div class="alert alert-info shadow-sm" id="auth-status-alert"><i class="bi bi-info-circle"></i> Memeriksa Server...</div>
             <div class="card p-3 mb-3 text-center bg-primary text-white shadow" onclick="fetchElectionsUI()">
@@ -123,7 +124,7 @@
                 <div class="col-4"><button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('hasil')"><i class="bi bi-bar-chart fs-3 d-block text-success"></i><small>Hasil</small></button></div>
                 <div class="col-4"><button class="btn btn-light w-100 py-3 border shadow-sm premium-card" onclick="nav('premium')"><i class="bi bi-star-fill fs-3 d-block text-warning"></i><small>Premium</small></button></div>
                 
-                <!-- Kartu Baru: Input Peserta (Random Voting Tanpa Token Manual) -->
+                <!-- Kartu Input Data Peserta -->
                 <div class="col-12 mt-2">
                     <button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('input-bebas')">
                         <i class="bi bi-person-badge fs-3 d-block text-info"></i>
@@ -169,26 +170,22 @@
             </div>
         </div>
 
-        <!-- INPUT DATA PESERTA (VOTING TANPA TOKEN) -->
+        <!-- INPUT DATA PESERTA (VOTING TANPA TOKEN MANUAL) -->
         <div id="page-input-bebas" class="page-section">
             <h5 class="fw-bold mb-3 text-info"><i class="bi bi-person-badge"></i> Input Voting Langsung</h5>
             <div class="card p-3 shadow-sm border-info">
-                <p class="small text-muted mb-3">Masukkan data peserta dan pilih kandidatnya. Sistem akan men-generate dan memvalidasi token rahasia secara otomatis di belakang layar.</p>
-                
+                <p class="small text-muted mb-3">Masukkan data peserta dan pilih kandidatnya. Sistem akan men-generate dan memvalidasi token rahasia otomatis.</p>
                 <label class="fw-bold small">Pilih Voting Aktif:</label>
                 <select class="form-select mb-2 border-info" id="select-bebas-event" onchange="renderBebasOptions()"></select>
-                
                 <label class="fw-bold small">Nama Peserta (Opsional):</label>
                 <input type="text" class="form-control mb-3" id="bebas-nama" placeholder="Masukkan nama peserta pencoblos">
-                
                 <label class="fw-bold small">Pilih Kandidat / Opsi:</label>
                 <div id="bebas-options" class="mb-3"></div>
-                
                 <button class="btn btn-info text-white w-100 fw-bold" onclick="executeBebasVote()">KIRIM SUARA PESERTA</button>
             </div>
         </div>
 
-        <!-- DAFTAR VOTING -->
+        <!-- DAFTAR VOTING (Dengan Tombol Share WA) -->
         <div id="page-voting" class="page-section">
             <h5 class="fw-bold mb-3">Daftar Voting Tersedia</h5>
             <div id="list-voting"></div>
@@ -204,10 +201,10 @@
                 <input type="number" class="form-control mb-3" id="token-count" value="10" min="1" max="1000">
                 <button class="btn btn-warning w-100 fw-bold" onclick="handleGenerateToken()">BUAT TOKEN ACAK</button>
             </div>
-            <div class="card p-3 d-none border-success" id="token-result-card">
+            <!-- Hasil Token dengan Tombol Share WA -->
+            <div class="card p-3 d-none border-success shadow-sm" id="token-result-card">
                 <label class="fw-bold small text-success">Token Berhasil Dibuat:</label>
                 <textarea class="form-control font-monospace mb-2" id="token-result-text" rows="5" readonly></textarea>
-                <!-- Tombol Share WA untuk Hasil Token -->
                 <button class="btn btn-success w-100 fw-bold" onclick="shareTokenWA()"><i class="bi bi-whatsapp"></i> Bagikan Token via WA</button>
             </div>
         </div>
@@ -224,17 +221,20 @@
             </div>
         </div>
 
-        <!-- LAYANAN PREMIUM -->
+        <!-- LAYANAN PREMIUM (Desain Lengkap) -->
         <div id="page-premium" class="page-section">
             <h5 class="fw-bold mb-3 text-warning"><i class="bi bi-stars"></i> Tingkatkan Paket</h5>
+            
             <div class="card p-3 mb-3 premium-card shadow">
                 <h6 class="fw-bold text-dark">Paket Acara <span class="badge bg-primary">Rp 50.000</span></h6>
                 <button class="btn btn-primary btn-sm w-100 mt-2" onclick="reqUpgrade('Acara')">Beli Paket Acara</button>
             </div>
+
             <div class="card p-3 mb-3 border-success shadow" style="background:#f4fcf6;">
                 <h6 class="fw-bold text-success">Paket Komunitas <span class="badge bg-success">Rp 150.000</span></h6>
                 <button class="btn btn-success btn-sm w-100 mt-2" onclick="reqUpgrade('Komunitas')">Beli Paket Komunitas</button>
             </div>
+
             <div class="card p-3 d-none border-info" id="payment-box">
                 <h6 class="fw-bold text-info border-bottom pb-2">Status Pembayaran</h6>
                 <small class="d-block mb-2">Invoice: <b id="inv-id"></b></small>
@@ -309,19 +309,18 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const LOCAL_KEY = 'VOTEKU_V143'; 
+        const LOCAL_KEY = 'VOTEKU_V145'; 
         
-        // HARDCODE DEFAULT DATA & MIGRATION
+        // DEFAULT DATA & MIGRATION
         const DEFAULT_DATA = { 
             pin: "ADMIN123", phishing: "Ari GPM", secAns: "ARI GPM", 
-            apiUrl: "https://script.google.com/macros/s/AKfycbw6qjXlH1K_K6Y9gLgV3zQjH5xY7w8s9d0f1g2h3j4k5l6z/exec", // URL default
+            apiUrl: "https://script.google.com/macros/s/AKfycbw6qjXlH1K_K6Y9gLgV3zQjH5xY7w8s9d0f1g2h3j4k5l6z/exec",
             serverToken: "HARDCODED_ADMIN_TOKEN_VOTEKU", serverUser: "Ari GPM", serverPlan: "Komunitas" 
         };
 
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
-        // Migrasi dari v1.4.2 ke v1.4.3 tanpa menghapus PIN custom
-        if (!APP_DATA && localStorage.getItem('VOTEKU_V142')) {
-            APP_DATA = JSON.parse(localStorage.getItem('VOTEKU_V142'));
+        if (!APP_DATA && localStorage.getItem('VOTEKU_V143')) {
+            APP_DATA = JSON.parse(localStorage.getItem('VOTEKU_V143'));
             localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
         } else if (!APP_DATA || !APP_DATA.pin) {
             APP_DATA = DEFAULT_DATA;
@@ -612,21 +611,13 @@
             if(!elId || !selected) return alert("Pilih acara dan kandidat terlebih dahulu!");
             
             try {
-                // Generate 1 token otomatis di balik layar
                 const resToken = await apiCall("generateTokens", { electionId: elId, count: 1 });
                 const autoToken = resToken.tokens[0];
-                
-                // Submit vote otomatis dengan token tersebut
                 const resVote = await apiCall("submitVote", { electionId: elId, option: selected.value, token: autoToken });
-                
                 alert("Suara berhasil dimasukkan secara langsung (Tanpa Input Token)!\n" + resVote.message);
-                
-                // Reset Form
                 document.getElementById('bebas-nama').value = '';
                 selected.checked = false;
-            } catch(e) { 
-                alert("Gagal memproses suara: " + e.message); 
-            }
+            } catch(e) { alert("Gagal memproses suara: " + e.message); }
         }
 
         // --- MANAJEMEN HASIL & TOKEN LAINNYA ---
