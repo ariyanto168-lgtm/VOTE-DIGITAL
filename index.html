@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.8.1</title>
+    <title>VOTEKU DIGITAL - v1.8.2</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -161,7 +161,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.8.1 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.8.2 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
             </div>
         </div>
@@ -207,12 +207,13 @@
 
                 <div class="mb-3">
                     <label class="fw-bold small text-dark mb-2"><i class="bi bi-person-check-fill"></i> Pilihan Anda:</label>
-                    <input type="text" id="share-vote-selection" class="form-control form-control-lg border-primary text-center fw-bold bg-light" placeholder="Pilih dari daftar di bawah..." readonly>
+                    <!-- ONINPUT DITAMBAHKAN AGAR OTOMATIS FILTER -->
+                    <input type="text" id="share-vote-selection" class="form-control form-control-lg border-primary text-center fw-bold" placeholder="Ketik nama atau pilih di bawah..." oninput="filterKandidat('share')">
                 </div>
 
                 <!-- CHIPS KANDIDAT DINAMIS -->
                 <div class="mb-4 flex-grow-1">
-                    <label class="fw-bold small text-dark mb-2">Klik Nama Kandidat di Bawah Ini:</label>
+                    <label class="fw-bold small text-dark mb-2">Daftar Kandidat (Klik untuk memilih):</label>
                     <div id="share-kandidat-chips" class="d-flex flex-wrap gap-2 justify-content-center align-content-start">
                         <!-- Chips akan dirender di sini -->
                     </div>
@@ -342,7 +343,8 @@
                 <div class="modal-body bg-light d-flex flex-column">
                     <div class="mb-3">
                         <label class="fw-bold small text-dark mb-2">Pilihan (Bisa ketik/klik nama di bawah):</label>
-                        <input type="text" id="admin-vote-selection" class="form-control form-control-lg border-primary text-center fw-bold" placeholder="Pilih kandidat...">
+                        <!-- ONINPUT DITAMBAHKAN AGAR OTOMATIS FILTER -->
+                        <input type="text" id="admin-vote-selection" class="form-control form-control-lg border-primary text-center fw-bold" placeholder="Ketik nama atau pilih di bawah..." oninput="filterKandidat('admin')">
                     </div>
                     
                     <!-- CHIPS KANDIDAT ADMIN DINAMIS -->
@@ -381,7 +383,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V180', 'VOTEKU_V179', 'VOTEKU_V178'];
+            const oldKeys = ['VOTEKU_V181', 'VOTEKU_V180', 'VOTEKU_V179', 'VOTEKU_V178'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -394,7 +396,6 @@
         let currentShareOptions = [], currentAdminOptions = [];
         let autoRefreshTimer = null;
         
-        // VARIABEL PENYIMPAN STATUS GRAFIK TERAKHIR (AGAR TIDAK KEDAP-KEDIP)
         let lastShareResultString = "";
         let lastAdminResultString = "";
 
@@ -579,7 +580,7 @@
 
         function takeToken(btn, tokenStr, electionId) {
             if (localStorage.getItem("VOTE_DONE_" + electionId)) {
-                showCustomAlert("Perangkat ini sudah digunakan untuk mengirim suara. Anda tidak dapat mengambil token baru.", "Akses Ditolak", "warning", () => {
+                showCustomAlert("Perangkat ini sudah digunakan untuk mengirim suara.", "Akses Ditolak", "warning", () => {
                     window.location.href = window.location.pathname + "?hasil=" + electionId;
                 }); return;
             }
@@ -588,6 +589,23 @@
             btn.innerHTML = `${tokenStr} <i class="bi bi-check-circle-fill text-success ms-1"></i>`;
             btn.disabled = true;
             setTimeout(() => { window.location.href = window.location.pathname + "?vote=" + electionId + "&token=" + tokenStr; }, 300);
+        }
+
+        // FUNGSI UNTUK MENYARING CHIP KANDIDAT BERDASARKAN KETIKAN
+        function filterKandidat(type) {
+            const inputVal = document.getElementById(type + '-vote-selection').value.toLowerCase();
+            const container = document.getElementById(type + '-kandidat-chips');
+            if (container) {
+                const chips = container.getElementsByClassName('kandidat-chip');
+                for (let i = 0; i < chips.length; i++) {
+                    const text = chips[i].innerText.toLowerCase();
+                    if (text.includes(inputVal)) {
+                        chips[i].style.display = ""; // Munculkan jika cocok
+                    } else {
+                        chips[i].style.display = "none"; // Sembunyikan jika tidak cocok
+                    }
+                }
+            }
         }
 
         // FUNGSI KLIK CHIP UNTUK SHARE VOTING PUBLIC
@@ -689,11 +707,7 @@
                 if (!res) return;
 
                 const currentDataString = JSON.stringify(res.results);
-                
-                // PENCEGAHAN EFEK INGUS: Jangan render ulang jika data masih sama persis!
-                if (silent && currentDataString === lastShareResultString) {
-                    return; 
-                }
+                if (silent && currentDataString === lastShareResultString) return; 
                 lastShareResultString = currentDataString;
 
                 document.getElementById('share-hasil-title').innerText = "Hasil Pemilihan";
@@ -875,7 +889,6 @@
             let opts = []; try { opts = typeof el.options === 'string' ? JSON.parse(el.options) : el.options; } catch(e) { opts = [el.options]; }
             if(!Array.isArray(opts)) opts = [opts]; currentAdminOptions = opts;
             
-            // RENDER CHIPS UNTUK ADMIN
             const chipsHtml = opts.map(opt => `<div class="kandidat-chip" onclick="selectKandidatAdmin('${opt.replace(/'/g, "\\'")}', this)">${opt}</div>`).join('');
             document.getElementById('admin-kandidat-chips').innerHTML = chipsHtml;
             
@@ -922,7 +935,7 @@
             if (!electionId) return;
 
             document.getElementById('lbl-total-suara').innerText = "Memuat total suara...";
-            lastAdminResultString = ""; // Reset status saat pindah acara
+            lastAdminResultString = ""; 
             await fetchResultsData(electionId);
 
             if (autoRefreshTimer) clearInterval(autoRefreshTimer);
@@ -938,11 +951,7 @@
                 if (!res) return;
 
                 const currentDataString = JSON.stringify(res.results);
-                
-                // PENCEGAHAN EFEK INGUS DI ADMIN: Jangan gambar ulang grafik kalau data persis sama!
-                if (silent && currentDataString === lastAdminResultString) {
-                    return; 
-                }
+                if (silent && currentDataString === lastAdminResultString) return; 
                 lastAdminResultString = currentDataString;
 
                 document.getElementById('lbl-total-suara').innerText = `Total Suara Masuk: ${res.totalVotes}`;
@@ -971,7 +980,7 @@
                         datalabels: { anchor: 'end', align: 'top', color: '#333', font: { weight: 'bold', size: 14 }, formatter: Math.round } 
                     }, 
                     layout: { padding: { top: 25 } }, scales: { y: { beginAtZero: true } },
-                    animation: { duration: 800 } // Animasi halus berjalan SEKALI saja berkat sistem penahan re-render
+                    animation: { duration: 800 } 
                 } 
             });
         }
