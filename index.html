@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.6.3</title>
+    <title>VOTEKU DIGITAL - v1.6.5</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -127,7 +127,7 @@
 
     <div class="loading-overlay" id="loading">
         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-        <div class="mt-2 fw-bold text-primary">Memproses Server...</div>
+        <div class="mt-2 fw-bold text-primary" id="loading-text">Memproses Server...</div>
     </div>
 
     <div id="main-app" style="display:none;">
@@ -136,7 +136,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.6.3 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.6.5 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark d-none" id="badge-plan"><span id="lbl-plan">Gratis</span></span>
             </div>
         </div>
@@ -163,7 +163,7 @@
             </div>
         </div>
 
-        <!-- SHARE LINK: PORTAL TOKEN PUBLIK (FITUR BARU SATU LANGKAH) -->
+        <!-- SHARE LINK: PORTAL TOKEN PUBLIK -->
         <div id="page-share-portal" class="page-section">
             <div class="card p-4 shadow border-top border-warning border-4 text-center">
                 <h4 class="fw-bold text-warning mb-1" id="share-portal-title">Pilih Token Masuk</h4>
@@ -171,7 +171,6 @@
                 <hr>
                 
                 <div id="portal-token-list" class="d-flex flex-wrap justify-content-center gap-2 mt-2">
-                    <!-- Token buttons rendered here -->
                     <p class="text-muted small">Memuat token dari server...</p>
                 </div>
             </div>
@@ -195,7 +194,8 @@
                     <input type="text" id="share-vote-token" class="form-control form-control-lg text-center text-uppercase fw-bold border-primary" placeholder="TOKEN RAHASIA" maxlength="10">
                 </div>
                 
-                <button class="btn btn-primary w-100 fw-bold py-3 fs-5 rounded-3 shadow-sm" onclick="executeShareVote()"><i class="bi bi-send-check-fill"></i> KIRIM SUARA SAH</button>
+                <button id="btn-submit-vote" class="btn btn-primary w-100 fw-bold py-3 fs-5 rounded-3 shadow-sm" onclick="executeShareVote()"><i class="bi bi-send-check-fill"></i> KIRIM SUARA SAH</button>
+                <button id="btn-back-portal" class="btn btn-outline-secondary w-100 fw-bold mt-3 d-none" onclick="goBackToPortal()"><i class="bi bi-arrow-left"></i> KEMBALI KE PORTAL TOKEN</button>
             </div>
         </div>
 
@@ -246,29 +246,6 @@
             </div>
         </div>
 
-        <!-- LAYANAN PREMIUM -->
-        <div id="page-premium" class="page-section">
-            <h5 class="fw-bold mb-3 text-warning"><i class="bi bi-stars"></i> Tingkatkan Paket</h5>
-            
-            <div class="card p-3 mb-3 premium-card shadow">
-                <h6 class="fw-bold text-dark">Paket Acara <span class="badge bg-primary">Rp 50.000</span></h6>
-                <p class="small text-muted mb-2">Dapatkan kuota hingga 500 Token Pemilih per acara.</p>
-                <button class="btn btn-primary btn-sm w-100 mt-2" onclick="reqUpgrade('Acara')">Beli Paket Acara</button>
-            </div>
-            
-            <div class="card p-3 mb-3 border-success shadow" style="background:#f4fcf6;">
-                <h6 class="fw-bold text-success">Paket Komunitas <span class="badge bg-success">Rp 150.000</span></h6>
-                 <p class="small text-muted mb-2">Kuota Token Pemilih Tanpa Batas (Unlimited) untuk acara besar.</p>
-                <button class="btn btn-success btn-sm w-100 mt-2" onclick="reqUpgrade('Komunitas')">Beli Paket Komunitas</button>
-            </div>
-            
-            <div class="card p-3 d-none border-info" id="payment-box">
-                <h6 class="fw-bold text-info border-bottom pb-2">Status Pembayaran</h6>
-                <small class="d-block mb-2">Invoice: <b id="inv-id"></b></small>
-                <button class="btn btn-info text-white w-100" onclick="verifyInvoice()">Verifikasi Pembayaran</button>
-            </div>
-        </div>
-
         <!-- PENGATURAN & ADMIN -->
         <div id="page-pengaturan" class="page-section">
             <h5 class="fw-bold mb-3">Pengaturan & Admin</h5>
@@ -291,24 +268,16 @@
                 <input type="text" id="change-ans" class="form-control mb-3 text-center" placeholder="Ketik Jawaban Baru (Opsional)">
                 <button class="btn btn-warning w-100 fw-bold text-dark" onclick="updateSecurity()"><i class="bi bi-shield-check"></i> SIMPAN KEAMANAN</button>
             </div>
-
-            <div class="card p-3 border-info mb-3 shadow-sm">
-                <h6 class="fw-bold text-info"><i class="bi bi-save"></i> Backup & Restore Lokal</h6>
-                <p class="small text-muted mb-2">Simpan atau pulihkan data kredensial/PIN Anda (File JSON).</p>
-                <button class="btn btn-outline-info btn-sm w-100 mb-2 fw-bold" onclick="exportData()"><i class="bi bi-download"></i> Download Data Backup</button>
-                <input type="file" id="file-restore" class="form-control form-control-sm" accept=".json" onchange="importData(event)">
-            </div>
             
             <div class="card p-3 border-danger mb-3 shadow-sm" style="background:#fffcfc;">
                 <h6 class="fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Reset Total Database Server</h6>
-                <p class="small text-muted mb-2">Menghapus <b>SELURUH ACARA, TOKEN, dan SUARA</b> dari server Google Sheets beserta riwayat lokal memori HP.</p>
+                <p class="small text-muted mb-2">Menghapus <b>SELURUH ACARA, TOKEN, dan SUARA</b> dari server.</p>
                 <button class="btn btn-danger btn-sm w-100 fw-bold" onclick="resetDatabaseUI()"><i class="bi bi-trash-fill"></i> Hapus Semua Data</button>
             </div>
             
             <div class="card p-3 border-success mb-3 shadow-sm">
                 <div id="auth-logged-in" class="text-center">
                     <h5 class="text-success fw-bold"><i class="bi bi-person-check-fill"></i> <span id="lbl-logged-user">Terhubung!</span></h5>
-                    <p class="mb-3 text-muted small">Sistem Admin Tertanam Permanen</p>
                     <button class="btn btn-success w-100 fw-bold" onclick="lockApp()"><i class="bi bi-lock-fill"></i> Kunci Kembali Aplikasi</button>
                 </div>
             </div>
@@ -371,7 +340,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V162', 'VOTEKU_V161', 'VOTEKU_V160', 'VOTEKU_V159', 'VOTEKU_V158'];
+            const oldKeys = ['VOTEKU_V164', 'VOTEKU_V163', 'VOTEKU_V162', 'VOTEKU_V161', 'VOTEKU_V160'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -382,6 +351,7 @@
 
         let cachedElections = [], activeVoteId = null, chartInstance = null, shareActiveId = null;
         let currentShareOptions = [], currentAdminOptions = [];
+        let isFromPortal = false;
 
         // --- SISTEM CUSTOM ALERT & CONFIRM MODERN ---
         let confirmCallback = null;
@@ -427,7 +397,6 @@
 
         function clearURLParams() { if (window.history.replaceState) window.history.replaceState({}, document.title, window.location.pathname); }
 
-        // --- AUTH & KUNCI ---
         function unlockApp() {
             try {
                 const inputEl = document.getElementById('pin-input'); const inputPin = inputEl.value.trim().toUpperCase();
@@ -468,7 +437,6 @@
             } else { showCustomAlert("PIN Akses Panel Salah!", "Gagal", "danger"); pinEl.value = ""; pinEl.focus(); }
         }
 
-        // --- PENGATURAN API & KEAMANAN LOKAL ---
         function updateSecurity() {
             const newPin = document.getElementById('change-pin').value.trim().toUpperCase();
             const newAns = document.getElementById('change-ans').value.trim().toUpperCase();
@@ -491,32 +459,14 @@
                         } else { throw new Error("URL API Belum Dikonfigurasi."); }
                     } catch (err) { 
                         let errText = err.message;
-                        if(errText.includes("Aksi tidak valid")) errText = "Kode di Google Apps Script Anda belum diperbarui. Harap update kode backend Anda terlebih dahulu.";
-                        showCustomAlert("<b>Server Merespon Error:</b><br>" + errText + "<br><br>Hanya cache lokal HP ini yang akan direset.", "Gagal Koneksi", "danger", () => { localStorage.removeItem(LOCAL_KEY); location.reload(); });
+                        showCustomAlert("<b>Server Merespon Error:</b><br>" + errText, "Gagal Koneksi", "danger", () => { localStorage.removeItem(LOCAL_KEY); location.reload(); });
                     }
                 }
             );
         }
-        
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(APP_DATA));
-            const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", `Voteku_Backup_${new Date().toISOString().split('T')[0]}.json`); dl.click(); showToast("Backup Berhasil Diunduh!");
-        }
-        function importData(event) {
-            const file = event.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (imported.pin !== undefined) { APP_DATA = imported; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); showCustomAlert("Restore Data Berhasil! Aplikasi akan dimuat ulang.", "Sukses", "success", () => location.reload());
-                    } else { showCustomAlert("File JSON yang Anda masukkan tidak valid!", "Gagal", "danger"); }
-                } catch(err) { showCustomAlert("Gagal membaca atau memproses file backup!", "Error", "danger"); }
-            }; reader.readAsText(file);
-        }
 
-        // --- ALUR BARU: PORTAL -> VOTE -> HASIL (SATU LANGKAH) ---
+        // --- ALUR PORTAL -> VOTE -> HASIL ---
         
-        // 1. Tampilkan Halaman Portal
         async function initSharePortal(id) {
             nav('share-portal');
             try {
@@ -538,11 +488,10 @@
                 }).join('');
 
             } catch (e) {
-                document.getElementById('portal-token-list').innerHTML = `<p class="text-danger fw-bold">Gagal memuat token: ${e.message}</p>`;
+                document.getElementById('portal-token-list').innerHTML = `<div class="alert alert-danger text-center">Gagal memuat token: Koneksi lambat/terputus.<br><br><button class="btn btn-outline-danger btn-sm mt-2" onclick="location.reload()">Coba Lagi</button></div>`;
             }
         }
 
-        // 2. Saat Token Diambil (Dicoret sejenak, lalu Redirect)
         function takeToken(btn, tokenStr, electionId) {
             btn.classList.replace('btn-outline-success', 'btn-secondary');
             btn.classList.add('text-decoration-line-through', 'opacity-75');
@@ -554,7 +503,6 @@
             }, 400);
         }
 
-        // 3. Masuk Bilik Voting
         async function initShareVoting(id, autoToken = null) {
             nav('share-vote');
             try {
@@ -578,18 +526,24 @@
                 document.getElementById('share-vote-selection').value = ""; 
 
                 if (autoToken) {
+                    isFromPortal = true;
                     const tkInput = document.getElementById('share-vote-token');
                     tkInput.value = autoToken;
                     tkInput.setAttribute('readonly', 'true');
                     tkInput.classList.add('bg-light');
+                    document.getElementById('btn-back-portal').classList.remove('d-none');
                 }
 
             } catch(e) { 
-                document.getElementById('share-vote-title').innerText = "Gagal Memuat Data"; document.getElementById('share-vote-desc').innerText = "Kesalahan koneksi ke server.";
+                document.getElementById('share-vote-title').innerText = "Gagal Memuat Data"; 
+                document.getElementById('share-vote-desc').innerHTML = `Kesalahan koneksi ke server. <br><button class="btn btn-outline-primary mt-2 btn-sm" onclick="location.reload()">Coba Ulang</button>`;
             }
         }
         
-        // 4. Kirim Suara & Auto Redirect ke Hasil
+        function goBackToPortal() {
+            if(shareActiveId) window.location.href = window.location.pathname + "?portal=" + shareActiveId;
+        }
+
         async function executeShareVote() {
             const rawVal = document.getElementById('share-vote-selection').value.trim();
             const tokenStr = document.getElementById('share-vote-token').value.trim().toUpperCase();
@@ -599,6 +553,11 @@
             const finalOption = currentShareOptions.find(o => o.toLowerCase() === rawVal.toLowerCase());
             if (!finalOption) return showCustomAlert("Kandidat yang Anda ketik tidak valid! Silakan pilih nama kandidat dari daftar yang muncul.", "Data Tidak Sah", "danger");
             
+            // Cegah double click
+            const btnSubmit = document.getElementById('btn-submit-vote');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...`;
+
             try {
                 const res = await apiCall("submitVote", { electionId: shareActiveId, option: finalOption, token: tokenStr });
                 
@@ -606,7 +565,20 @@
                     window.location.href = window.location.pathname + "?hasil=" + shareActiveId;
                 });
 
-            } catch(err) { showCustomAlert(err.message, "Suara Ditolak", "danger"); }
+            } catch(err) { 
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<i class="bi bi-send-check-fill"></i> KIRIM SUARA SAH`;
+
+                let errorMsg = err.message;
+                let onDismiss = null;
+                
+                if (errorMsg.includes("SUDAH DIGUNAKAN") && isFromPortal) {
+                    errorMsg += "<br><br><b>Sistem akan mengembalikan Anda ke Portal agar dapat memilih Token lain yang masih tersedia.</b>";
+                    onDismiss = () => { window.location.href = window.location.pathname + "?portal=" + shareActiveId; };
+                }
+                
+                showCustomAlert(errorMsg, "Suara Ditolak", "danger", onDismiss); 
+            }
         }
 
         async function initShareHasil(id) {
@@ -619,16 +591,12 @@
                 const ctx = document.getElementById('chartShareHasil').getContext('2d');
                 renderBarChart(ctx, res.results);
             } catch(e) { 
-                document.getElementById('share-hasil-title').innerText = "Gagal Memuat Hasil"; document.getElementById('share-hasil-total').innerText = "Kesalahan koneksi: " + e.message;
+                document.getElementById('share-hasil-title').innerText = "Gagal Memuat Hasil"; 
+                document.getElementById('share-hasil-total').innerHTML = `Koneksi terputus. <br><button class="btn btn-outline-secondary mt-2 btn-sm" onclick="location.reload()">Refresh Data</button>`;
             }
         }
-        
-        function shareTokenWA() {
-            const text = document.getElementById('token-result-text').value;
-            if(text) { window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent("Token Voting Rahasia Anda:\n" + text), '_blank'); }
-        }
 
-        // --- UTILS & CORE API ---
+        // --- UTILS & CORE API DENGAN TIMEOUT KHUSUS KENDALA SINYAL ---
         function showToast(msg, color = "bg-success") {
             const t = document.getElementById('liveToast'); t.className = `toast align-items-center text-white border-0 ${color}`;
             document.getElementById('toast-msg').innerText = msg; new bootstrap.Toast(t).show();
@@ -647,17 +615,35 @@
         }
 
         async function apiCall(action, payload = {}) {
-            if (!APP_DATA.apiUrl || APP_DATA.apiUrl === "") {
-                throw new Error("URL API Server Belum Dikonfigurasi.");
-            }
+            if (!APP_DATA.apiUrl || APP_DATA.apiUrl === "") throw new Error("URL API Server Belum Dikonfigurasi.");
             if (APP_DATA.serverToken) payload.adminToken = APP_DATA.serverToken;
+            
+            // Timeout Controller: Membatalkan fetch jika melebihi 15 detik
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
             try {
                 toggleLoading(true);
-                const res = await fetch(APP_DATA.apiUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, payload: payload }) });
+                const res = await fetch(APP_DATA.apiUrl, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify({ action: action, payload: payload }),
+                    signal: controller.signal // Terapkan pembatasan waktu
+                });
+                
+                clearTimeout(timeoutId); // Sukses, batalkan timer timeout
                 const data = await res.json();
                 toggleLoading(false);
-                if (data.error) throw new Error(data.error); return data;
-            } catch (err) { toggleLoading(false); throw err; }
+                if (data.error) throw new Error(data.error); 
+                return data;
+            } catch (err) { 
+                toggleLoading(false); 
+                // Jika error karena sinyal jelek / timeout
+                if (err.name === 'AbortError' || err.message.includes('fetch')) {
+                    throw new Error("Koneksi lambat atau sinyal memburuk. Silakan coba lagi.");
+                }
+                throw err; 
+            }
         }
 
         function applyBranding() {
@@ -702,7 +688,6 @@
                         
                         <button class="btn btn-sm btn-primary w-100 mb-3 fw-bold" onclick="openVoteModal('${el.id}')"><i class="bi bi-box-arrow-in-right"></i> Masuk Bilik Suara (Admin)</button>
                         
-                        <!-- TERINTEGRASI: BUAT TOKEN -->
                         <div class="token-section">
                             <p class="small text-dark fw-bold mb-2 text-center"><i class="bi bi-key-fill text-warning"></i> 1. Cetak Token Pemilih</p>
                             <div class="input-group input-group-sm mb-2">
@@ -710,13 +695,11 @@
                                 <input type="number" class="form-control text-center" id="inline-token-count-${el.id}" value="10" min="1" max="500">
                                 <button class="btn btn-warning fw-bold text-dark" type="button" onclick="handleInlineGenerateToken('${el.id}')">BUAT TOKEN</button>
                             </div>
-                             <!-- Tempat hasil token sementara (hidden jika kosong) -->
                             <div id="inline-token-result-container-${el.id}" class="d-none">
                                 <textarea class="form-control font-monospace mb-2 text-center" id="inline-token-result-text-${el.id}" rows="3" readonly></textarea>
                             </div>
                         </div>
 
-                        <!-- TERINTEGRASI: SHARE PORTAL -->
                         <div class="p-2 bg-light rounded border mb-2">
                             <p class="small text-dark fw-bold mb-2 text-center"><i class="bi bi-grid-3x3-gap"></i> 2. Portal Token Publik (Otomatis)</p>
                             <div class="d-flex gap-2">
@@ -725,7 +708,6 @@
                             </div>
                         </div>
 
-                        <!-- OPSI TAMBAHAN -->
                         <div class="row g-2 mt-1">
                             <div class="col-6">
                                 <div class="p-2 bg-light rounded border h-100">
@@ -751,7 +733,6 @@
             if(document.getElementById('select-hasil')) document.getElementById('select-hasil').innerHTML = opts;
         }
 
-        // --- ADMIN BILIK SUARA MODAL ---
         function openVoteModal(id) {
             const el = cachedElections.find(e => e.id === id); if (!el) return;
             activeVoteId = id; document.getElementById('vote-title').innerText = el.title; 
@@ -773,27 +754,18 @@
             } catch (err) { showCustomAlert(err.message, "Suara Ditolak", "danger"); }
         }
 
-        // --- MANAJEMEN TOKEN TERINTEGRASI (BARU) ---
         async function handleInlineGenerateToken(electionId) {
             const countInput = document.getElementById(`inline-token-count-${electionId}`);
             const count = parseInt(countInput.value);
-            
             if (!count || count < 1) return showToast("Jumlah token tidak valid!", "bg-danger");
-
             try {
                 const res = await apiCall("generateTokens", { electionId: electionId, count: count });
                 const resultContainer = document.getElementById(`inline-token-result-container-${electionId}`);
                 const resultText = document.getElementById(`inline-token-result-text-${electionId}`);
-                
-                resultContainer.classList.remove('d-none');
-                resultText.value = res.tokens.join(', '); 
-                showToast(`${count} Token berhasil dicetak!`);
-            } catch (err) { 
-                showCustomAlert(err.message, "Gagal Generate", "danger"); 
-            }
+                resultContainer.classList.remove('d-none'); resultText.value = res.tokens.join(', '); showToast(`${count} Token berhasil dicetak!`);
+            } catch (err) { showCustomAlert(err.message, "Gagal Generate", "danger"); }
         }
         
-        // --- MANAJEMEN HASIL ---
         function renderBarChart(ctx, resultsData) {
             if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, { 
@@ -806,13 +778,6 @@
             try {
                 const res = await apiCall("getResults", { electionId: document.getElementById('select-hasil').value });
                 const ctx = document.getElementById('chartHasil').getContext('2d'); renderBarChart(ctx, res.results); showToast(`Total Suara: ${res.totalVotes}`);
-            } catch (err) { showToast(err.message, "bg-danger"); }
-        }
-        
-        async function reqUpgrade(planName) {
-            try {
-                const res = await apiCall("createInvoice", { plan: planName });
-                document.getElementById('payment-box').classList.remove('d-none'); document.getElementById('inv-id').innerText = res.invoiceId; showToast(res.message);
             } catch (err) { showToast(err.message, "bg-danger"); }
         }
     </script>
