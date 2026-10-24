@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.7.9</title>
+    <title>VOTEKU DIGITAL - v1.8.0</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -158,7 +158,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.9 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.8.0 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
             </div>
         </div>
@@ -387,7 +387,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V178', 'VOTEKU_V177', 'VOTEKU_V176', 'VOTEKU_V175', 'VOTEKU_V174'];
+            const oldKeys = ['VOTEKU_V179', 'VOTEKU_V178', 'VOTEKU_V177', 'VOTEKU_V176', 'VOTEKU_V175'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -689,6 +689,7 @@
         async function initShareHasil(id) {
             shareActiveId = id;
             nav('share-hasil');
+            document.getElementById('share-hasil-total').innerText = "Memuat total suara...";
             await fetchShareHasilData(id);
 
             if (autoRefreshTimer) clearInterval(autoRefreshTimer);
@@ -701,7 +702,8 @@
 
         async function fetchShareHasilData(id, silent = false) {
             try {
-                const res = await silent ? apiCallSilent("getResults", { electionId: id }) : await apiCall("getResults", { electionId: id });
+                const res = silent ? await apiCallSilent("getResults", { electionId: id }) : await apiCall("getResults", { electionId: id });
+                if (!res) return;
                 document.getElementById('share-hasil-title').innerText = "Hasil Pemilihan Real-Time";
                 document.getElementById('share-hasil-total').innerText = `Total Suara Masuk: ${res.totalVotes}`;
                 
@@ -812,7 +814,6 @@
             } catch (err) { showToast("Gagal menarik data: " + err.message, "bg-danger"); }
         }
 
-        // --- FUNGSI SHARE KE WHATSAPP DENGAN DETAIL KANDIDAT ---
         function shareToWhatsApp(electionId, electionTitle) {
             const el = cachedElections.find(e => e.id === electionId);
             let opts = [];
@@ -959,6 +960,7 @@ Silakan klik link resmi di bawah ini untuk mengambil Token unik dan mulai Voting
             const electionId = document.getElementById('select-hasil').value;
             if (!electionId) return;
 
+            document.getElementById('lbl-total-suara').innerText = "Memuat total suara...";
             await fetchResultsData(electionId);
 
             if (autoRefreshTimer) clearInterval(autoRefreshTimer);
