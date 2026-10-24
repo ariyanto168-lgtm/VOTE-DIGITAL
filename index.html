@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.5.8</title>
+    <title>VOTEKU DIGITAL - v1.5.9</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -11,6 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Plugin untuk menampilkan label di atas bar chart -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
     <style>
@@ -32,14 +33,15 @@
         .loading-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.9); z-index: 1050; display: none; align-items: center; justify-content: center; flex-direction: column;}
         .premium-card { border: 2px solid #ffc107; background: #fffdf2; }
 
-        /* Custom Alert UI */
+        /* Custom Alert UI Modern */
         .custom-alert-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.2s; }
         .custom-alert-box { background: white; border-radius: 16px; width: 100%; max-width: 350px; text-align: center; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .custom-alert-header { padding: 20px 20px 10px; }
         .custom-alert-header i { font-size: 3rem; margin-bottom: 10px; display: block; }
         .custom-alert-body { padding: 0 20px 20px; font-size: 0.95rem; color: #555; }
         .custom-alert-footer { display: flex; border-top: 1px solid #eee; }
-        .custom-alert-btn { flex: 1; padding: 15px; background: none; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; color: var(--primary); }
+        .custom-alert-btn { flex: 1; padding: 15px; background: none; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; color: var(--primary); transition: background 0.2s; }
+        .custom-alert-btn:hover { background: #f8f9fa; }
         .custom-alert-btn.btn-cancel { color: #dc3545; border-right: 1px solid #eee; }
     </style>
 </head>
@@ -133,7 +135,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.5.8 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.5.9 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark d-none" id="badge-plan"><span id="lbl-plan">Gratis</span></span>
             </div>
         </div>
@@ -274,6 +276,7 @@
         <div id="page-pengaturan" class="page-section">
             <h5 class="fw-bold mb-3">Pengaturan & Admin</h5>
             
+            <!-- Pengaturan Koneksi API -->
             <div class="card p-3 border-primary mb-3 shadow-sm">
                 <h6 class="fw-bold text-primary">Koneksi API Server</h6>
                 <p class="small text-muted mb-2">URL dikunci otomatis agar tidak tidak sengaja terhapus.</p>
@@ -284,6 +287,15 @@
                     </button>
                 </div>
                 <button class="btn btn-sm btn-primary w-100 fw-bold" id="btn-save-api" onclick="saveSettings()" style="display:none;"><i class="bi bi-save"></i> Simpan Perubahan URL</button>
+            </div>
+
+            <!-- Pengaturan Ubah PIN (DIKEMBALIKAN) -->
+            <div class="card p-3 border-warning mb-3 shadow-sm" style="background-color: #fffdf2;">
+                <h6 class="fw-bold text-warning"><i class="bi bi-shield-lock-fill"></i> Ubah PIN & Keamanan</h6>
+                <p class="small text-muted mb-3">Ganti PIN Admin dan Jawaban Pemulihan lokal Anda di sini tanpa perlu mereset aplikasi.</p>
+                <input type="password" id="change-pin" class="form-control mb-2 text-center" placeholder="Ketik PIN Baru (Opsional)">
+                <input type="text" id="change-ans" class="form-control mb-3 text-center" placeholder="Ketik Jawaban Baru (Opsional)">
+                <button class="btn btn-warning w-100 fw-bold text-dark" onclick="updateSecurity()"><i class="bi bi-shield-check"></i> SIMPAN KEAMANAN</button>
             </div>
 
             <div class="card p-3 border-info mb-3 shadow-sm">
@@ -303,7 +315,7 @@
                 <div id="auth-logged-in" class="text-center">
                     <h5 class="text-success fw-bold"><i class="bi bi-person-check-fill"></i> <span id="lbl-logged-user">Terhubung!</span></h5>
                     <p class="mb-3 text-muted small">Sistem Admin Tertanam Permanen</p>
-                    <button class="btn btn-warning w-100 fw-bold" onclick="lockApp()"><i class="bi bi-lock-fill"></i> Kunci Kembali Aplikasi</button>
+                    <button class="btn btn-success w-100 fw-bold" onclick="lockApp()"><i class="bi bi-lock-fill"></i> Kunci Kembali Aplikasi</button>
                 </div>
             </div>
         </div>
@@ -353,7 +365,7 @@
         // Registrasi plugin DataLabels untuk Chart.js
         Chart.register(ChartDataLabels);
 
-        // KUNCI LOKAL PERMANEN (Tidak perlu ubah nama key lagi agar URL tidak lepas saat update versi)
+        // KUNCI LOKAL PERMANEN (Anti Hilang)
         const LOCAL_KEY = 'VOTEKU_APP_DATA'; 
         
         const DEFAULT_DATA = { 
@@ -364,9 +376,9 @@
 
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
-        // Auto-migrate data dari versi lama jika baru pertama kali pakai versi ini
+        // Auto-migrate data dari versi lama
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V157', 'VOTEKU_V156', 'VOTEKU_V155', 'VOTEKU_V154', 'VOTEKU_V153', 'VOTEKU_V152', 'VOTEKU_V151', 'VOTEKU_V150'];
+            const oldKeys = ['VOTEKU_V158', 'VOTEKU_V157', 'VOTEKU_V156', 'VOTEKU_V155', 'VOTEKU_V154', 'VOTEKU_V153', 'VOTEKU_V152', 'VOTEKU_V151', 'VOTEKU_V150'];
             for(let key of oldKeys) {
                 let oldData = localStorage.getItem(key);
                 if(oldData) { APP_DATA = JSON.parse(oldData); break; }
@@ -448,7 +460,7 @@
                 const inputPin = inputEl.value.trim().toUpperCase();
                 
                 if (inputPin === APP_DATA.pin) {
-                    clearURLParams(); // <-- Anti Refresh Trap dijalankan di sini
+                    clearURLParams();
                     document.getElementById('lock-screen').style.display = 'none';
                     document.getElementById('main-app').style.display = 'block';
                     document.getElementById('main-bottom-nav').style.display = 'flex';
@@ -518,7 +530,7 @@
             const pinEl = document.getElementById('kamuflase-pin');
             const pin = pinEl.value.trim().toUpperCase();
             if (pin === APP_DATA.pin) {
-                clearURLParams(); // Bersihkan URL juga
+                clearURLParams();
                 bootstrap.Modal.getInstance(document.getElementById('kamuflaseModal')).hide();
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
@@ -536,7 +548,7 @@
             }
         }
 
-        // --- PENGATURAN API & KUNCI URL ---
+        // --- PENGATURAN API & KEAMANAN LOKAL ---
         function toggleApiLock() {
             apiLocked = !apiLocked;
             const input = document.getElementById('set-api');
@@ -556,6 +568,33 @@
             }
         }
 
+        // FUNGSI GANTI PIN & PERTANYAAN KEAMANAN DARI MENU ADMIN
+        function updateSecurity() {
+            const newPin = document.getElementById('change-pin').value.trim().toUpperCase();
+            const newAns = document.getElementById('change-ans').value.trim().toUpperCase();
+            
+            if (!newPin && !newAns) {
+                return showCustomAlert("Silakan ketik PIN baru atau Jawaban Pemulihan baru jika ingin mengubah.", "Peringatan", "warning");
+            }
+            
+            showCustomConfirm("Yakin ingin menyimpan pengaturan keamanan yang baru?", "Konfirmasi", () => {
+                let msg = "<b>Perubahan berhasil disimpan:</b><br><br>";
+                if (newPin) {
+                    APP_DATA.pin = newPin;
+                    msg += "✅ PIN Admin diperbarui<br>";
+                    document.getElementById('change-pin').value = "";
+                }
+                if (newAns) {
+                    APP_DATA.secAns = newAns;
+                    msg += "✅ Jawaban Pemulihan diperbarui<br>";
+                    document.getElementById('change-ans').value = "";
+                }
+                
+                localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
+                showCustomAlert(msg, "Berhasil", "success");
+            });
+        }
+
         // --- RESET DATABASE SERVER ---
         function resetDatabaseUI() { 
             showCustomConfirm(
@@ -573,7 +612,6 @@
                             throw new Error("URL API Belum Dikonfigurasi.");
                         }
                     } catch (err) { 
-                        // Perbaikan UI Error Aksi Tidak valid
                         let errText = err.message;
                         if(errText.includes("Aksi tidak valid")) {
                             errText = "Kode di Google Apps Script (Code.gs) Anda belum diperbarui atau Anda belum melakukan <b>New Deployment</b>. Harap update kode backend Anda terlebih dahulu.";
