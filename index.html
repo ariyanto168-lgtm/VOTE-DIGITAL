@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.5.7</title>
+    <title>VOTEKU DIGITAL - v1.5.8</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -11,7 +11,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Plugin untuk menampilkan label di atas bar chart -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
     <style>
@@ -30,11 +29,46 @@
         
         #lock-screen { position: fixed; top:0; left:0; right:0; bottom:0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;}
         .lock-card { background: #fff; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-        .loading-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.8); z-index: 1050; display: none; align-items: center; justify-content: center; flex-direction: column;}
+        .loading-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.9); z-index: 1050; display: none; align-items: center; justify-content: center; flex-direction: column;}
         .premium-card { border: 2px solid #ffc107; background: #fffdf2; }
+
+        /* Custom Alert UI */
+        .custom-alert-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.2s; }
+        .custom-alert-box { background: white; border-radius: 16px; width: 100%; max-width: 350px; text-align: center; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .custom-alert-header { padding: 20px 20px 10px; }
+        .custom-alert-header i { font-size: 3rem; margin-bottom: 10px; display: block; }
+        .custom-alert-body { padding: 0 20px 20px; font-size: 0.95rem; color: #555; }
+        .custom-alert-footer { display: flex; border-top: 1px solid #eee; }
+        .custom-alert-btn { flex: 1; padding: 15px; background: none; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; color: var(--primary); }
+        .custom-alert-btn.btn-cancel { color: #dc3545; border-right: 1px solid #eee; }
     </style>
 </head>
 <body>
+    <!-- CUSTOM ALERT MODAL -->
+    <div class="custom-alert-overlay" id="ui-alert">
+        <div class="custom-alert-box">
+            <div class="custom-alert-header" id="ui-alert-icon"><i class="bi bi-info-circle text-primary"></i></div>
+            <h5 class="fw-bold mb-2" id="ui-alert-title">Info</h5>
+            <div class="custom-alert-body" id="ui-alert-msg">Pesan...</div>
+            <div class="custom-alert-footer">
+                <button class="custom-alert-btn" onclick="closeCustomAlert()">MENGERTI</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM CONFIRM MODAL -->
+    <div class="custom-alert-overlay" id="ui-confirm">
+        <div class="custom-alert-box">
+            <div class="custom-alert-header"><i class="bi bi-exclamation-triangle-fill text-warning"></i></div>
+            <h5 class="fw-bold mb-2" id="ui-confirm-title">Konfirmasi</h5>
+            <div class="custom-alert-body" id="ui-confirm-msg">Yakin?</div>
+            <div class="custom-alert-footer">
+                <button class="custom-alert-btn btn-cancel" onclick="closeCustomConfirm(false)">BATAL</button>
+                <button class="custom-alert-btn text-primary" onclick="closeCustomConfirm(true)">LANJUTKAN</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Kunci Lokal / Layar PIN -->
     <div id="lock-screen">
         <div class="lock-card" id="view-login">
@@ -80,7 +114,7 @@
     <!-- Modal Kamuflase Admin -->
     <div class="modal fade" id="kamuflaseModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content p-3">
+            <div class="modal-content p-3 text-center">
                 <h5 class="fw-bold text-primary mb-3"><i class="bi bi-shield-shaded"></i> Akses Panel Admin</h5>
                 <input type="password" id="kamuflase-pin" class="form-control mb-3 text-center fs-5" placeholder="Masukkan PIN Lokal" onkeypress="if(event.key === 'Enter') verifyKamuflase()">
                 <button class="btn btn-primary w-100 fw-bold" onclick="verifyKamuflase()">BUKA PANEL ADMIN</button>
@@ -99,7 +133,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.5.7 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.5.8 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark d-none" id="badge-plan"><span id="lbl-plan">Gratis</span></span>
             </div>
         </div>
@@ -113,7 +147,7 @@
             </div>
         </div>
 
-        <!-- DASHBOARD (Telah Dibersihkan dari Kolom Input Data Peserta) -->
+        <!-- DASHBOARD -->
         <div id="page-dashboard" class="page-section active">
             <div class="alert alert-info shadow-sm" id="auth-status-alert"><i class="bi bi-info-circle"></i> Memeriksa Server...</div>
             <div class="card p-3 mb-3 text-center bg-primary text-white shadow" onclick="fetchElectionsUI()">
@@ -219,14 +253,12 @@
             
             <div class="card p-3 mb-3 premium-card shadow">
                 <h6 class="fw-bold text-dark">Paket Acara <span class="badge bg-primary">Rp 50.000</span></h6>
-                <!-- Info Kuota Paket Acara -->
                 <p class="small text-muted mb-2">Dapatkan kuota hingga 500 Token Pemilih per acara.</p>
                 <button class="btn btn-primary btn-sm w-100 mt-2" onclick="reqUpgrade('Acara')">Beli Paket Acara</button>
             </div>
             
             <div class="card p-3 mb-3 border-success shadow" style="background:#f4fcf6;">
                 <h6 class="fw-bold text-success">Paket Komunitas <span class="badge bg-success">Rp 150.000</span></h6>
-                 <!-- Info Kuota Paket Komunitas -->
                  <p class="small text-muted mb-2">Kuota Token Pemilih Tanpa Batas (Unlimited) untuk acara besar.</p>
                 <button class="btn btn-success btn-sm w-100 mt-2" onclick="reqUpgrade('Komunitas')">Beli Paket Komunitas</button>
             </div>
@@ -321,19 +353,20 @@
         // Registrasi plugin DataLabels untuk Chart.js
         Chart.register(ChartDataLabels);
 
-        const LOCAL_KEY = 'VOTEKU_V157'; 
+        // KUNCI LOKAL PERMANEN (Tidak perlu ubah nama key lagi agar URL tidak lepas saat update versi)
+        const LOCAL_KEY = 'VOTEKU_APP_DATA'; 
         
-        // ⚠️ SANGAT PENTING: GANTI "apiUrl" DI BAWAH INI DENGAN URL GOOGLE APPS SCRIPT ANDA ⚠️
         const DEFAULT_DATA = { 
             pin: "ADMIN123", phishing: "Ari GPM", secAns: "ARI GPM", 
-            apiUrl: "https://script.google.com/macros/s/AKfycbw6qjXlH1K_K6Y9gLgV3zQjH5xY7w8s9d0f1g2h3j4k5l6z/exec", // <--- GANTI INI
+            apiUrl: "https://script.google.com/macros/s/AKfycbw6qjXlH1K_K6Y9gLgV3zQjH5xY7w8s9d0f1g2h3j4k5l6z/exec", 
             serverToken: "HARDCODED_ADMIN_TOKEN_VOTEKU", serverUser: "Ari GPM", serverPlan: "Komunitas" 
         };
 
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
+        // Auto-migrate data dari versi lama jika baru pertama kali pakai versi ini
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V156', 'VOTEKU_V155', 'VOTEKU_V154', 'VOTEKU_V153', 'VOTEKU_V152', 'VOTEKU_V151', 'VOTEKU_V150'];
+            const oldKeys = ['VOTEKU_V157', 'VOTEKU_V156', 'VOTEKU_V155', 'VOTEKU_V154', 'VOTEKU_V153', 'VOTEKU_V152', 'VOTEKU_V151', 'VOTEKU_V150'];
             for(let key of oldKeys) {
                 let oldData = localStorage.getItem(key);
                 if(oldData) { APP_DATA = JSON.parse(oldData); break; }
@@ -341,10 +374,47 @@
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
         else if (!APP_DATA.serverUser) { APP_DATA.serverUser = DEFAULT_DATA.serverUser; APP_DATA.serverPlan = DEFAULT_DATA.serverPlan; }
+        
         localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
 
         let cachedElections = [], activeVoteId = null, chartInstance = null, shareActiveId = null, apiLocked = true;
         let currentShareOptions = [], currentAdminOptions = [];
+
+        // --- SISTEM CUSTOM ALERT & CONFIRM MODERN ---
+        let confirmCallback = null;
+        let alertCallback = null;
+
+        function showCustomAlert(msg, title = "Info", type = "primary", onOk = null) {
+            document.getElementById('ui-alert-title').innerText = title;
+            document.getElementById('ui-alert-msg').innerHTML = msg;
+            
+            let iconClass = "bi-info-circle text-primary";
+            if(type === 'success') iconClass = "bi-check-circle-fill text-success";
+            else if(type === 'danger') iconClass = "bi-x-circle-fill text-danger";
+            else if(type === 'warning') iconClass = "bi-exclamation-triangle-fill text-warning";
+            
+            document.getElementById('ui-alert-icon').innerHTML = `<i class="bi ${iconClass}"></i>`;
+            alertCallback = onOk;
+            document.getElementById('ui-alert').style.display = 'flex';
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('ui-alert').style.display = 'none';
+            if(alertCallback) alertCallback();
+        }
+
+        function showCustomConfirm(msg, title = "Konfirmasi", onConfirm = null) {
+            document.getElementById('ui-confirm-title').innerText = title;
+            document.getElementById('ui-confirm-msg').innerHTML = msg;
+            confirmCallback = onConfirm;
+            document.getElementById('ui-confirm').style.display = 'flex';
+        }
+
+        function closeCustomConfirm(isConfirmed) {
+            document.getElementById('ui-confirm').style.display = 'none';
+            if(isConfirmed && confirmCallback) confirmCallback();
+        }
+
 
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -364,6 +434,13 @@
             checkServerAuthStatus();
         };
 
+        // --- ANTI-REFRESH TRAP (Hapus Params saat Admin Login) ---
+        function clearURLParams() {
+            if (window.history.replaceState) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
         // --- AUTH & KUNCI ---
         function unlockApp() {
             try {
@@ -371,6 +448,7 @@
                 const inputPin = inputEl.value.trim().toUpperCase();
                 
                 if (inputPin === APP_DATA.pin) {
+                    clearURLParams(); // <-- Anti Refresh Trap dijalankan di sini
                     document.getElementById('lock-screen').style.display = 'none';
                     document.getElementById('main-app').style.display = 'block';
                     document.getElementById('main-bottom-nav').style.display = 'flex';
@@ -385,11 +463,11 @@
                         else { showToast("Info: Silakan set URL API di menu Admin", "bg-warning text-dark"); }
                     }, 500);
                 } else { 
-                    alert("PIN Salah! Silakan coba lagi."); 
+                    showCustomAlert("PIN yang Anda masukkan salah!", "Akses Ditolak", "danger");
                     inputEl.value = ""; 
                     inputEl.focus();
                 }
-            } catch(e) { alert("Kesalahan Sistem: " + e.message); }
+            } catch(e) { showCustomAlert("Kesalahan Sistem: " + e.message, "Error", "danger"); }
         }
 
         function lockApp() { window.location.href = window.location.pathname; }
@@ -409,7 +487,7 @@
                 document.getElementById('view-new-pin').style.display = 'block'; 
                 ansEl.value = "";
             } else { 
-                alert("Jawaban Keamanan Salah!"); 
+                showCustomAlert("Jawaban Keamanan Anda Salah!", "Gagal", "danger");
                 ansEl.value = "";
                 ansEl.focus();
             }
@@ -418,17 +496,17 @@
         function saveInitialSetup() {
             const pinVal = document.getElementById('setup-pin').value.trim().toUpperCase();
             const phVal = document.getElementById('setup-sa').value.trim().toUpperCase();
-            if (!pinVal || !phVal) return alert("Isi PIN dan Frasa Pemulihan!");
+            if (!pinVal || !phVal) return showCustomAlert("Isi PIN dan Frasa Pemulihan terlebih dahulu!", "Peringatan", "warning");
             APP_DATA.pin = pinVal; APP_DATA.secAns = phVal;
             localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); 
-            alert("Setup Berhasil! Silakan Masuk."); location.reload();
+            showCustomAlert("Setup Keamanan Berhasil!", "Sukses", "success", () => location.reload());
         }
 
         function saveNewPin() {
             const newPin = document.getElementById('new-pin-input').value.trim().toUpperCase();
-            if (!newPin) return alert("PIN baru tidak boleh kosong!");
+            if (!newPin) return showCustomAlert("PIN baru tidak boleh kosong!", "Peringatan", "warning");
             APP_DATA.pin = newPin; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
-            alert("PIN Berhasil Diperbarui! Silakan Masuk."); location.reload();
+            showCustomAlert("PIN Berhasil Diperbarui!", "Sukses", "success", () => location.reload());
         }
         
         function triggerKamuflase() { 
@@ -440,6 +518,7 @@
             const pinEl = document.getElementById('kamuflase-pin');
             const pin = pinEl.value.trim().toUpperCase();
             if (pin === APP_DATA.pin) {
+                clearURLParams(); // Bersihkan URL juga
                 bootstrap.Modal.getInstance(document.getElementById('kamuflaseModal')).hide();
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
@@ -451,7 +530,7 @@
                 nav('pengaturan', document.querySelectorAll('.bottom-nav .nav-item')[3]); 
                 setTimeout(() => { if(APP_DATA.apiUrl) fetchElectionsUI(); }, 500);
             } else { 
-                alert("PIN Salah!"); 
+                showCustomAlert("PIN Akses Panel Salah!", "Gagal", "danger");
                 pinEl.value = "";
                 pinEl.focus();
             }
@@ -478,21 +557,34 @@
         }
 
         // --- RESET DATABASE SERVER ---
-        async function resetDatabaseUI() { 
-            if (confirm("⚠️ PERINGATAN BERBAHAYA!\n\nYakin ingin MENGHAPUS SEMUA DATA (Acara, Token, Suara) dari Server Database (Google Sheets) sekaligus reset memori HP ini?\n\nData yang dihapus TIDAK BISA DIKEMBALIKAN!")) {
-                try {
-                    if (APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) {
-                        const res = await apiCall("resetDatabase");
-                        alert(res.message);
+        function resetDatabaseUI() { 
+            showCustomConfirm(
+                "⚠️ <b>PERINGATAN BERBAHAYA!</b><br><br>Yakin ingin <b>MENGHAPUS SEMUA DATA</b> (Acara, Token, Suara) dari Server Database (Google Sheets)?<br><br>Data yang dihapus TIDAK BISA DIKEMBALIKAN!", 
+                "Reset Database", 
+                async () => {
+                    try {
+                        if (APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) {
+                            const res = await apiCall("resetDatabase");
+                            showCustomAlert(res.message, "Reset Berhasil", "success", () => {
+                                localStorage.removeItem(LOCAL_KEY); 
+                                location.reload(); 
+                            });
+                        } else {
+                            throw new Error("URL API Belum Dikonfigurasi.");
+                        }
+                    } catch (err) { 
+                        // Perbaikan UI Error Aksi Tidak valid
+                        let errText = err.message;
+                        if(errText.includes("Aksi tidak valid")) {
+                            errText = "Kode di Google Apps Script (Code.gs) Anda belum diperbarui atau Anda belum melakukan <b>New Deployment</b>. Harap update kode backend Anda terlebih dahulu.";
+                        }
+                        showCustomAlert("<b>Server Merespon Error:</b><br>" + errText + "<br><br>Hanya cache lokal HP ini yang akan direset.", "Gagal Koneksi", "danger", () => {
+                            localStorage.removeItem(LOCAL_KEY); 
+                            location.reload();
+                        });
                     }
-                    localStorage.removeItem(LOCAL_KEY); 
-                    location.reload(); 
-                } catch (err) { 
-                    alert("Gagal koneksi ke server: " + err.message + "\n\nHanya mereset cache lokal.");
-                    localStorage.removeItem(LOCAL_KEY); 
-                    location.reload();
                 }
-            } 
+            );
         }
         
         function exportData() {
@@ -500,6 +592,7 @@
             const dl = document.createElement('a'); dl.setAttribute("href", dataStr);
             dl.setAttribute("download", `Voteku_Backup_${new Date().toISOString().split('T')[0]}.json`); dl.click(); showToast("Backup Berhasil Diunduh!");
         }
+        
         function importData(event) {
             const file = event.target.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -508,9 +601,9 @@
                     const imported = JSON.parse(e.target.result);
                     if (imported.pin !== undefined) {
                         APP_DATA = imported; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
-                        alert("Restore Berhasil! Aplikasi akan dimuat ulang."); location.reload();
-                    } else { alert("File JSON tidak valid!"); }
-                } catch(err) { alert("Gagal membaca file backup!"); }
+                        showCustomAlert("Restore Data Berhasil! Aplikasi akan dimuat ulang.", "Sukses", "success", () => location.reload());
+                    } else { showCustomAlert("File JSON yang Anda masukkan tidak valid!", "Gagal", "danger"); }
+                } catch(err) { showCustomAlert("Gagal membaca atau memproses file backup!", "Error", "danger"); }
             };
             reader.readAsText(file);
         }
@@ -523,7 +616,7 @@
                 const found = res.data.find(e => e.id === id);
                 if (!found) { 
                     document.getElementById('share-vote-title').innerText = "Acara Tidak Ditemukan";
-                    document.getElementById('share-vote-desc').innerText = "Link salah atau acara telah ditutup.";
+                    document.getElementById('share-vote-desc').innerText = "Link salah atau acara telah ditutup oleh Admin.";
                     document.getElementById('share-kandidat-list').innerHTML = ""; return; 
                 }
                 shareActiveId = id;
@@ -539,7 +632,7 @@
                 document.getElementById('share-kandidat-list').innerHTML = opts.map(opt => `<option value="${opt}">`).join('');
                 document.getElementById('share-vote-selection').value = ""; 
             } catch(e) { 
-                document.getElementById('share-vote-title').innerText = "Gagal Memuat Data"; document.getElementById('share-vote-desc').innerText = "Kesalahan: " + e.message;
+                document.getElementById('share-vote-title').innerText = "Gagal Memuat Data"; document.getElementById('share-vote-desc').innerText = "Kesalahan koneksi ke server.";
             }
         }
         
@@ -547,16 +640,15 @@
             const rawVal = document.getElementById('share-vote-selection').value.trim();
             const tokenStr = document.getElementById('share-vote-token').value.trim().toUpperCase();
             
-            if (!rawVal || !tokenStr) return alert("Pilih kandidat dan masukkan token unik Anda!");
+            if (!rawVal || !tokenStr) return showCustomAlert("Harap pilih kandidat dan masukkan token unik Anda terlebih dahulu!", "Peringatan", "warning");
             
             const finalOption = currentShareOptions.find(o => o.toLowerCase() === rawVal.toLowerCase());
-            if (!finalOption) return alert("Kandidat tidak valid! Silakan ketik dan pilih nama kandidat dari daftar yang muncul.");
+            if (!finalOption) return showCustomAlert("Kandidat yang Anda ketik tidak valid! Silakan pilih nama kandidat dari daftar yang muncul.", "Data Tidak Sah", "danger");
             
             try {
                 const res = await apiCall("submitVote", { electionId: shareActiveId, option: finalOption, token: tokenStr });
-                alert("SUKSES! " + res.message); 
-                location.reload();
-            } catch(err) { alert(err.message); }
+                showCustomAlert("<b>TERIMA KASIH!</b><br>" + res.message, "Suara Berhasil Masuk", "success", () => location.reload());
+            } catch(err) { showCustomAlert(err.message, "Suara Ditolak", "danger"); }
         }
 
         async function initShareHasil(id) {
@@ -570,7 +662,7 @@
                 renderBarChart(ctx, res.results);
 
             } catch(e) { 
-                document.getElementById('share-hasil-title').innerText = "Gagal Memuat Hasil"; document.getElementById('share-hasil-total').innerText = "Kesalahan: " + e.message;
+                document.getElementById('share-hasil-title').innerText = "Gagal Memuat Hasil"; document.getElementById('share-hasil-total').innerText = "Kesalahan koneksi: " + e.message;
             }
         }
         
@@ -584,12 +676,13 @@
             const t = document.getElementById('liveToast'); t.className = `toast align-items-center text-white border-0 ${color}`;
             document.getElementById('toast-msg').innerText = msg; new bootstrap.Toast(t).show();
         }
+        
         function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
         
         function saveSettings() { 
             APP_DATA.apiUrl = document.getElementById('set-api').value; 
             localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); 
-            showToast("URL Disimpan!"); 
+            showToast("URL Berhasil Disimpan!"); 
             toggleApiLock();
         }
 
@@ -609,7 +702,7 @@
         }
 
         async function apiCall(action, payload = {}) {
-            if (!APP_DATA.apiUrl || APP_DATA.apiUrl === "") throw new Error("URL API Belum Dikonfigurasi Oleh Admin.");
+            if (!APP_DATA.apiUrl || APP_DATA.apiUrl === "") throw new Error("URL API Server Belum Dikonfigurasi Oleh Admin.");
             if (APP_DATA.serverToken) payload.adminToken = APP_DATA.serverToken;
             try {
                 toggleLoading(true);
@@ -642,7 +735,7 @@
                     options: document.getElementById('v-opsi').value.split(',').map(o=>o.trim()).filter(o=>o)
                 });
                 showToast(res.message); document.querySelector('form').reset(); fetchElectionsUI(); nav('voting', document.querySelectorAll('.bottom-nav .nav-item')[2]);
-            } catch (err) { showToast(err.message, "bg-danger"); }
+            } catch (err) { showCustomAlert(err.message, "Gagal Membuat", "danger"); }
         }
 
         async function fetchElectionsUI() {
@@ -728,15 +821,16 @@
             const rawVal = document.getElementById('admin-vote-selection').value.trim();
             const tokenStr = document.getElementById('vote-token').value.trim().toUpperCase();
             
-            if(!rawVal || !tokenStr) return showToast("Isi kandidat dan token!", "bg-warning text-dark");
+            if(!rawVal || !tokenStr) return showToast("Isi pilihan kandidat dan token!", "bg-warning text-dark");
             
             const finalOption = currentAdminOptions.find(o => o.toLowerCase() === rawVal.toLowerCase());
-            if (!finalOption) return showToast("Kandidat tidak valid!", "bg-danger text-white");
+            if (!finalOption) return showToast("Kandidat yang diketik tidak valid!", "bg-danger text-white");
 
             try {
                 const res = await apiCall("submitVote", { electionId: activeVoteId, option: finalOption, token: tokenStr });
-                bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide(); showToast(res.message, "bg-success");
-            } catch (err) { showToast(err.message, "bg-danger"); }
+                bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide(); 
+                showCustomAlert("Suara sah berhasil dimasukkan ke server!", "Berhasil", "success");
+            } catch (err) { showCustomAlert(err.message, "Suara Ditolak", "danger"); }
         }
 
         // --- MANAJEMEN HASIL & TOKEN ---
@@ -746,14 +840,13 @@
             try {
                 const res = await apiCall("generateTokens", { electionId: id, count: count });
                 document.getElementById('token-result-card').classList.remove('d-none');
-                document.getElementById('token-result-text').value = res.tokens.join('\n'); showToast(res.message);
-            } catch (err) { showToast(err.message, "bg-danger"); }
+                document.getElementById('token-result-text').value = res.tokens.join('\n'); 
+                showToast(res.message);
+            } catch (err) { showCustomAlert(err.message, "Gagal Generate", "danger"); }
         }
         
-        // Fungsi pembantu untuk render Bar Chart dengan angka di atas balok
         function renderBarChart(ctx, resultsData) {
             if (chartInstance) chartInstance.destroy();
-            
             chartInstance = new Chart(ctx, { 
                 type: 'bar', 
                 data: { 
@@ -767,7 +860,7 @@
                 options: { 
                     plugins: {
                         legend: { display: false },
-                        datalabels: { // Konfigurasi Label Angka
+                        datalabels: {
                             anchor: 'end',
                             align: 'top',
                             color: '#333',
@@ -775,16 +868,8 @@
                             formatter: Math.round
                         }
                     },
-                    layout: {
-                        padding: {
-                            top: 25 // Beri ruang ekstra di atas agar angka tidak terpotong
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                    layout: { padding: { top: 25 } },
+                    scales: { y: { beginAtZero: true } }
                 } 
             });
         }
