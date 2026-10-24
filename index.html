@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.6.7</title>
+    <title>VOTEKU DIGITAL - v1.7.1</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -77,7 +77,7 @@
         <div class="lock-card" id="view-login">
             <img src="logovotedigital.png" alt="Logo" style="height: 60px; width: auto; margin-bottom: 10px; border-radius: 12px;">
             <h4 class="fw-bold mb-1">VOTEKU DIGITAL</h4>
-            <div class="mb-3"><span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="bi bi-shield-check"></i> Verified: Sistem Resmi</span></div>
+            <div class="mb-3"><span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="bi bi-shield-fill-check"></i> Secure Pro Verified</span></div>
             <p class="text-muted small mb-3">Masukkan PIN untuk membuka aplikasi</p>
             <input type="password" id="pin-input" class="form-control mb-3 text-center py-2 fs-5" placeholder="••••••••" onkeypress="if(event.key === 'Enter') unlockApp()">
             <button class="btn btn-primary w-100 py-2 mb-3 fw-bold rounded-pill" onclick="unlockApp()"><i class="bi bi-lock-fill"></i> Masuk Aplikasi</button>
@@ -136,8 +136,8 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.6.7 <i class="bi bi-key-fill text-muted"></i></span>
-                <span class="badge bg-warning text-dark d-none" id="badge-plan"><span id="lbl-plan">Gratis</span></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.1 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
             </div>
         </div>
 
@@ -152,14 +152,14 @@
 
         <!-- DASHBOARD -->
         <div id="page-dashboard" class="page-section active">
-            <div class="alert alert-info shadow-sm" id="auth-status-alert"><i class="bi bi-info-circle"></i> Memeriksa Server...</div>
+            <div class="alert alert-info shadow-sm" id="auth-status-alert"><i class="bi bi-shield-fill-check text-success"></i> <b>Secure Pro Aktif</b> - Perlindungan Anti-Double Vote & Enkripsi Token</div>
             <div class="card p-3 mb-3 text-center bg-primary text-white shadow" onclick="fetchElectionsUI()">
                 <i class="bi bi-cloud-arrow-down fs-2"></i><div class="fw-bold mt-1">Tarik Ulang Data Acara</div>
             </div>
             
             <div class="row g-2 text-center mb-3">
                 <div class="col-6"><button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('hasil')"><i class="bi bi-bar-chart fs-3 d-block text-success"></i><small>Lihat Hasil</small></button></div>
-                <div class="col-6"><button class="btn btn-light w-100 py-3 border shadow-sm premium-card" onclick="nav('premium')"><i class="bi bi-star-fill fs-3 d-block text-warning"></i><small>Premium</small></button></div>
+                <div class="col-6"><button class="btn btn-light w-100 py-3 border shadow-sm premium-card" onclick="nav('premium')"><i class="bi bi-star-fill fs-3 d-block text-warning"></i><small>Paket & Harga</small></button></div>
             </div>
         </div>
 
@@ -233,15 +233,39 @@
             </div>
         </div>
 
-        <!-- HASIL -->
+        <!-- HASIL (AUTO LOAD) -->
         <div id="page-hasil" class="page-section">
             <h5 class="fw-bold mb-3">Hasil Voting Server</h5>
-            <div class="card p-3 mb-3">
-                <select class="form-select mb-2" id="select-hasil"></select>
-                <button class="btn btn-success w-100" onclick="fetchResultsUI()">Tarik Data Hasil</button>
+            <div class="card p-3 mb-2">
+                <label class="small text-muted fw-bold mb-1">Pilih Acara:</label>
+                <select class="form-select mb-0 fw-bold border-primary" id="select-hasil" onchange="autoFetchResults()"></select>
             </div>
-            <div class="card p-3 text-center">
-                <canvas id="chartHasil" width="100%" height="80"></canvas>
+            <div class="card p-3 text-center shadow-sm">
+                <div class="fw-bold text-success mb-2" id="lbl-total-suara">Total Suara: 0</div>
+                <canvas id="chartHasil" width="100%" height="90"></canvas>
+            </div>
+        </div>
+
+        <!-- LAYANAN PREMIUM / PAKET & HARGA -->
+        <div id="page-premium" class="page-section">
+            <h5 class="fw-bold mb-3 text-warning"><i class="bi bi-stars"></i> Paket & Harga Token</h5>
+            
+            <div class="card p-3 mb-3 premium-card shadow">
+                <h6 class="fw-bold text-dark">Paket Acara <span class="badge bg-primary">Rp 50.000</span></h6>
+                <p class="small text-muted mb-2">Dapatkan kuota hingga 500 Token Pemilih per acara.</p>
+                <button class="btn btn-primary btn-sm w-100 mt-2" onclick="reqUpgrade('Acara')">Beli Paket Acara</button>
+            </div>
+            
+            <div class="card p-3 mb-3 border-success shadow" style="background:#f4fcf6;">
+                <h6 class="fw-bold text-success">Paket Komunitas <span class="badge bg-success">Rp 150.000</span></h6>
+                <p class="small text-muted mb-2">Kuota Token Pemilih Tanpa Batas (Unlimited) untuk acara besar.</p>
+                <button class="btn btn-success btn-sm w-100 mt-2" onclick="reqUpgrade('Komunitas')">Beli Paket Komunitas</button>
+            </div>
+            
+            <div class="card p-3 d-none border-info" id="payment-box">
+                <h6 class="fw-bold text-info border-bottom pb-2">Status Pembayaran</h6>
+                <small class="d-block mb-2">Invoice: <b id="inv-id"></b></small>
+                <button class="btn btn-info text-white w-100" onclick="verifyInvoice()">Verifikasi Pembayaran</button>
             </div>
         </div>
 
@@ -332,13 +356,13 @@
         const DEFAULT_DATA = { 
             pin: "ADMIN123", phishing: "Ari GPM", secAns: "ARI GPM", 
             apiUrl: HARDCODED_API_URL, 
-            serverToken: "HARDCODED_ADMIN_TOKEN_VOTEKU", serverUser: "Ari GPM", serverPlan: "Komunitas" 
+            serverToken: "HARDCODED_ADMIN_TOKEN_VOTEKU", serverUser: "Ari GPM", serverPlan: "Secure Pro" 
         };
 
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V166', 'VOTEKU_V165', 'VOTEKU_V164', 'VOTEKU_V163', 'VOTEKU_V162'];
+            const oldKeys = ['VOTEKU_V170', 'VOTEKU_V169', 'VOTEKU_V168', 'VOTEKU_V167', 'VOTEKU_V166'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -381,7 +405,6 @@
                 document.getElementById('main-app').style.display = 'block';
                 document.getElementById('main-bottom-nav').style.display = 'none';
                 
-                // PENGAMANAN UTAMA: Jika HP ini sudah pernah voting untuk acara portal/vote tersebut, langsung alihkan ke halaman Hasil!
                 const targetId = sharePortalId || shareVoteId || shareHasilId;
                 if (sharePortalId || shareVoteId) {
                     if (localStorage.getItem("VOTE_DONE_" + targetId)) {
@@ -469,8 +492,6 @@
             );
         }
 
-        // --- ALUR PORTAL -> VOTE -> HASIL (DENGAN PROTEKSI TOTAL) ---
-        
         async function initSharePortal(id) {
             nav('share-portal');
             try {
@@ -497,7 +518,6 @@
         }
 
         function takeToken(btn, tokenStr, electionId) {
-            // Pengaman ekstra: Jika warga mencoba klik token hijau padahal HP ini sudah pernah dipakai voting
             if (localStorage.getItem("VOTE_DONE_" + electionId)) {
                 showCustomAlert("Perangkat ini sudah digunakan untuk mengirim suara. Anda tidak dapat mengambil token baru.", "Akses Ditolak", "warning", () => {
                     window.location.href = window.location.pathname + "?hasil=" + electionId;
@@ -573,7 +593,6 @@
             try {
                 const res = await apiCall("submitVote", { electionId: shareActiveId, option: finalOption, token: tokenStr });
                 
-                // KUNCI PERANGKAT PERMANEN DI HP INI
                 localStorage.setItem("VOTE_DONE_" + shareActiveId, "true");
 
                 showCustomAlert("<b>TERIMA KASIH!</b><br>" + res.message, "Suara Berhasil Masuk", "success", () => {
@@ -625,8 +644,11 @@
             if (element && element.classList.contains('nav-item')) {
                 document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active')); element.classList.add('active');
             }
-            if(pageId === 'hasil') { renderSelectElections();
-            } else if (pageId === 'voting') { if(cachedElections.length === 0) fetchElectionsUI(); else renderVotingList(); }
+            if(pageId === 'hasil') { 
+                fetchElectionsForResults(); 
+            } else if (pageId === 'voting') { 
+                if(cachedElections.length === 0) fetchElectionsUI(); else renderVotingList(); 
+            }
         }
 
         async function apiCall(action, payload = {}) {
@@ -660,11 +682,11 @@
         }
 
         function applyBranding() {
-            document.getElementById('badge-plan').classList.remove('d-none'); document.getElementById('lbl-plan').innerText = APP_DATA.serverPlan || "Komunitas";
-            document.getElementById('dynamic-header').style.background = "#1b5e20"; document.getElementById('ui-branding-subtitle').innerText = "Premium White-Label Member";
+            document.getElementById('badge-plan').classList.remove('d-none'); document.getElementById('lbl-plan').innerText = APP_DATA.serverPlan || "Secure Pro";
+            document.getElementById('dynamic-header').style.background = "#1b5e20"; document.getElementById('ui-branding-subtitle').innerText = "Secure Pro White-Label Member";
         }
         function checkServerAuthStatus() {
-            const statusEl = document.getElementById('auth-status-alert'); statusEl.innerHTML = `<i class="bi bi-shield-check"></i> <b>${APP_DATA.serverUser}</b> (${APP_DATA.serverPlan}) - Hardcoded Active`;
+            const statusEl = document.getElementById('auth-status-alert'); statusEl.innerHTML = `<i class="bi bi-shield-fill-check text-success"></i> <b>Secure Pro Aktif</b> - Perlindungan Anti-Double Vote & Enkripsi Token`;
             statusEl.className = "alert alert-success shadow-sm"; document.getElementById('lbl-logged-user').innerText = `Halo, ${APP_DATA.serverUser}!`; applyBranding();
         }
 
@@ -685,7 +707,7 @@
             const container = document.getElementById('list-voting'); container.innerHTML = "";
             if (!cachedElections || cachedElections.length === 0) {
                 container.innerHTML = `<div class="card p-4 text-center shadow-sm border-warning"><i class="bi bi-inbox fs-1 text-warning mb-2"></i><h6 class="fw-bold">Belum Ada Acara</h6></div>`;
-                renderSelectElections(); return;
+                return;
             }
 
             cachedElections.forEach(el => {
@@ -737,12 +759,6 @@
 
                     </div>`;
             });
-            renderSelectElections();
-        }
-
-        function renderSelectElections() {
-            let opts = '<option value="">-- Pilih Acara Voting --</option>'; cachedElections.forEach(el => opts += `<option value="${el.id}">${el.title}</option>`);
-            if(document.getElementById('select-hasil')) document.getElementById('select-hasil').innerHTML = opts;
         }
 
         function openVoteModal(id) {
@@ -778,18 +794,82 @@
             } catch (err) { showCustomAlert(err.message, "Gagal Generate", "danger"); }
         }
         
-        function renderBarChart(ctx, resultsData) {
-            if (chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, { 
-                type: 'bar', data: { labels: Object.keys(resultsData), datasets: [{ label: 'Suara', data: Object.values(resultsData), backgroundColor: '#2e7d32' }] }, 
-                options: { plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'top', color: '#333', font: { weight: 'bold', size: 14 }, formatter: Math.round } }, layout: { padding: { top: 25 } }, scales: { y: { beginAtZero: true } } } 
-            });
+        async function fetchElectionsForResults() {
+            try {
+                const res = await apiCall("getElections");
+                cachedElections = res.data;
+                const selectEl = document.getElementById('select-hasil');
+                
+                if (!cachedElections || cachedElections.length === 0) {
+                    selectEl.innerHTML = '<option value="">-- Belum ada acara --</option>';
+                    return;
+                }
+
+                selectEl.innerHTML = cachedElections.map(el => `<option value="${el.id}">${el.title}</option>`).join('');
+                autoFetchResults();
+            } catch (err) {
+                showToast("Gagal memuat daftar acara: " + err.message, "bg-danger");
+            }
         }
 
-        async function fetchResultsUI() {
+        async function autoFetchResults() {
+            const electionId = document.getElementById('select-hasil').value;
+            if (!electionId) return;
+
             try {
-                const res = await apiCall("getResults", { electionId: document.getElementById('select-hasil').value });
-                const ctx = document.getElementById('chartHasil').getContext('2d'); renderBarChart(ctx, res.results); showToast(`Total Suara: ${res.totalVotes}`);
+                const res = await apiCall("getResults", { electionId: electionId });
+                document.getElementById('lbl-total-suara').innerText = `Total Suara Masuk: ${res.totalVotes}`;
+                const ctx = document.getElementById('chartHasil').getContext('2d'); 
+                renderBarChart(ctx, res.results);
+            } catch (err) { 
+                showToast(err.message, "bg-danger"); 
+            }
+        }
+
+        function renderBarChart(ctx, resultsData) {
+            if (chartInstance) chartInstance.destroy();
+            
+            const labels = Object.keys(resultsData);
+            const values = Object.values(resultsData);
+            
+            const cheerfulColors = [
+                '#ff7043', '#42a5f5', '#66bb6a', '#ab47bc', '#ffee58', '#ec407a', '#26a69a'
+            ];
+            
+            const backgroundColors = labels.map((_, index) => cheerfulColors[index % cheerfulColors.length]);
+
+            chartInstance = new Chart(ctx, { 
+                type: 'bar', 
+                data: { 
+                    labels: labels, 
+                    datasets: [{ 
+                        label: 'Suara', 
+                        data: values, 
+                        backgroundColor: backgroundColors,
+                        borderRadius: 8
+                    }] 
+                }, 
+                options: { 
+                    plugins: { 
+                        legend: { display: false }, 
+                        datalabels: { 
+                            anchor: 'end', 
+                            align: 'top', 
+                            color: '#333', 
+                            font: { weight: 'bold', size: 14 }, 
+                            formatter: Math.round 
+                        } 
+                    }, 
+                    layout: { padding: { top: 25 } }, 
+                    scales: { y: { beginAtZero: true } } 
+                } 
+            });
+        }
+        
+        async function reqUpgrade(planName) {
+            try {
+                const res = await apiCall("createInvoice", { plan: planName });
+                document.getElementById('payment-box').classList.remove('d-none'); document.getElementById('inv-id').innerText = res.invoiceId; showToast(res.message);
             } catch (err) { showToast(err.message, "bg-danger"); }
         }
     </script>
