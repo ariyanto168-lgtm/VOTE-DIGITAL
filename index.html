@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.7.7</title>
+    <title>VOTEKU DIGITAL - v1.7.8</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -158,7 +158,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.7 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.8 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
             </div>
         </div>
@@ -217,11 +217,14 @@
             </div>
         </div>
 
-        <!-- SHARE LINK: HASIL -->
+        <!-- SHARE LINK: HASIL (AUTO REFRESH) -->
         <div id="page-share-hasil" class="page-section">
             <div class="card p-3 shadow text-center">
-                <h4 class="fw-bold text-success mb-2" id="share-hasil-title">Memuat Hasil Real-Time...</h4>
-                <p class="text-muted small" id="share-hasil-total">Mohon tunggu.</p>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="fw-bold text-success mb-0" id="share-hasil-title">Hasil Pemilihan Real-Time</h4>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.7rem;"><i class="bi bi-arrow-repeat spin"></i> Live Auto-Update</span>
+                </div>
+                <p class="text-muted small mb-2" id="share-hasil-total">Memuat total suara...</p>
                 <canvas id="chartShareHasil" width="100%" height="100%"></canvas>
             </div>
         </div>
@@ -252,9 +255,12 @@
             </div>
         </div>
 
-        <!-- HASIL (AUTO LOAD) -->
+        <!-- HASIL (AUTO LOAD & AUTO REFRESH) -->
         <div id="page-hasil" class="page-section">
-            <h5 class="fw-bold mb-3">Hasil Voting Server</h5>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold mb-0">Hasil Voting Server</h5>
+                <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.7rem;"><i class="bi bi-arrow-repeat"></i> Live Auto-Update</span>
+            </div>
             <div class="card p-3 mb-2">
                 <label class="small text-muted fw-bold mb-1">Pilih Acara:</label>
                 <select class="form-select mb-0 fw-bold border-primary" id="select-hasil" onchange="autoFetchResults()"></select>
@@ -381,7 +387,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V176', 'VOTEKU_V175', 'VOTEKU_V174', 'VOTEKU_V173', 'VOTEKU_V172'];
+            const oldKeys = ['VOTEKU_V177', 'VOTEKU_V176', 'VOTEKU_V175', 'VOTEKU_V174', 'VOTEKU_V173'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -392,12 +398,12 @@
 
         let cachedElections = [], activeVoteId = null, chartInstance = null, shareActiveId = null;
         let currentShareOptions = [], currentAdminOptions = [];
+        let autoRefreshTimer = null; // Penampung Interval Auto Update
 
         let confirmCallback = null;
         let alertCallback = null;
         let deferredPrompt = null;
 
-        // --- MANAJER BANNER PWA INSTALL ---
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -680,18 +686,34 @@
             }
         }
 
+        // --- AUTO-UPDATE HASIL PUBLIK ---
         async function initShareHasil(id) {
+            shareActiveId = id;
             nav('share-hasil');
+            await fetchShareHasilData(id);
+
+            // Set interval auto-refresh setiap 3 detik tanpa memunculkan loading layar penuh
+            if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+            autoRefreshTimer = setInterval(() => {
+                if (shareActiveId) {
+                    fetchShareHasilData(shareActiveId, true); // true = silent refresh
+                }
+            }, 3000);
+        }
+
+        async function fetchShareHasilData(id, silent = false) {
             try {
-                const res = await apiCall("getResults", { electionId: id });
+                const res = await silent ? apiCallSilent("getResults", { electionId: id }) : await apiCall("getResults", { electionId: id });
                 document.getElementById('share-hasil-title').innerText = "Hasil Pemilihan Real-Time";
                 document.getElementById('share-hasil-total').innerText = `Total Suara Masuk: ${res.totalVotes}`;
                 
                 const ctx = document.getElementById('chartShareHasil').getContext('2d');
                 renderBarChart(ctx, res.results);
             } catch(e) { 
-                document.getElementById('share-hasil-title').innerText = "Gagal Memuat Hasil"; 
-                document.getElementById('share-hasil-total').innerHTML = `Koneksi terputus. <br><button class="btn btn-outline-secondary mt-2 btn-sm" onclick="location.reload()">Refresh Data</button>`;
+                if (!silent) {
+                    document.getElementById('share-hasil-title').innerText = "Gagal Memuat Hasil"; 
+                    document.getElementById('share-hasil-total').innerHTML = `Koneksi terputus. <br><button class="btn btn-outline-secondary mt-2 btn-sm" onclick="location.reload()">Refresh Data</button>`;
+                }
             }
         }
 
@@ -704,6 +726,14 @@
         function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
         
         function nav(pageId, element = null) {
+            // Hentikan auto-refresh jika pindah dari halaman hasil
+            if (pageId !== 'hasil' && pageId !== 'share-hasil') {
+                if (autoRefreshTimer) {
+                    clearInterval(autoRefreshTimer);
+                    autoRefreshTimer = null;
+                }
+            }
+
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
             if (element && element.classList.contains('nav-item')) {
@@ -743,6 +773,24 @@
                     throw new Error("Koneksi lambat atau sinyal memburuk. Silakan coba lagi.");
                 }
                 throw err; 
+            }
+        }
+
+        // Versi API Call tanpa memunculkan layar loading (untuk auto-refresh latar belakang)
+        async function apiCallSilent(action, payload = {}) {
+            if (!APP_DATA.apiUrl) return;
+            if (APP_DATA.serverToken) payload.adminToken = APP_DATA.serverToken;
+            try {
+                const res = await fetch(APP_DATA.apiUrl, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify({ action: action, payload: payload })
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                return data;
+            } catch (err) {
+                console.warn("Silent refresh warning:", err.message);
             }
         }
 
@@ -886,13 +934,27 @@
             const electionId = document.getElementById('select-hasil').value;
             if (!electionId) return;
 
+            await fetchResultsData(electionId);
+
+            // Aktifkan auto-refresh untuk halaman hasil admin setiap 3 detik
+            if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+            autoRefreshTimer = setInterval(() => {
+                const currentElId = document.getElementById('select-hasil').value;
+                if (currentElId) {
+                    fetchResultsData(currentElId, true); // silent refresh
+                }
+            }, 3000);
+        }
+
+        async function fetchResultsData(electionId, silent = false) {
             try {
-                const res = await apiCall("getResults", { electionId: electionId });
+                const res = silent ? await apiCallSilent("getResults", { electionId: electionId }) : await apiCall("getResults", { electionId: electionId });
+                if (!res) return;
                 document.getElementById('lbl-total-suara').innerText = `Total Suara Masuk: ${res.totalVotes}`;
                 const ctx = document.getElementById('chartHasil').getContext('2d'); 
                 renderBarChart(ctx, res.results);
             } catch (err) { 
-                showToast(err.message, "bg-danger"); 
+                if (!silent) showToast(err.message, "bg-danger"); 
             }
         }
 
