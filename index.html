@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.7.4</title>
+    <title>VOTEKU DIGITAL - v1.7.5</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -30,9 +30,9 @@
         #lock-screen { position: fixed; top:0; left:0; right:0; bottom:0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;}
         .lock-card { background: #fff; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
         
-        /* Kamuflase Loading: Teks Berdenyut & Warna-Warni */
-        .loading-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.85); z-index: 1050; display: none; align-items: center; justify-content: center; flex-direction: column;}
-        .rainbow-pulse-text { font-weight: bold; font-size: 1.1rem; animation: colorPulseAnim 1.2s infinite alternate ease-in-out; }
+        /* LOADING: TEKS POWERED BY ARI GPM BERDENYUT WARNA-WARNI */
+        .loading-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.9); z-index: 1050; display: none; align-items: center; justify-content: center; flex-direction: column;}
+        .rainbow-pulse-text { font-weight: bold; font-size: 1.2rem; animation: colorPulseAnim 1.2s infinite alternate ease-in-out; }
         
         @keyframes colorPulseAnim {
             0% { color: #f44336; transform: scale(0.95); opacity: 0.7; }
@@ -147,7 +147,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.4 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.5 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
             </div>
         </div>
@@ -344,7 +344,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="fw-bold small text-dark mb-2">Token Pemilih:</label>
-                        <input type="text" id="vote-token" class="form-control text-center text-uppercase fw-bold border-primary" placeholder="TOKEN RAHASIA" maxlength="10">
+                        <input type="text" id="vote-token" class="form-control text-center text-uppercase fw-bold border-primary" placeholder="TOKEN UNIK" maxlength="10">
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-0 bg-light">
@@ -370,7 +370,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V173', 'VOTEKU_V172', 'VOTEKU_V171', 'VOTEKU_V170', 'VOTEKU_V169'];
+            const oldKeys = ['VOTEKU_V174', 'VOTEKU_V173', 'VOTEKU_V172', 'VOTEKU_V171', 'VOTEKU_V170'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
