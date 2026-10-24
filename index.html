@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.5.9</title>
+    <title>VOTEKU DIGITAL - v1.6.0</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -11,7 +11,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Plugin untuk menampilkan label di atas bar chart -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
     <style>
@@ -135,7 +134,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.5.9 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.6.0 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark d-none" id="badge-plan"><span id="lbl-plan">Gratis</span></span>
             </div>
         </div>
@@ -163,6 +162,20 @@
             </div>
         </div>
 
+        <!-- SHARE LINK: PORTAL TOKEN PUBLIK (FITUR BARU SATU LANGKAH) -->
+        <div id="page-share-portal" class="page-section">
+            <div class="card p-4 shadow border-top border-warning border-4 text-center">
+                <h4 class="fw-bold text-warning mb-1" id="share-portal-title">Pilih Token Masuk</h4>
+                <p class="text-muted small">Klik salah satu token yang tersedia di bawah ini untuk langsung masuk ke bilik suara.</p>
+                <hr>
+                
+                <div id="portal-token-list" class="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                    <!-- Token buttons rendered here -->
+                    <p class="text-muted small">Memuat token dari server...</p>
+                </div>
+            </div>
+        </div>
+
         <!-- SHARE LINK: BILIK VOTING PUBLIK -->
         <div id="page-share-vote" class="page-section">
             <div class="card p-4 shadow border-top border-primary border-4">
@@ -177,7 +190,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="fw-bold small text-dark mb-2"><i class="bi bi-key-fill"></i> Masukkan Token Unik Anda:</label>
+                    <label class="fw-bold small text-dark mb-2"><i class="bi bi-key-fill"></i> Token Unik Anda:</label>
                     <input type="text" id="share-vote-token" class="form-control form-control-lg text-center text-uppercase fw-bold border-primary" placeholder="TOKEN RAHASIA" maxlength="10">
                 </div>
                 
@@ -276,7 +289,6 @@
         <div id="page-pengaturan" class="page-section">
             <h5 class="fw-bold mb-3">Pengaturan & Admin</h5>
             
-            <!-- Pengaturan Koneksi API -->
             <div class="card p-3 border-primary mb-3 shadow-sm">
                 <h6 class="fw-bold text-primary">Koneksi API Server</h6>
                 <p class="small text-muted mb-2">URL dikunci otomatis agar tidak tidak sengaja terhapus.</p>
@@ -289,7 +301,6 @@
                 <button class="btn btn-sm btn-primary w-100 fw-bold" id="btn-save-api" onclick="saveSettings()" style="display:none;"><i class="bi bi-save"></i> Simpan Perubahan URL</button>
             </div>
 
-            <!-- Pengaturan Ubah PIN (DIKEMBALIKAN) -->
             <div class="card p-3 border-warning mb-3 shadow-sm" style="background-color: #fffdf2;">
                 <h6 class="fw-bold text-warning"><i class="bi bi-shield-lock-fill"></i> Ubah PIN & Keamanan</h6>
                 <p class="small text-muted mb-3">Ganti PIN Admin dan Jawaban Pemulihan lokal Anda di sini tanpa perlu mereset aplikasi.</p>
@@ -362,12 +373,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Registrasi plugin DataLabels untuk Chart.js
         Chart.register(ChartDataLabels);
-
-        // KUNCI LOKAL PERMANEN (Anti Hilang)
         const LOCAL_KEY = 'VOTEKU_APP_DATA'; 
-        
         const DEFAULT_DATA = { 
             pin: "ADMIN123", phishing: "Ari GPM", secAns: "ARI GPM", 
             apiUrl: "https://script.google.com/macros/s/AKfycbw6qjXlH1K_K6Y9gLgV3zQjH5xY7w8s9d0f1g2h3j4k5l6z/exec", 
@@ -376,13 +383,9 @@
 
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
-        // Auto-migrate data dari versi lama
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V158', 'VOTEKU_V157', 'VOTEKU_V156', 'VOTEKU_V155', 'VOTEKU_V154', 'VOTEKU_V153', 'VOTEKU_V152', 'VOTEKU_V151', 'VOTEKU_V150'];
-            for(let key of oldKeys) {
-                let oldData = localStorage.getItem(key);
-                if(oldData) { APP_DATA = JSON.parse(oldData); break; }
-            }
+            const oldKeys = ['VOTEKU_V159', 'VOTEKU_V158', 'VOTEKU_V157', 'VOTEKU_V156', 'VOTEKU_V155', 'VOTEKU_V154'];
+            for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
         else if (!APP_DATA.serverUser) { APP_DATA.serverUser = DEFAULT_DATA.serverUser; APP_DATA.serverPlan = DEFAULT_DATA.serverPlan; }
@@ -397,48 +400,36 @@
         let alertCallback = null;
 
         function showCustomAlert(msg, title = "Info", type = "primary", onOk = null) {
-            document.getElementById('ui-alert-title').innerText = title;
-            document.getElementById('ui-alert-msg').innerHTML = msg;
-            
+            document.getElementById('ui-alert-title').innerText = title; document.getElementById('ui-alert-msg').innerHTML = msg;
             let iconClass = "bi-info-circle text-primary";
             if(type === 'success') iconClass = "bi-check-circle-fill text-success";
             else if(type === 'danger') iconClass = "bi-x-circle-fill text-danger";
             else if(type === 'warning') iconClass = "bi-exclamation-triangle-fill text-warning";
-            
             document.getElementById('ui-alert-icon').innerHTML = `<i class="bi ${iconClass}"></i>`;
-            alertCallback = onOk;
-            document.getElementById('ui-alert').style.display = 'flex';
+            alertCallback = onOk; document.getElementById('ui-alert').style.display = 'flex';
         }
-
-        function closeCustomAlert() {
-            document.getElementById('ui-alert').style.display = 'none';
-            if(alertCallback) alertCallback();
-        }
-
+        function closeCustomAlert() { document.getElementById('ui-alert').style.display = 'none'; if(alertCallback) alertCallback(); }
         function showCustomConfirm(msg, title = "Konfirmasi", onConfirm = null) {
-            document.getElementById('ui-confirm-title').innerText = title;
-            document.getElementById('ui-confirm-msg').innerHTML = msg;
-            confirmCallback = onConfirm;
-            document.getElementById('ui-confirm').style.display = 'flex';
+            document.getElementById('ui-confirm-title').innerText = title; document.getElementById('ui-confirm-msg').innerHTML = msg;
+            confirmCallback = onConfirm; document.getElementById('ui-confirm').style.display = 'flex';
         }
-
-        function closeCustomConfirm(isConfirmed) {
-            document.getElementById('ui-confirm').style.display = 'none';
-            if(isConfirmed && confirmCallback) confirmCallback();
-        }
-
+        function closeCustomConfirm(isConfirmed) { document.getElementById('ui-confirm').style.display = 'none'; if(isConfirmed && confirmCallback) confirmCallback(); }
 
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
+            const sharePortalId = urlParams.get('portal'); // FITUR BARU
             const shareVoteId = urlParams.get('vote');
             const shareHasilId = urlParams.get('hasil');
+            const tokenToUse = urlParams.get('token'); // AUTO FILL TOKEN
 
-            if (shareVoteId || shareHasilId) {
+            if (sharePortalId || shareVoteId || shareHasilId) {
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
                 document.getElementById('main-bottom-nav').style.display = 'none';
-                if (shareVoteId) initShareVoting(shareVoteId);
-                if (shareHasilId) initShareHasil(shareHasilId);
+                
+                if (sharePortalId) initSharePortal(sharePortalId);
+                else if (shareVoteId) initShareVoting(shareVoteId, tokenToUse);
+                else if (shareHasilId) initShareHasil(shareHasilId);
                 return;
             }
 
@@ -446,180 +437,81 @@
             checkServerAuthStatus();
         };
 
-        // --- ANTI-REFRESH TRAP (Hapus Params saat Admin Login) ---
-        function clearURLParams() {
-            if (window.history.replaceState) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
+        function clearURLParams() { if (window.history.replaceState) window.history.replaceState({}, document.title, window.location.pathname); }
 
         // --- AUTH & KUNCI ---
         function unlockApp() {
             try {
-                const inputEl = document.getElementById('pin-input');
-                const inputPin = inputEl.value.trim().toUpperCase();
-                
+                const inputEl = document.getElementById('pin-input'); const inputPin = inputEl.value.trim().toUpperCase();
                 if (inputPin === APP_DATA.pin) {
-                    clearURLParams();
-                    document.getElementById('lock-screen').style.display = 'none';
-                    document.getElementById('main-app').style.display = 'block';
-                    document.getElementById('main-bottom-nav').style.display = 'flex';
-                    
-                    inputEl.value = ""; 
-                    
-                    applyBranding(); 
-                    nav('dashboard', document.querySelectorAll('.bottom-nav .nav-item')[0]);
-                    
-                    setTimeout(() => {
-                        if(APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) { fetchElectionsUI(); } 
-                        else { showToast("Info: Silakan set URL API di menu Admin", "bg-warning text-dark"); }
-                    }, 500);
-                } else { 
-                    showCustomAlert("PIN yang Anda masukkan salah!", "Akses Ditolak", "danger");
-                    inputEl.value = ""; 
-                    inputEl.focus();
-                }
+                    clearURLParams(); document.getElementById('lock-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; document.getElementById('main-bottom-nav').style.display = 'flex';
+                    inputEl.value = ""; applyBranding(); nav('dashboard', document.querySelectorAll('.bottom-nav .nav-item')[0]);
+                    setTimeout(() => { if(APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) { fetchElectionsUI(); } else { showToast("Info: Silakan set URL API di menu Admin", "bg-warning text-dark"); } }, 500);
+                } else { showCustomAlert("PIN yang Anda masukkan salah!", "Akses Ditolak", "danger"); inputEl.value = ""; inputEl.focus(); }
             } catch(e) { showCustomAlert("Kesalahan Sistem: " + e.message, "Error", "danger"); }
         }
-
         function lockApp() { window.location.href = window.location.pathname; }
         
-        function showForgotView(show) { 
-            document.getElementById('view-login').style.display = show ? 'none' : 'block'; 
-            document.getElementById('view-forgot').style.display = show ? 'block' : 'none'; 
-            document.getElementById('forgot-answer').value = "";
-        }
-        
+        function showForgotView(show) { document.getElementById('view-login').style.display = show ? 'none' : 'block'; document.getElementById('view-forgot').style.display = show ? 'block' : 'none'; document.getElementById('forgot-answer').value = ""; }
         function verifyForgotAnswer() {
-            const ansEl = document.getElementById('forgot-answer');
-            const ans = ansEl.value.trim().toUpperCase();
-            const correctAns = (APP_DATA.secAns || "ARI GPM").toUpperCase();
-            if (ans === correctAns) { 
-                document.getElementById('view-forgot').style.display = 'none'; 
-                document.getElementById('view-new-pin').style.display = 'block'; 
-                ansEl.value = "";
-            } else { 
-                showCustomAlert("Jawaban Keamanan Anda Salah!", "Gagal", "danger");
-                ansEl.value = "";
-                ansEl.focus();
-            }
+            const ansEl = document.getElementById('forgot-answer'); const ans = ansEl.value.trim().toUpperCase(); const correctAns = (APP_DATA.secAns || "ARI GPM").toUpperCase();
+            if (ans === correctAns) { document.getElementById('view-forgot').style.display = 'none'; document.getElementById('view-new-pin').style.display = 'block'; ansEl.value = "";
+            } else { showCustomAlert("Jawaban Keamanan Anda Salah!", "Gagal", "danger"); ansEl.value = ""; ansEl.focus(); }
         }
-        
         function saveInitialSetup() {
-            const pinVal = document.getElementById('setup-pin').value.trim().toUpperCase();
-            const phVal = document.getElementById('setup-sa').value.trim().toUpperCase();
+            const pinVal = document.getElementById('setup-pin').value.trim().toUpperCase(); const phVal = document.getElementById('setup-sa').value.trim().toUpperCase();
             if (!pinVal || !phVal) return showCustomAlert("Isi PIN dan Frasa Pemulihan terlebih dahulu!", "Peringatan", "warning");
-            APP_DATA.pin = pinVal; APP_DATA.secAns = phVal;
-            localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); 
-            showCustomAlert("Setup Keamanan Berhasil!", "Sukses", "success", () => location.reload());
+            APP_DATA.pin = pinVal; APP_DATA.secAns = phVal; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); showCustomAlert("Setup Keamanan Berhasil!", "Sukses", "success", () => location.reload());
         }
-
         function saveNewPin() {
             const newPin = document.getElementById('new-pin-input').value.trim().toUpperCase();
             if (!newPin) return showCustomAlert("PIN baru tidak boleh kosong!", "Peringatan", "warning");
-            APP_DATA.pin = newPin; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
-            showCustomAlert("PIN Berhasil Diperbarui!", "Sukses", "success", () => location.reload());
+            APP_DATA.pin = newPin; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); showCustomAlert("PIN Berhasil Diperbarui!", "Sukses", "success", () => location.reload());
         }
         
-        function triggerKamuflase() { 
-            document.getElementById('kamuflase-pin').value = "";
-            new bootstrap.Modal(document.getElementById('kamuflaseModal')).show(); 
-        }
-        
+        function triggerKamuflase() { document.getElementById('kamuflase-pin').value = ""; new bootstrap.Modal(document.getElementById('kamuflaseModal')).show(); }
         function verifyKamuflase() {
-            const pinEl = document.getElementById('kamuflase-pin');
-            const pin = pinEl.value.trim().toUpperCase();
+            const pinEl = document.getElementById('kamuflase-pin'); const pin = pinEl.value.trim().toUpperCase();
             if (pin === APP_DATA.pin) {
-                clearURLParams();
-                bootstrap.Modal.getInstance(document.getElementById('kamuflaseModal')).hide();
-                document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-                document.getElementById('main-bottom-nav').style.display = 'flex'; 
-                
-                pinEl.value = "";
-                
-                applyBranding(); checkServerAuthStatus(); 
-                nav('pengaturan', document.querySelectorAll('.bottom-nav .nav-item')[3]); 
+                clearURLParams(); bootstrap.Modal.getInstance(document.getElementById('kamuflaseModal')).hide();
+                document.getElementById('lock-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; document.getElementById('main-bottom-nav').style.display = 'flex'; 
+                pinEl.value = ""; applyBranding(); checkServerAuthStatus(); nav('pengaturan', document.querySelectorAll('.bottom-nav .nav-item')[3]); 
                 setTimeout(() => { if(APP_DATA.apiUrl) fetchElectionsUI(); }, 500);
-            } else { 
-                showCustomAlert("PIN Akses Panel Salah!", "Gagal", "danger");
-                pinEl.value = "";
-                pinEl.focus();
-            }
+            } else { showCustomAlert("PIN Akses Panel Salah!", "Gagal", "danger"); pinEl.value = ""; pinEl.focus(); }
         }
 
         // --- PENGATURAN API & KEAMANAN LOKAL ---
         function toggleApiLock() {
             apiLocked = !apiLocked;
-            const input = document.getElementById('set-api');
-            const btnLock = document.getElementById('btn-lock-api');
-            const btnSave = document.getElementById('btn-save-api');
-            
-            if(apiLocked) {
-                input.setAttribute('readonly', true);
-                btnLock.innerHTML = '<i class="bi bi-lock-fill"></i>';
-                btnLock.classList.replace('btn-outline-primary', 'btn-outline-secondary');
-                btnSave.style.display = 'none';
-            } else {
-                input.removeAttribute('readonly');
-                btnLock.innerHTML = '<i class="bi bi-unlock-fill"></i>';
-                btnLock.classList.replace('btn-outline-secondary', 'btn-outline-primary');
-                btnSave.style.display = 'block';
-            }
+            const input = document.getElementById('set-api'), btnLock = document.getElementById('btn-lock-api'), btnSave = document.getElementById('btn-save-api');
+            if(apiLocked) { input.setAttribute('readonly', true); btnLock.innerHTML = '<i class="bi bi-lock-fill"></i>'; btnLock.classList.replace('btn-outline-primary', 'btn-outline-secondary'); btnSave.style.display = 'none';
+            } else { input.removeAttribute('readonly'); btnLock.innerHTML = '<i class="bi bi-unlock-fill"></i>'; btnLock.classList.replace('btn-outline-secondary', 'btn-outline-primary'); btnSave.style.display = 'block'; }
         }
 
-        // FUNGSI GANTI PIN & PERTANYAAN KEAMANAN DARI MENU ADMIN
         function updateSecurity() {
             const newPin = document.getElementById('change-pin').value.trim().toUpperCase();
             const newAns = document.getElementById('change-ans').value.trim().toUpperCase();
-            
-            if (!newPin && !newAns) {
-                return showCustomAlert("Silakan ketik PIN baru atau Jawaban Pemulihan baru jika ingin mengubah.", "Peringatan", "warning");
-            }
-            
+            if (!newPin && !newAns) { return showCustomAlert("Silakan ketik PIN baru atau Jawaban Pemulihan baru jika ingin mengubah.", "Peringatan", "warning"); }
             showCustomConfirm("Yakin ingin menyimpan pengaturan keamanan yang baru?", "Konfirmasi", () => {
                 let msg = "<b>Perubahan berhasil disimpan:</b><br><br>";
-                if (newPin) {
-                    APP_DATA.pin = newPin;
-                    msg += "✅ PIN Admin diperbarui<br>";
-                    document.getElementById('change-pin').value = "";
-                }
-                if (newAns) {
-                    APP_DATA.secAns = newAns;
-                    msg += "✅ Jawaban Pemulihan diperbarui<br>";
-                    document.getElementById('change-ans').value = "";
-                }
-                
-                localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
-                showCustomAlert(msg, "Berhasil", "success");
+                if (newPin) { APP_DATA.pin = newPin; msg += "✅ PIN Admin diperbarui<br>"; document.getElementById('change-pin').value = ""; }
+                if (newAns) { APP_DATA.secAns = newAns; msg += "✅ Jawaban Pemulihan diperbarui<br>"; document.getElementById('change-ans').value = ""; }
+                localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); showCustomAlert(msg, "Berhasil", "success");
             });
         }
 
-        // --- RESET DATABASE SERVER ---
         function resetDatabaseUI() { 
-            showCustomConfirm(
-                "⚠️ <b>PERINGATAN BERBAHAYA!</b><br><br>Yakin ingin <b>MENGHAPUS SEMUA DATA</b> (Acara, Token, Suara) dari Server Database (Google Sheets)?<br><br>Data yang dihapus TIDAK BISA DIKEMBALIKAN!", 
-                "Reset Database", 
+            showCustomConfirm("⚠️ <b>PERINGATAN BERBAHAYA!</b><br><br>Yakin ingin <b>MENGHAPUS SEMUA DATA</b> (Acara, Token, Suara) dari Server Database (Google Sheets)?<br><br>Data yang dihapus TIDAK BISA DIKEMBALIKAN!", "Reset Database", 
                 async () => {
                     try {
                         if (APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) {
                             const res = await apiCall("resetDatabase");
-                            showCustomAlert(res.message, "Reset Berhasil", "success", () => {
-                                localStorage.removeItem(LOCAL_KEY); 
-                                location.reload(); 
-                            });
-                        } else {
-                            throw new Error("URL API Belum Dikonfigurasi.");
-                        }
+                            showCustomAlert(res.message, "Reset Berhasil", "success", () => { localStorage.removeItem(LOCAL_KEY); location.reload(); });
+                        } else { throw new Error("URL API Belum Dikonfigurasi."); }
                     } catch (err) { 
                         let errText = err.message;
-                        if(errText.includes("Aksi tidak valid")) {
-                            errText = "Kode di Google Apps Script (Code.gs) Anda belum diperbarui atau Anda belum melakukan <b>New Deployment</b>. Harap update kode backend Anda terlebih dahulu.";
-                        }
-                        showCustomAlert("<b>Server Merespon Error:</b><br>" + errText + "<br><br>Hanya cache lokal HP ini yang akan direset.", "Gagal Koneksi", "danger", () => {
-                            localStorage.removeItem(LOCAL_KEY); 
-                            location.reload();
-                        });
+                        if(errText.includes("Aksi tidak valid")) errText = "Kode di Google Apps Script Anda belum diperbarui. Harap update kode backend Anda terlebih dahulu.";
+                        showCustomAlert("<b>Server Merespon Error:</b><br>" + errText + "<br><br>Hanya cache lokal HP ini yang akan direset.", "Gagal Koneksi", "danger", () => { localStorage.removeItem(LOCAL_KEY); location.reload(); });
                     }
                 }
             );
@@ -627,27 +519,65 @@
         
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(APP_DATA));
-            const dl = document.createElement('a'); dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", `Voteku_Backup_${new Date().toISOString().split('T')[0]}.json`); dl.click(); showToast("Backup Berhasil Diunduh!");
+            const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", `Voteku_Backup_${new Date().toISOString().split('T')[0]}.json`); dl.click(); showToast("Backup Berhasil Diunduh!");
         }
-        
         function importData(event) {
             const file = event.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
-                    if (imported.pin !== undefined) {
-                        APP_DATA = imported; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
-                        showCustomAlert("Restore Data Berhasil! Aplikasi akan dimuat ulang.", "Sukses", "success", () => location.reload());
+                    if (imported.pin !== undefined) { APP_DATA = imported; localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); showCustomAlert("Restore Data Berhasil! Aplikasi akan dimuat ulang.", "Sukses", "success", () => location.reload());
                     } else { showCustomAlert("File JSON yang Anda masukkan tidak valid!", "Gagal", "danger"); }
                 } catch(err) { showCustomAlert("Gagal membaca atau memproses file backup!", "Error", "danger"); }
-            };
-            reader.readAsText(file);
+            }; reader.readAsText(file);
         }
 
-        // --- SHARE LINK PUBLIK ---
-        async function initShareVoting(id) {
+        // --- ALUR BARU: PORTAL -> VOTE -> HASIL (SATU LANGKAH) ---
+        
+        // 1. Tampilkan Halaman Portal
+        async function initSharePortal(id) {
+            nav('share-portal');
+            try {
+                const res = await apiCall("getPublicTokens", { electionId: id });
+                document.getElementById('share-portal-title').innerText = "Portal Token: " + res.title;
+                
+                const container = document.getElementById('portal-token-list');
+                if(!res.tokens || res.tokens.length === 0) {
+                    container.innerHTML = `<p class="text-danger fw-bold w-100 mt-3">Tidak ada token tersedia untuk acara ini.</p>`;
+                    return;
+                }
+
+                // Render token. Jika is_used, tampilkan dicoret (X). Jika tersedia, tombol hijau.
+                container.innerHTML = res.tokens.map(t => {
+                    if (t.is_used) {
+                        return `<button class="btn btn-secondary text-decoration-line-through opacity-75" disabled>${t.token} <i class="bi bi-x-circle-fill text-danger ms-1"></i></button>`;
+                    } else {
+                        return `<button class="btn btn-outline-success fw-bold" onclick="takeToken(this, '${t.token}', '${id}')">${t.token}</button>`;
+                    }
+                }).join('');
+
+            } catch (e) {
+                document.getElementById('portal-token-list').innerHTML = `<p class="text-danger fw-bold">Gagal memuat token: ${e.message}</p>`;
+            }
+        }
+
+        // 2. Saat Token Diambil (Dicoret sejenak, lalu Redirect)
+        function takeToken(btn, tokenStr, electionId) {
+            // Visual efek silang/terpakai sekilas (400ms) agar UX terasa interaktif
+            btn.classList.replace('btn-outline-success', 'btn-secondary');
+            btn.classList.add('text-decoration-line-through', 'opacity-75');
+            btn.innerHTML = `${tokenStr} <i class="bi bi-check-circle-fill text-success ms-1"></i>`;
+            btn.disabled = true;
+
+            setTimeout(() => {
+                // Auto direct ke bilik voting dengan URL token
+                window.location.href = window.location.pathname + "?vote=" + electionId + "&token=" + tokenStr;
+            }, 400);
+        }
+
+        // 3. Masuk Bilik Voting
+        async function initShareVoting(id, autoToken = null) {
             nav('share-vote');
             try {
                 const res = await apiCall("getElections");
@@ -666,14 +596,23 @@
                 if(!Array.isArray(opts)) opts = [opts];
                 
                 currentShareOptions = opts;
-                
                 document.getElementById('share-kandidat-list').innerHTML = opts.map(opt => `<option value="${opt}">`).join('');
                 document.getElementById('share-vote-selection').value = ""; 
+
+                // Jika diarahkan dari portal, otomatis isi form token dan kunci formnya
+                if (autoToken) {
+                    const tkInput = document.getElementById('share-vote-token');
+                    tkInput.value = autoToken;
+                    tkInput.setAttribute('readonly', 'true');
+                    tkInput.classList.add('bg-light');
+                }
+
             } catch(e) { 
                 document.getElementById('share-vote-title').innerText = "Gagal Memuat Data"; document.getElementById('share-vote-desc').innerText = "Kesalahan koneksi ke server.";
             }
         }
         
+        // 4. Kirim Suara & Auto Redirect ke Hasil
         async function executeShareVote() {
             const rawVal = document.getElementById('share-vote-selection').value.trim();
             const tokenStr = document.getElementById('share-vote-token').value.trim().toUpperCase();
@@ -685,7 +624,12 @@
             
             try {
                 const res = await apiCall("submitVote", { electionId: shareActiveId, option: finalOption, token: tokenStr });
-                showCustomAlert("<b>TERIMA KASIH!</b><br>" + res.message, "Suara Berhasil Masuk", "success", () => location.reload());
+                
+                // SATU LANGKAH SELESAI: Begitu sukses, popup muncul, pas diklik OK langsung ke HASIL
+                showCustomAlert("<b>TERIMA KASIH!</b><br>" + res.message, "Suara Berhasil Masuk", "success", () => {
+                    window.location.href = window.location.pathname + "?hasil=" + shareActiveId;
+                });
+
             } catch(err) { showCustomAlert(err.message, "Suara Ditolak", "danger"); }
         }
 
@@ -698,7 +642,6 @@
                 
                 const ctx = document.getElementById('chartShareHasil').getContext('2d');
                 renderBarChart(ctx, res.results);
-
             } catch(e) { 
                 document.getElementById('share-hasil-title').innerText = "Gagal Memuat Hasil"; document.getElementById('share-hasil-total').innerText = "Kesalahan koneksi: " + e.message;
             }
@@ -719,9 +662,7 @@
         
         function saveSettings() { 
             APP_DATA.apiUrl = document.getElementById('set-api').value; 
-            localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); 
-            showToast("URL Berhasil Disimpan!"); 
-            toggleApiLock();
+            localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA)); showToast("URL Berhasil Disimpan!"); toggleApiLock();
         }
 
         function nav(pageId, element = null) {
@@ -730,13 +671,8 @@
             if (element && element.classList.contains('nav-item')) {
                 document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active')); element.classList.add('active');
             }
-            
-            if(pageId === 'hasil' || pageId === 'peserta') {
-                renderSelectElections();
-            } else if (pageId === 'voting') {
-                if(cachedElections.length === 0) fetchElectionsUI();
-                else renderVotingList();
-            }
+            if(pageId === 'hasil' || pageId === 'peserta') { renderSelectElections();
+            } else if (pageId === 'voting') { if(cachedElections.length === 0) fetchElectionsUI(); else renderVotingList(); }
         }
 
         async function apiCall(action, payload = {}) {
@@ -755,53 +691,36 @@
             document.getElementById('badge-plan').classList.remove('d-none'); document.getElementById('lbl-plan').innerText = APP_DATA.serverPlan || "Komunitas";
             document.getElementById('dynamic-header').style.background = "#1b5e20"; document.getElementById('ui-branding-subtitle').innerText = "Premium White-Label Member";
         }
-
         function checkServerAuthStatus() {
-            const statusEl = document.getElementById('auth-status-alert');
-            statusEl.innerHTML = `<i class="bi bi-shield-check"></i> <b>${APP_DATA.serverUser}</b> (${APP_DATA.serverPlan}) - Hardcoded Active`;
-            statusEl.className = "alert alert-success shadow-sm"; document.getElementById('lbl-logged-user').innerText = `Halo, ${APP_DATA.serverUser}!`;
-            applyBranding();
+            const statusEl = document.getElementById('auth-status-alert'); statusEl.innerHTML = `<i class="bi bi-shield-check"></i> <b>${APP_DATA.serverUser}</b> (${APP_DATA.serverPlan}) - Hardcoded Active`;
+            statusEl.className = "alert alert-success shadow-sm"; document.getElementById('lbl-logged-user').innerText = `Halo, ${APP_DATA.serverUser}!`; applyBranding();
         }
 
-        // --- DASHBOARD ACTIONS (VOTING, TOKENS) ---
+        // --- DASHBOARD ACTIONS ---
         async function handleBuatVoting(e) {
             e.preventDefault();
             try {
-                const res = await apiCall("createElection", {
-                    title: document.getElementById('v-judul').value, description: document.getElementById('v-desc').value,
-                    type: "satu", start_date: document.getElementById('v-start').value, end_date: document.getElementById('v-end').value,
-                    options: document.getElementById('v-opsi').value.split(',').map(o=>o.trim()).filter(o=>o)
-                });
+                const res = await apiCall("createElection", { title: document.getElementById('v-judul').value, description: document.getElementById('v-desc').value, type: "satu", start_date: document.getElementById('v-start').value, end_date: document.getElementById('v-end').value, options: document.getElementById('v-opsi').value.split(',').map(o=>o.trim()).filter(o=>o) });
                 showToast(res.message); document.querySelector('form').reset(); fetchElectionsUI(); nav('voting', document.querySelectorAll('.bottom-nav .nav-item')[2]);
             } catch (err) { showCustomAlert(err.message, "Gagal Membuat", "danger"); }
         }
 
         async function fetchElectionsUI() {
-            try {
-                const res = await apiCall("getElections");
-                cachedElections = res.data;
-                renderVotingList();
+            try { const res = await apiCall("getElections"); cachedElections = res.data; renderVotingList();
             } catch (err) { showToast("Gagal menarik data: " + err.message, "bg-danger"); }
         }
 
         function renderVotingList() {
-            const container = document.getElementById('list-voting');
-            container.innerHTML = "";
-            
+            const container = document.getElementById('list-voting'); container.innerHTML = "";
             if (!cachedElections || cachedElections.length === 0) {
-                container.innerHTML = `
-                    <div class="card p-4 text-center shadow-sm border-warning">
-                        <i class="bi bi-inbox fs-1 text-warning mb-2"></i>
-                        <h6 class="fw-bold">Belum Ada Acara</h6>
-                        <p class="small text-muted mb-0">Silakan buat acara voting baru di menu "Buat" atau tekan tombol refresh di atas.</p>
-                    </div>`;
-                renderSelectElections();
-                return;
+                container.innerHTML = `<div class="card p-4 text-center shadow-sm border-warning"><i class="bi bi-inbox fs-1 text-warning mb-2"></i><h6 class="fw-bold">Belum Ada Acara</h6></div>`;
+                renderSelectElections(); return;
             }
 
             cachedElections.forEach(el => {
                 const shareLinkVote = `${window.location.origin}${window.location.pathname}?vote=${el.id}`;
                 const shareLinkHasil = `${window.location.origin}${window.location.pathname}?hasil=${el.id}`;
+                const shareLinkPortal = `${window.location.origin}${window.location.pathname}?portal=${el.id}`; // LINK BARU
                 
                 container.innerHTML += `
                     <div class="card p-3 shadow-sm border-start border-primary border-4">
@@ -810,19 +729,26 @@
                         
                         <button class="btn btn-sm btn-primary w-100 mb-3 fw-bold" onclick="openVoteModal('${el.id}')"><i class="bi bi-box-arrow-in-right"></i> Masuk Bilik Suara (Admin)</button>
                         
+                        <!-- PORTAL TOKEN LINK (OTOMATIS) -->
                         <div class="p-2 bg-light rounded border mb-2">
-                            <p class="small text-dark fw-bold mb-2 text-center"><i class="bi bi-person-check"></i> Bagikan Link Voting Publik:</p>
+                            <p class="small text-dark fw-bold mb-2 text-center"><i class="bi bi-grid-3x3-gap"></i> Portal Token Publik (Otomatis):</p>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary flex-fill fw-bold" onclick="navigator.clipboard.writeText('${shareLinkPortal}'); showToast('Link Portal Disalin!');"><i class="bi bi-link"></i> Salin Link</button>
+                                <button class="btn btn-sm btn-primary flex-fill fw-bold" onclick="window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Silakan klik link berikut untuk mengambil Token dan mulai Voting:\\n\\n${shareLinkPortal}'), '_blank')"><i class="bi bi-whatsapp"></i> Share Portal WA</button>
+                            </div>
+                        </div>
+
+                        <div class="p-2 bg-light rounded border mb-2">
+                            <p class="small text-dark fw-bold mb-2 text-center"><i class="bi bi-person-check"></i> Link Voting Manual (Isi Token):</p>
                             <div class="d-flex gap-2">
                                 <button class="btn btn-sm btn-outline-success flex-fill fw-bold" onclick="navigator.clipboard.writeText('${shareLinkVote}'); showToast('Link Voting Disalin!');"><i class="bi bi-link"></i> Salin Link</button>
-                                <button class="btn btn-sm btn-success flex-fill fw-bold" onclick="window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Silakan berikan suara Anda pada bilik voting berikut:\\n\\n${shareLinkVote}'), '_blank')"><i class="bi bi-whatsapp"></i> Share Vote WA</button>
                             </div>
                         </div>
 
                         <div class="p-2 bg-light rounded border">
-                            <p class="small text-dark fw-bold mb-2 text-center"><i class="bi bi-bar-chart"></i> Bagikan Link Hasil Publik:</p>
+                            <p class="small text-dark fw-bold mb-2 text-center"><i class="bi bi-bar-chart"></i> Link Hasil Real-Time:</p>
                             <div class="d-flex gap-2">
                                 <button class="btn btn-sm btn-outline-secondary flex-fill fw-bold" onclick="navigator.clipboard.writeText('${shareLinkHasil}'); showToast('Link Hasil Disalin!');"><i class="bi bi-link"></i> Salin Link</button>
-                                <button class="btn btn-sm btn-secondary flex-fill fw-bold" style="background-color: #198754; color:white; border:none;" onclick="window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Lihat Hasil Voting Real-Time di sini:\\n\\n${shareLinkHasil}'), '_blank')"><i class="bi bi-whatsapp"></i> Share Hasil WA</button>
                             </div>
                         </div>
                     </div>`;
@@ -831,8 +757,7 @@
         }
 
         function renderSelectElections() {
-            let opts = '<option value="">-- Pilih Acara Voting --</option>';
-            cachedElections.forEach(el => opts += `<option value="${el.id}">${el.title}</option>`);
+            let opts = '<option value="">-- Pilih Acara Voting --</option>'; cachedElections.forEach(el => opts += `<option value="${el.id}">${el.title}</option>`);
             if(document.getElementById('select-hasil')) document.getElementById('select-hasil').innerHTML = opts;
             if(document.getElementById('select-token-event')) document.getElementById('select-token-event').innerHTML = opts;
         }
@@ -841,92 +766,52 @@
         function openVoteModal(id) {
             const el = cachedElections.find(e => e.id === id); if (!el) return;
             activeVoteId = id; document.getElementById('vote-title').innerText = el.title; 
-            
-            document.getElementById('vote-token').value = "";
-            document.getElementById('admin-vote-selection').value = "";
-            
-            let opts = [];
-            try { opts = typeof el.options === 'string' ? JSON.parse(el.options) : el.options; } catch(e) { opts = [el.options]; }
-            if(!Array.isArray(opts)) opts = [opts];
-            currentAdminOptions = opts;
-
+            document.getElementById('vote-token').value = ""; document.getElementById('admin-vote-selection').value = "";
+            let opts = []; try { opts = typeof el.options === 'string' ? JSON.parse(el.options) : el.options; } catch(e) { opts = [el.options]; }
+            if(!Array.isArray(opts)) opts = [opts]; currentAdminOptions = opts;
             document.getElementById('admin-kandidat-list').innerHTML = opts.map(opt => `<option value="${opt}">`).join('');
-            
             new bootstrap.Modal(document.getElementById('voteModal')).show();
         }
 
         async function executeVote() {
-            const rawVal = document.getElementById('admin-vote-selection').value.trim();
-            const tokenStr = document.getElementById('vote-token').value.trim().toUpperCase();
-            
+            const rawVal = document.getElementById('admin-vote-selection').value.trim(); const tokenStr = document.getElementById('vote-token').value.trim().toUpperCase();
             if(!rawVal || !tokenStr) return showToast("Isi pilihan kandidat dan token!", "bg-warning text-dark");
-            
             const finalOption = currentAdminOptions.find(o => o.toLowerCase() === rawVal.toLowerCase());
             if (!finalOption) return showToast("Kandidat yang diketik tidak valid!", "bg-danger text-white");
-
             try {
                 const res = await apiCall("submitVote", { electionId: activeVoteId, option: finalOption, token: tokenStr });
-                bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide(); 
-                showCustomAlert("Suara sah berhasil dimasukkan ke server!", "Berhasil", "success");
+                bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide(); showCustomAlert("Suara sah berhasil dimasukkan ke server!", "Berhasil", "success");
             } catch (err) { showCustomAlert(err.message, "Suara Ditolak", "danger"); }
         }
 
         // --- MANAJEMEN HASIL & TOKEN ---
         async function handleGenerateToken() {
-            const id = document.getElementById('select-token-event').value;
-            const count = parseInt(document.getElementById('token-count').value);
+            const id = document.getElementById('select-token-event').value; const count = parseInt(document.getElementById('token-count').value);
             try {
                 const res = await apiCall("generateTokens", { electionId: id, count: count });
-                document.getElementById('token-result-card').classList.remove('d-none');
-                document.getElementById('token-result-text').value = res.tokens.join('\n'); 
-                showToast(res.message);
+                document.getElementById('token-result-card').classList.remove('d-none'); document.getElementById('token-result-text').value = res.tokens.join('\n'); showToast(res.message);
             } catch (err) { showCustomAlert(err.message, "Gagal Generate", "danger"); }
         }
         
         function renderBarChart(ctx, resultsData) {
             if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, { 
-                type: 'bar', 
-                data: { 
-                    labels: Object.keys(resultsData), 
-                    datasets: [{ 
-                        label: 'Suara', 
-                        data: Object.values(resultsData), 
-                        backgroundColor: '#2e7d32' 
-                    }] 
-                }, 
-                options: { 
-                    plugins: {
-                        legend: { display: false },
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'top',
-                            color: '#333',
-                            font: { weight: 'bold', size: 14 },
-                            formatter: Math.round
-                        }
-                    },
-                    layout: { padding: { top: 25 } },
-                    scales: { y: { beginAtZero: true } }
-                } 
+                type: 'bar', data: { labels: Object.keys(resultsData), datasets: [{ label: 'Suara', data: Object.values(resultsData), backgroundColor: '#2e7d32' }] }, 
+                options: { plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'top', color: '#333', font: { weight: 'bold', size: 14 }, formatter: Math.round } }, layout: { padding: { top: 25 } }, scales: { y: { beginAtZero: true } } } 
             });
         }
 
         async function fetchResultsUI() {
             try {
                 const res = await apiCall("getResults", { electionId: document.getElementById('select-hasil').value });
-                const ctx = document.getElementById('chartHasil').getContext('2d');
-                renderBarChart(ctx, res.results);
-                showToast(`Total Suara: ${res.totalVotes}`);
+                const ctx = document.getElementById('chartHasil').getContext('2d'); renderBarChart(ctx, res.results); showToast(`Total Suara: ${res.totalVotes}`);
             } catch (err) { showToast(err.message, "bg-danger"); }
         }
         
         async function reqUpgrade(planName) {
             try {
                 const res = await apiCall("createInvoice", { plan: planName });
-                let activeInvoice = res.invoiceId;
-                document.getElementById('payment-box').classList.remove('d-none');
-                document.getElementById('inv-id').innerText = res.invoiceId; showToast(res.message);
+                document.getElementById('payment-box').classList.remove('d-none'); document.getElementById('inv-id').innerText = res.invoiceId; showToast(res.message);
             } catch (err) { showToast(err.message, "bg-danger"); }
         }
     </script>
