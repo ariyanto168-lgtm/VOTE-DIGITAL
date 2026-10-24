@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.7.5</title>
+    <title>VOTEKU DIGITAL - v1.7.6</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -147,7 +147,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.5 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.6 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
             </div>
         </div>
@@ -370,7 +370,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V174', 'VOTEKU_V173', 'VOTEKU_V172', 'VOTEKU_V171', 'VOTEKU_V170'];
+            const oldKeys = ['VOTEKU_V175', 'VOTEKU_V174', 'VOTEKU_V173', 'VOTEKU_V172', 'VOTEKU_V171'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -504,6 +504,20 @@
                     }
                 }
             );
+        }
+
+        // --- FUNGSI HAPUS ACARA SATU PER SATU (IKON SAMPAH) ---
+        function deleteElectionUI(electionId, electionTitle) {
+            showCustomConfirm(`Yakin ingin menghapus acara <b>"${electionTitle}"</b> beserta seluruh token dan suaranya dari server?`, "Hapus Acara", async () => {
+                try {
+                    const res = await apiCall("deleteElection", { electionId: electionId });
+                    showCustomAlert(res.message, "Berhasil Dihapus", "success", () => {
+                        fetchElectionsUI();
+                    });
+                } catch (err) {
+                    showCustomAlert("Gagal menghapus acara: " + err.message, "Error", "danger");
+                }
+            });
         }
 
         async function initSharePortal(id) {
@@ -731,8 +745,13 @@
                 
                 container.innerHTML += `
                     <div class="card p-3 shadow-sm border-start border-primary border-4">
-                        <h6 class="fw-bold mb-1 text-primary">${el.title}</h6>
-                        <p class="small text-muted mb-2">${el.description || ""}</p>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="fw-bold mb-1 text-primary">${el.title}</h6>
+                                <p class="small text-muted mb-2">${el.description || ""}</p>
+                            </div>
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteElectionUI('${el.id}', '${el.title.replace(/'/g, "\\'")}')" title="Hapus Acara Ini"><i class="bi bi-trash-fill"></i></button>
+                        </div>
                         
                         <button class="btn btn-sm btn-primary w-100 mb-3 fw-bold" onclick="openVoteModal('${el.id}')"><i class="bi bi-box-arrow-in-right"></i> Masuk Bilik Suara (Admin)</button>
                         
