@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.5.1</title>
+    <title>VOTEKU DIGITAL - v1.5.3</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -97,7 +97,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.5.1 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.5.3 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark d-none" id="badge-plan"><span id="lbl-plan">Gratis</span></span>
             </div>
         </div>
@@ -122,24 +122,33 @@
                 <div class="col-4"><button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('peserta')"><i class="bi bi-key fs-3 d-block text-warning"></i><small>Buat Token</small></button></div>
                 <div class="col-4"><button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('hasil')"><i class="bi bi-bar-chart fs-3 d-block text-success"></i><small>Hasil</small></button></div>
                 <div class="col-4"><button class="btn btn-light w-100 py-3 border shadow-sm premium-card" onclick="nav('premium')"><i class="bi bi-star-fill fs-3 d-block text-warning"></i><small>Premium</small></button></div>
-                <div class="col-12 mt-2">
-                    <button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('input-bebas')">
-                        <i class="bi bi-person-badge fs-3 d-block text-info"></i>
-                        <small class="fw-bold">Input Data Peserta (Voting Langsung)</small>
-                    </button>
-                </div>
             </div>
         </div>
 
-        <!-- SHARE LINK: BILIK VOTING -->
+        <!-- SHARE LINK: BILIK VOTING (DENGAN KOTAK PENCARIAN KANDIDAT) -->
         <div id="page-share-vote" class="page-section">
             <div class="card p-3 shadow border-top border-primary border-4">
                 <h4 class="fw-bold text-primary mb-1" id="share-vote-title">Memuat Voting...</h4>
                 <p class="text-muted small" id="share-vote-desc">Mohon tunggu, sedang mengambil data dari server.</p>
                 <hr>
+                
+                <div class="mb-3">
+                    <label class="fw-bold small text-dark mb-1"><i class="bi bi-person-fill"></i> Nama Lengkap Anda:</label>
+                    <input type="text" id="share-voter-name" class="form-control border-primary" placeholder="Ketik nama Anda di sini...">
+                </div>
+
+                <!-- KOLOM PENCARIAN KANDIDAT -->
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-primary text-primary"><i class="bi bi-search"></i></span>
+                        <input type="text" id="search-candidate-input" class="form-control border-primary" placeholder="Cari nama kandidat..." oninput="filterCandidates()">
+                    </div>
+                </div>
+
                 <div id="share-vote-options" class="mb-3">
                     <div class="text-center text-primary"><div class="spinner-border" role="status"></div></div>
                 </div>
+
                 <input type="text" id="share-vote-token" class="form-control text-center text-uppercase fw-bold border-primary mb-3" placeholder="MASUKKAN TOKEN UNIK" maxlength="10">
                 <button class="btn btn-primary w-100 fw-bold py-2" onclick="executeShareVote()">KIRIM SUARA SAH</button>
             </div>
@@ -166,27 +175,6 @@
                     <input type="text" class="form-control mb-3" id="v-opsi" required placeholder="Opsi A, Opsi B, Opsi C (Gunakan koma)">
                     <button type="submit" class="btn btn-primary w-100"><i class="bi bi-cloud-arrow-up"></i> TERBITKAN KE SERVER</button>
                 </form>
-            </div>
-        </div>
-
-        <!-- REVISI: INPUT DATA PESERTA & DROPDOWN PILIHAN KANDIDAT -->
-        <div id="page-input-bebas" class="page-section">
-            <h5 class="fw-bold mb-3 text-info"><i class="bi bi-person-badge"></i> Input Voting Langsung</h5>
-            <div class="card p-3 shadow-sm border-info">
-                <p class="small text-muted mb-3">Masukkan data nama peserta/kandidat dengan pemisah koma. Pilihan coblos di bawah akan otomatis terisi dalam bentuk dropdown.</p>
-                
-                <label class="fw-bold small">Pilih Voting Aktif:</label>
-                <select class="form-select mb-2 border-info" id="select-bebas-event"></select>
-                
-                <label class="fw-bold small">Daftar Nama Peserta / Kandidat (Pisahkan dengan koma):</label>
-                <input type="text" class="form-control mb-3 border-info" id="bebas-peserta-list" placeholder="Contoh: Bambang, Yudhoyono, Jojon, ZZ" oninput="updateBebasDropdown()">
-                
-                <label class="fw-bold small">Pilih Kandidat / Opsi (Dropdown):</label>
-                <select class="form-select mb-3 border-info fw-bold text-primary py-2" id="select-bebas-kandidat">
-                    <option value="">-- Ketik nama peserta di atas terlebih dahulu --</option>
-                </select>
-
-                <button class="btn btn-info text-white w-100 fw-bold py-2" onclick="executeBebasVote()"><i class="bi bi-check2-circle"></i> KIRIM SUARA PESERTA</button>
             </div>
         </div>
 
@@ -321,7 +309,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const LOCAL_KEY = 'VOTEKU_V151'; 
+        const LOCAL_KEY = 'VOTEKU_V153'; 
         
         // ⚠️ SANGAT PENTING: GANTI "apiUrl" DI BAWAH INI DENGAN URL GOOGLE APPS SCRIPT ANDA ⚠️
         const DEFAULT_DATA = { 
@@ -333,7 +321,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V150', 'VOTEKU_V149', 'VOTEKU_V148', 'VOTEKU_V147', 'VOTEKU_V146', 'VOTEKU_V145'];
+            const oldKeys = ['VOTEKU_V152', 'VOTEKU_V151', 'VOTEKU_V150', 'VOTEKU_V149', 'VOTEKU_V148', 'VOTEKU_V147'];
             for(let key of oldKeys) {
                 let oldData = localStorage.getItem(key);
                 if(oldData) { APP_DATA = JSON.parse(oldData); break; }
@@ -343,7 +331,7 @@
         else if (!APP_DATA.serverUser) { APP_DATA.serverUser = DEFAULT_DATA.serverUser; APP_DATA.serverPlan = DEFAULT_DATA.serverPlan; }
         localStorage.setItem(LOCAL_KEY, JSON.stringify(APP_DATA));
 
-        let cachedElections = [], activeVoteId = null, chartInstance = null, shareActiveId = null, apiLocked = true;
+        let cachedElections = [], activeVoteId = null, chartInstance = null, shareActiveId = null, apiLocked = true, currentShareOptions = [];
 
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -495,25 +483,50 @@
                 let opts = [];
                 try { opts = typeof found.options === 'string' ? JSON.parse(found.options) : found.options; } catch(e) { opts = [found.options]; }
                 if(!Array.isArray(opts)) opts = [opts];
-
-                document.getElementById('share-vote-options').innerHTML = opts.map((opt, i) => `
-                    <div class="form-check p-3 border rounded bg-white mb-2 shadow-sm">
-                        <input class="form-check-input ms-1" type="radio" name="sharePilihan" value="${opt}" id="sopt${i}">
-                        <label class="form-check-label w-100 ms-2 fw-bold" for="sopt${i}">${opt}</label>
-                    </div>`).join('');
+                
+                currentShareOptions = opts;
+                renderShareOptions(opts);
             } catch(e) { 
                 document.getElementById('share-vote-title').innerText = "Gagal Memuat Data"; document.getElementById('share-vote-desc').innerText = "Kesalahan: " + e.message; document.getElementById('share-vote-options').innerHTML = "";
             }
         }
+
+        // RENDER OPSI KANDIDAT DENGAN FILTER PENCARIAN
+        function renderShareOptions(opts) {
+            const keyword = document.getElementById('search-candidate-input').value.toLowerCase();
+            const filtered = opts.filter(opt => opt.toLowerCase().includes(keyword));
+            
+            if(filtered.length === 0) {
+                document.getElementById('share-vote-options').innerHTML = `<p class="text-center text-muted small py-2">Kandidat tidak ditemukan.</p>`;
+                return;
+            }
+
+            document.getElementById('share-vote-options').innerHTML = filtered.map((opt, i) => `
+                <div class="form-check p-3 border rounded bg-white mb-2 shadow-sm">
+                    <input class="form-check-input ms-1" type="radio" name="sharePilihan" value="${opt}" id="sopt${i}">
+                    <label class="form-check-label w-100 ms-2 fw-bold" for="sopt${i}">${opt}</label>
+                </div>`).join('');
+        }
+
+        function filterCandidates() {
+            renderShareOptions(currentShareOptions);
+        }
+        
         async function executeShareVote() {
+            const voterName = document.getElementById('share-voter-name').value.trim();
             const selected = document.querySelector('input[name="sharePilihan"]:checked');
             const tokenStr = document.getElementById('share-vote-token').value.trim().toUpperCase();
-            if (!selected || !tokenStr) return alert("Pilih opsi dan masukkan token unik Anda!");
+            
+            if (!voterName) return alert("Silakan ketik nama lengkap Anda terlebih dahulu!");
+            if (!selected || !tokenStr) return alert("Pilih opsi kandidat dan masukkan token unik Anda!");
+            
             try {
-                const res = await apiCall("submitVote", { electionId: shareActiveId, option: selected.value, token: tokenStr });
-                alert(res.message); location.reload();
+                const res = await apiCall("submitVote", { electionId: shareActiveId, option: selected.value, token: tokenStr, voterName: voterName });
+                alert("Terima kasih " + voterName + "! " + res.message); 
+                location.reload();
             } catch(err) { alert(err.message); }
         }
+
         async function initShareHasil(id) {
             nav('share-hasil');
             try {
@@ -526,9 +539,10 @@
                 document.getElementById('share-hasil-title').innerText = "Gagal Memuat Hasil"; document.getElementById('share-hasil-total').innerText = "Kesalahan: " + e.message;
             }
         }
+        
         function shareTokenWA() {
             const text = document.getElementById('token-result-text').value;
-            if(text) { window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent("Token Voting Rahasia Anda:\n" + text), '_blank'); }
+            if(text) { window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent("Token Voting Rahasia Utama:\n" + text), '_blank'); }
         }
 
         // --- UTILS & CORE API ---
@@ -552,7 +566,7 @@
                 document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active')); element.classList.add('active');
             }
             
-            if(pageId === 'hasil' || pageId === 'peserta' || pageId === 'input-bebas') {
+            if(pageId === 'hasil' || pageId === 'peserta') {
                 renderSelectElections();
             } else if (pageId === 'voting') {
                 if(cachedElections.length === 0) fetchElectionsUI();
@@ -656,44 +670,6 @@
             cachedElections.forEach(el => opts += `<option value="${el.id}">${el.title}</option>`);
             if(document.getElementById('select-hasil')) document.getElementById('select-hasil').innerHTML = opts;
             if(document.getElementById('select-token-event')) document.getElementById('select-token-event').innerHTML = opts;
-            if(document.getElementById('select-bebas-event')) document.getElementById('select-bebas-event').innerHTML = opts;
-        }
-
-        // --- REVISI: UPDATE DROPDOWN KANDIDAT DARI KOLOM TEKS PESERTA ---
-        function updateBebasDropdown() {
-            const rawText = document.getElementById('bebas-peserta-list').value;
-            const dropdown = document.getElementById('select-bebas-kandidat');
-            
-            const list = rawText.split(',').map(item => item.trim()).filter(item => item.length > 0);
-            
-            if (list.length === 0) {
-                dropdown.innerHTML = '<option value="">-- Ketik nama peserta di atas terlebih dahulu --</option>';
-                return;
-            }
-            
-            let optionsHtml = '<option value="">-- Pilih Kandidat / Peserta --</option>';
-            list.forEach(name => {
-                optionsHtml += `<option value="${name}">${name}</option>`;
-            });
-            dropdown.innerHTML = optionsHtml;
-        }
-
-        async function executeBebasVote() {
-            const elId = document.getElementById('select-bebas-event').value;
-            const selectedKandidat = document.getElementById('select-bebas-kandidat').value;
-            
-            if(!elId) return alert("Pilih acara voting terlebih dahulu!");
-            if(!selectedKandidat) return alert("Pilih kandidat dari menu dropdown!");
-            
-            try {
-                const resToken = await apiCall("generateTokens", { electionId: elId, count: 1 });
-                const autoToken = resToken.tokens[0];
-                const resVote = await apiCall("submitVote", { electionId: elId, option: selectedKandidat, token: autoToken });
-                alert("Suara untuk (" + selectedKandidat + ") berhasil dimasukkan secara langsung!\n" + resVote.message);
-                
-                // Reset dropdown dan pilihan setelah sukses
-                document.getElementById('select-bebas-kandidat').value = "";
-            } catch(e) { alert("Gagal memproses suara: " + e.message); }
         }
 
         function openVoteModal(id) {
