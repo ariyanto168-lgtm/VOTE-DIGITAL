@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.7.8</title>
+    <title>VOTEKU DIGITAL - v1.7.9</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -158,7 +158,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.8 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.9 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
             </div>
         </div>
@@ -217,12 +217,12 @@
             </div>
         </div>
 
-        <!-- SHARE LINK: HASIL (AUTO REFRESH) -->
+        <!-- SHARE LINK: HASIL -->
         <div id="page-share-hasil" class="page-section">
             <div class="card p-3 shadow text-center">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h4 class="fw-bold text-success mb-0" id="share-hasil-title">Hasil Pemilihan Real-Time</h4>
-                    <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.7rem;"><i class="bi bi-arrow-repeat spin"></i> Live Auto-Update</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.7rem;"><i class="bi bi-arrow-repeat"></i> Live Auto-Update</span>
                 </div>
                 <p class="text-muted small mb-2" id="share-hasil-total">Memuat total suara...</p>
                 <canvas id="chartShareHasil" width="100%" height="100%"></canvas>
@@ -255,7 +255,7 @@
             </div>
         </div>
 
-        <!-- HASIL (AUTO LOAD & AUTO REFRESH) -->
+        <!-- HASIL (AUTO LOAD) -->
         <div id="page-hasil" class="page-section">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h5 class="fw-bold mb-0">Hasil Voting Server</h5>
@@ -387,7 +387,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V177', 'VOTEKU_V176', 'VOTEKU_V175', 'VOTEKU_V174', 'VOTEKU_V173'];
+            const oldKeys = ['VOTEKU_V178', 'VOTEKU_V177', 'VOTEKU_V176', 'VOTEKU_V175', 'VOTEKU_V174'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -398,7 +398,7 @@
 
         let cachedElections = [], activeVoteId = null, chartInstance = null, shareActiveId = null;
         let currentShareOptions = [], currentAdminOptions = [];
-        let autoRefreshTimer = null; // Penampung Interval Auto Update
+        let autoRefreshTimer = null;
 
         let confirmCallback = null;
         let alertCallback = null;
@@ -686,17 +686,15 @@
             }
         }
 
-        // --- AUTO-UPDATE HASIL PUBLIK ---
         async function initShareHasil(id) {
             shareActiveId = id;
             nav('share-hasil');
             await fetchShareHasilData(id);
 
-            // Set interval auto-refresh setiap 3 detik tanpa memunculkan loading layar penuh
             if (autoRefreshTimer) clearInterval(autoRefreshTimer);
             autoRefreshTimer = setInterval(() => {
                 if (shareActiveId) {
-                    fetchShareHasilData(shareActiveId, true); // true = silent refresh
+                    fetchShareHasilData(shareActiveId, true);
                 }
             }, 3000);
         }
@@ -726,7 +724,6 @@
         function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
         
         function nav(pageId, element = null) {
-            // Hentikan auto-refresh jika pindah dari halaman hasil
             if (pageId !== 'hasil' && pageId !== 'share-hasil') {
                 if (autoRefreshTimer) {
                     clearInterval(autoRefreshTimer);
@@ -776,7 +773,6 @@
             }
         }
 
-        // Versi API Call tanpa memunculkan layar loading (untuk auto-refresh latar belakang)
         async function apiCallSilent(action, payload = {}) {
             if (!APP_DATA.apiUrl) return;
             if (APP_DATA.serverToken) payload.adminToken = APP_DATA.serverToken;
@@ -814,6 +810,35 @@
         async function fetchElectionsUI() {
             try { const res = await apiCall("getElections"); cachedElections = res.data; renderVotingList();
             } catch (err) { showToast("Gagal menarik data: " + err.message, "bg-danger"); }
+        }
+
+        // --- FUNGSI SHARE KE WHATSAPP DENGAN DETAIL KANDIDAT ---
+        function shareToWhatsApp(electionId, electionTitle) {
+            const el = cachedElections.find(e => e.id === electionId);
+            let opts = [];
+            if (el && el.options) {
+                try { opts = typeof el.options === 'string' ? JSON.parse(el.options) : el.options; } catch(e) { opts = [el.options]; }
+            }
+            if(!Array.isArray(opts)) opts = [opts];
+
+            const shareLinkPortal = `${window.location.origin}${window.location.pathname}?portal=${electionId}`;
+            
+            let kandidatText = opts.map((opt, idx) => `  ${idx + 1}. ${opt}`).join('\n');
+            if (!kandidatText) kandidatText = "  (Daftar kandidat tersedia di dalam link)";
+
+            const waMessage = 
+`🗳️ *[VOTEKU DIGITAL] - PEMILIHAN RESMI*
+
+📌 *Acara:* *${electionTitle}*
+
+👥 *Daftar Kandidat:*
+${kandidatText}
+
+Silakan klik link resmi di bawah ini untuk mengambil Token unik dan mulai Voting dengan aman:
+👉 ${shareLinkPortal}`;
+
+            const waUrl = `https://api.whatsapp.com/send?text=` + encodeURIComponent(waMessage);
+            window.open(waUrl, '_blank');
         }
 
         function renderVotingList() {
@@ -855,8 +880,8 @@
                         <div class="p-2 bg-light rounded border mb-2">
                             <p class="small text-dark fw-bold mb-2 text-center"><i class="bi bi-grid-3x3-gap"></i> 2. Portal Token Publik (Otomatis)</p>
                             <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-outline-primary flex-fill fw-bold" onclick="navigator.clipboard.writeText('${shareLinkPortal}'); showToast('Link Portal Disalin!');"><i class="bi bi-link"></i> Salin</button>
-                                <button class="btn btn-sm btn-primary flex-fill fw-bold" onclick="window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Silakan klik link berikut untuk mengambil Token dan mulai Voting:\\n\\n${shareLinkPortal}'), '_blank')"><i class="bi bi-whatsapp"></i> Share WA</button>
+                                <button class="btn btn-sm btn-outline-primary flex-fill fw-bold" onclick="navigator.clipboard.writeText('${shareLinkPortal}'); showToast('Link Portal Disalin!');"><i class="bi bi-link"></i> Salin Link</button>
+                                <button class="btn btn-sm btn-success flex-fill fw-bold" onclick="shareToWhatsApp('${el.id}', '${el.title.replace(/'/g, "\\'")}')"><i class="bi bi-whatsapp"></i> Share WA</button>
                             </div>
                         </div>
 
@@ -870,7 +895,7 @@
                             <div class="col-6">
                                 <div class="p-2 bg-light rounded border h-100">
                                     <p class="small text-dark fw-bold mb-1 text-center" style="font-size:0.7rem;"><i class="bi bi-bar-chart"></i> Link Hasil</p>
-                                    <button class="btn btn-sm btn-outline-secondary w-100 fw-bold" style="font-size:0.75rem;" onclick="navigator.clipboard.writeText('${shareLinkHasil}'); showToast('Link Disalin!');"><i class="bi bi-link"></i> Salin Link</button>
+                                    <button class="btn btn-sm btn-outline-secondary w-100 fw-bold" style="font-size:0.75rem;" onclick="navigator.clipboard.writeText('${shareLinkHasil}'); showToast('Link Hasil Disalin!');"><i class="bi bi-link"></i> Salin Link</button>
                                 </div>
                             </div>
                         </div>
@@ -936,12 +961,11 @@
 
             await fetchResultsData(electionId);
 
-            // Aktifkan auto-refresh untuk halaman hasil admin setiap 3 detik
             if (autoRefreshTimer) clearInterval(autoRefreshTimer);
             autoRefreshTimer = setInterval(() => {
                 const currentElId = document.getElementById('select-hasil').value;
                 if (currentElId) {
-                    fetchResultsData(currentElId, true); // silent refresh
+                    fetchResultsData(currentElId, true);
                 }
             }, 3000);
         }
