@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.6.5</title>
+    <title>VOTEKU DIGITAL - v1.6.7</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -136,7 +136,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.6.5 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.6.7 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark d-none" id="badge-plan"><span id="lbl-plan">Gratis</span></span>
             </div>
         </div>
@@ -195,7 +195,6 @@
                 </div>
                 
                 <button id="btn-submit-vote" class="btn btn-primary w-100 fw-bold py-3 fs-5 rounded-3 shadow-sm" onclick="executeShareVote()"><i class="bi bi-send-check-fill"></i> KIRIM SUARA SAH</button>
-                <button id="btn-back-portal" class="btn btn-outline-secondary w-100 fw-bold mt-3 d-none" onclick="goBackToPortal()"><i class="bi bi-arrow-left"></i> KEMBALI KE PORTAL TOKEN</button>
             </div>
         </div>
 
@@ -328,7 +327,6 @@
         Chart.register(ChartDataLabels);
         const LOCAL_KEY = 'VOTEKU_APP_DATA'; 
         
-        // --- ⚠️ PENTING: GANTI URL DI BAWAH INI DENGAN URL GOOGLE APPS SCRIPT ANDA ⚠️ ---
         const HARDCODED_API_URL = "https://script.google.com/macros/s/AKfycbwDi6KoankpHE2GPEgmD5dApMkiUl-gCsR44wb8f0dl70Coyt7X7Rswe3rPQcvFMsg/exec"; 
 
         const DEFAULT_DATA = { 
@@ -340,7 +338,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V164', 'VOTEKU_V163', 'VOTEKU_V162', 'VOTEKU_V161', 'VOTEKU_V160'];
+            const oldKeys = ['VOTEKU_V166', 'VOTEKU_V165', 'VOTEKU_V164', 'VOTEKU_V163', 'VOTEKU_V162'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -351,9 +349,7 @@
 
         let cachedElections = [], activeVoteId = null, chartInstance = null, shareActiveId = null;
         let currentShareOptions = [], currentAdminOptions = [];
-        let isFromPortal = false;
 
-        // --- SISTEM CUSTOM ALERT & CONFIRM MODERN ---
         let confirmCallback = null;
         let alertCallback = null;
 
@@ -385,6 +381,15 @@
                 document.getElementById('main-app').style.display = 'block';
                 document.getElementById('main-bottom-nav').style.display = 'none';
                 
+                // PENGAMANAN UTAMA: Jika HP ini sudah pernah voting untuk acara portal/vote tersebut, langsung alihkan ke halaman Hasil!
+                const targetId = sharePortalId || shareVoteId || shareHasilId;
+                if (sharePortalId || shareVoteId) {
+                    if (localStorage.getItem("VOTE_DONE_" + targetId)) {
+                        window.location.href = window.location.pathname + "?hasil=" + targetId;
+                        return;
+                    }
+                }
+
                 if (sharePortalId) initSharePortal(sharePortalId);
                 else if (shareVoteId) initShareVoting(shareVoteId, tokenToUse);
                 else if (shareHasilId) initShareHasil(shareHasilId);
@@ -450,7 +455,7 @@
         }
 
         function resetDatabaseUI() { 
-            showCustomConfirm("⚠️ <b>PERINGATAN BERBAHAYA!</b><br><br>Yakin ingin <b>MENGHAPUS SEMUA DATA</b> (Acara, Token, Suara) dari Server Database (Google Sheets)?<br><br>Data yang dihapus TIDAK BISA DIKEMBALIKAN!", "Reset Database", 
+            showCustomConfirm("⚠️ <b>PERINGATAN BERBAHAYA!</b><br><br>Yakin ingin <b>MENGHAPUS SEMUA DATA</b> (Acara, Token, Suara) dari Server Database?<br><br>Data yang dihapus TIDAK BISA DIKEMBALIKAN!", "Reset Database", 
                 async () => {
                     try {
                         if (APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) {
@@ -458,14 +463,13 @@
                             showCustomAlert(res.message, "Reset Berhasil", "success", () => { localStorage.removeItem(LOCAL_KEY); location.reload(); });
                         } else { throw new Error("URL API Belum Dikonfigurasi."); }
                     } catch (err) { 
-                        let errText = err.message;
-                        showCustomAlert("<b>Server Merespon Error:</b><br>" + errText, "Gagal Koneksi", "danger", () => { localStorage.removeItem(LOCAL_KEY); location.reload(); });
+                        showCustomAlert("<b>Server Respon Error:</b><br>" + err.message, "Gagal Koneksi", "danger");
                     }
                 }
             );
         }
 
-        // --- ALUR PORTAL -> VOTE -> HASIL ---
+        // --- ALUR PORTAL -> VOTE -> HASIL (DENGAN PROTEKSI TOTAL) ---
         
         async function initSharePortal(id) {
             nav('share-portal');
@@ -488,11 +492,19 @@
                 }).join('');
 
             } catch (e) {
-                document.getElementById('portal-token-list').innerHTML = `<div class="alert alert-danger text-center">Gagal memuat token: Koneksi lambat/terputus.<br><br><button class="btn btn-outline-danger btn-sm mt-2" onclick="location.reload()">Coba Lagi</button></div>`;
+                document.getElementById('portal-token-list').innerHTML = `<div class="alert alert-danger text-center">Gagal memuat token.<br><br><button class="btn btn-outline-danger btn-sm mt-2" onclick="location.reload()">Coba Lagi</button></div>`;
             }
         }
 
         function takeToken(btn, tokenStr, electionId) {
+            // Pengaman ekstra: Jika warga mencoba klik token hijau padahal HP ini sudah pernah dipakai voting
+            if (localStorage.getItem("VOTE_DONE_" + electionId)) {
+                showCustomAlert("Perangkat ini sudah digunakan untuk mengirim suara. Anda tidak dapat mengambil token baru.", "Akses Ditolak", "warning", () => {
+                    window.location.href = window.location.pathname + "?hasil=" + electionId;
+                });
+                return;
+            }
+
             btn.classList.replace('btn-outline-success', 'btn-secondary');
             btn.classList.add('text-decoration-line-through', 'opacity-75');
             btn.innerHTML = `${tokenStr} <i class="bi bi-check-circle-fill text-success ms-1"></i>`;
@@ -500,10 +512,17 @@
 
             setTimeout(() => {
                 window.location.href = window.location.pathname + "?vote=" + electionId + "&token=" + tokenStr;
-            }, 400);
+            }, 300);
         }
 
         async function initShareVoting(id, autoToken = null) {
+            if(localStorage.getItem("VOTE_DONE_" + id)) {
+                showCustomAlert("Perangkat ini sudah digunakan untuk mengirim suara pada pemilihan ini. Anda tidak dapat mengakses bilik suara lagi.", "Akses Ditutup", "warning", () => {
+                    window.location.href = window.location.pathname + "?hasil=" + id;
+                });
+                return;
+            }
+
             nav('share-vote');
             try {
                 const res = await apiCall("getElections");
@@ -526,22 +545,16 @@
                 document.getElementById('share-vote-selection').value = ""; 
 
                 if (autoToken) {
-                    isFromPortal = true;
                     const tkInput = document.getElementById('share-vote-token');
                     tkInput.value = autoToken;
                     tkInput.setAttribute('readonly', 'true');
                     tkInput.classList.add('bg-light');
-                    document.getElementById('btn-back-portal').classList.remove('d-none');
                 }
 
             } catch(e) { 
                 document.getElementById('share-vote-title').innerText = "Gagal Memuat Data"; 
-                document.getElementById('share-vote-desc').innerHTML = `Kesalahan koneksi ke server. <br><button class="btn btn-outline-primary mt-2 btn-sm" onclick="location.reload()">Coba Ulang</button>`;
+                document.getElementById('share-vote-desc').innerHTML = `Koneksi ke server terganggu. <br><button class="btn btn-outline-primary mt-2 btn-sm" onclick="location.reload()">Coba Ulang</button>`;
             }
-        }
-        
-        function goBackToPortal() {
-            if(shareActiveId) window.location.href = window.location.pathname + "?portal=" + shareActiveId;
         }
 
         async function executeShareVote() {
@@ -553,7 +566,6 @@
             const finalOption = currentShareOptions.find(o => o.toLowerCase() === rawVal.toLowerCase());
             if (!finalOption) return showCustomAlert("Kandidat yang Anda ketik tidak valid! Silakan pilih nama kandidat dari daftar yang muncul.", "Data Tidak Sah", "danger");
             
-            // Cegah double click
             const btnSubmit = document.getElementById('btn-submit-vote');
             btnSubmit.disabled = true;
             btnSubmit.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...`;
@@ -561,6 +573,9 @@
             try {
                 const res = await apiCall("submitVote", { electionId: shareActiveId, option: finalOption, token: tokenStr });
                 
+                // KUNCI PERANGKAT PERMANEN DI HP INI
+                localStorage.setItem("VOTE_DONE_" + shareActiveId, "true");
+
                 showCustomAlert("<b>TERIMA KASIH!</b><br>" + res.message, "Suara Berhasil Masuk", "success", () => {
                     window.location.href = window.location.pathname + "?hasil=" + shareActiveId;
                 });
@@ -572,8 +587,8 @@
                 let errorMsg = err.message;
                 let onDismiss = null;
                 
-                if (errorMsg.includes("SUDAH DIGUNAKAN") && isFromPortal) {
-                    errorMsg += "<br><br><b>Sistem akan mengembalikan Anda ke Portal agar dapat memilih Token lain yang masih tersedia.</b>";
+                if (errorMsg.includes("SUDAH DIGUNAKAN") || errorMsg.includes("sudah digunakan")) {
+                    errorMsg += "<br><br><b>Token ini sudah terpakai. Anda akan diarahkan kembali ke Portal agar dapat memilih Token lain.</b>";
                     onDismiss = () => { window.location.href = window.location.pathname + "?portal=" + shareActiveId; };
                 }
                 
@@ -596,7 +611,7 @@
             }
         }
 
-        // --- UTILS & CORE API DENGAN TIMEOUT KHUSUS KENDALA SINYAL ---
+        // --- UTILS & CORE API ---
         function showToast(msg, color = "bg-success") {
             const t = document.getElementById('liveToast'); t.className = `toast align-items-center text-white border-0 ${color}`;
             document.getElementById('toast-msg').innerText = msg; new bootstrap.Toast(t).show();
@@ -618,7 +633,6 @@
             if (!APP_DATA.apiUrl || APP_DATA.apiUrl === "") throw new Error("URL API Server Belum Dikonfigurasi.");
             if (APP_DATA.serverToken) payload.adminToken = APP_DATA.serverToken;
             
-            // Timeout Controller: Membatalkan fetch jika melebihi 15 detik
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 15000);
 
@@ -628,17 +642,16 @@
                     method: 'POST', 
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                     body: JSON.stringify({ action: action, payload: payload }),
-                    signal: controller.signal // Terapkan pembatasan waktu
+                    signal: controller.signal
                 });
                 
-                clearTimeout(timeoutId); // Sukses, batalkan timer timeout
+                clearTimeout(timeoutId);
                 const data = await res.json();
                 toggleLoading(false);
                 if (data.error) throw new Error(data.error); 
                 return data;
             } catch (err) { 
                 toggleLoading(false); 
-                // Jika error karena sinyal jelek / timeout
                 if (err.name === 'AbortError' || err.message.includes('fetch')) {
                     throw new Error("Koneksi lambat atau sinyal memburuk. Silakan coba lagi.");
                 }
@@ -655,7 +668,6 @@
             statusEl.className = "alert alert-success shadow-sm"; document.getElementById('lbl-logged-user').innerText = `Halo, ${APP_DATA.serverUser}!`; applyBranding();
         }
 
-        // --- DASHBOARD ACTIONS ---
         async function handleBuatVoting(e) {
             e.preventDefault();
             try {
