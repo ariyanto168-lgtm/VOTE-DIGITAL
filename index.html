@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.7.1</title>
+    <title>VOTEKU DIGITAL - v1.7.3</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -29,7 +29,16 @@
         
         #lock-screen { position: fixed; top:0; left:0; right:0; bottom:0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;}
         .lock-card { background: #fff; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-        .loading-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.9); z-index: 1050; display: none; align-items: center; justify-content: center; flex-direction: column;}
+        
+        /* Kamuflase Loading Animasi Titik Merah Kuning Hijau */
+        .loading-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.85); z-index: 1050; display: none; align-items: center; justify-content: center; flex-direction: column;}
+        .dot-pulse { display: flex; gap: 8px; align-items: center; justify-content: center; margin-bottom: 8px; }
+        .dot-pulse span { width: 14px; height: 14px; border-radius: 50%; display: inline-block; animation: pulseBounce 0.6s infinite alternate; }
+        .dot-red { background-color: #f44336; animation-delay: 0s; }
+        .dot-yellow { background-color: #ffeb3b; animation-delay: 0.2s; }
+        .dot-green { background-color: #4caf50; animation-delay: 0.4s; }
+        @keyframes pulseBounce { to { transform: translateY(-10px); opacity: 0.6; } }
+
         .premium-card { border: 2px solid #ffc107; background: #fffdf2; }
 
         /* Custom Alert UI Modern */
@@ -125,9 +134,14 @@
         </div>
     </div>
 
+    <!-- LOADING KAMUFLASE TITIK MERAH KUNING HIJAU -->
     <div class="loading-overlay" id="loading">
-        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-        <div class="mt-2 fw-bold text-primary" id="loading-text">Memproses Server...</div>
+        <div class="dot-pulse">
+            <span class="dot-red"></span>
+            <span class="dot-yellow"></span>
+            <span class="dot-green"></span>
+        </div>
+        <div class="small fw-bold text-secondary" style="font-size: 0.85rem;" id="loading-text">Powered by Ari GPM</div>
     </div>
 
     <div id="main-app" style="display:none;">
@@ -136,7 +150,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.1 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.3 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
             </div>
         </div>
@@ -152,10 +166,7 @@
 
         <!-- DASHBOARD -->
         <div id="page-dashboard" class="page-section active">
-            <div class="alert alert-info shadow-sm" id="auth-status-alert"><i class="bi bi-shield-fill-check text-success"></i> <b>Secure Pro Aktif</b> - Perlindungan Anti-Double Vote & Enkripsi Token</div>
-            <div class="card p-3 mb-3 text-center bg-primary text-white shadow" onclick="fetchElectionsUI()">
-                <i class="bi bi-cloud-arrow-down fs-2"></i><div class="fw-bold mt-1">Tarik Ulang Data Acara</div>
-            </div>
+            <div class="alert alert-success shadow-sm" id="auth-status-alert"><i class="bi bi-shield-fill-check text-success"></i> <b>Secure Pro Aktif</b> - Data otomatis tersinkronisasi</div>
             
             <div class="row g-2 text-center mb-3">
                 <div class="col-6"><button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('hasil')"><i class="bi bi-bar-chart fs-3 d-block text-success"></i><small>Lihat Hasil</small></button></div>
@@ -362,7 +373,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V170', 'VOTEKU_V169', 'VOTEKU_V168', 'VOTEKU_V167', 'VOTEKU_V166'];
+            const oldKeys = ['VOTEKU_V172', 'VOTEKU_V171', 'VOTEKU_V170', 'VOTEKU_V169', 'VOTEKU_V168'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -431,7 +442,13 @@
                 if (inputPin === APP_DATA.pin) {
                     clearURLParams(); document.getElementById('lock-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; document.getElementById('main-bottom-nav').style.display = 'flex';
                     inputEl.value = ""; applyBranding(); nav('dashboard', document.querySelectorAll('.bottom-nav .nav-item')[0]);
-                    setTimeout(() => { if(APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) { fetchElectionsUI(); } }, 500);
+                    
+                    setTimeout(() => { 
+                        if(APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) { 
+                            fetchElectionsUI(); 
+                        } 
+                    }, 300);
+
                 } else { showCustomAlert("PIN yang Anda masukkan salah!", "Akses Ditolak", "danger"); inputEl.value = ""; inputEl.focus(); }
             } catch(e) { showCustomAlert("Kesalahan Sistem: " + e.message, "Error", "danger"); }
         }
@@ -686,7 +703,7 @@
             document.getElementById('dynamic-header').style.background = "#1b5e20"; document.getElementById('ui-branding-subtitle').innerText = "Secure Pro White-Label Member";
         }
         function checkServerAuthStatus() {
-            const statusEl = document.getElementById('auth-status-alert'); statusEl.innerHTML = `<i class="bi bi-shield-fill-check text-success"></i> <b>Secure Pro Aktif</b> - Perlindungan Anti-Double Vote & Enkripsi Token`;
+            const statusEl = document.getElementById('auth-status-alert'); statusEl.innerHTML = `<i class="bi bi-shield-fill-check text-success"></i> <b>Secure Pro Aktif</b> - Data otomatis tersinkronisasi`;
             statusEl.className = "alert alert-success shadow-sm"; document.getElementById('lbl-logged-user').innerText = `Halo, ${APP_DATA.serverUser}!`; applyBranding();
         }
 
