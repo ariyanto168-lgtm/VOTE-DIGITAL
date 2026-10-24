@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.7.6</title>
+    <title>VOTEKU DIGITAL - v1.7.7</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -28,7 +28,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         #lock-screen { position: fixed; top:0; left:0; right:0; bottom:0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;}
-        .lock-card { background: #fff; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .lock-card { background: #fff; padding: 25px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
         
         /* LOADING: TEKS POWERED BY ARI GPM BERDENYUT WARNA-WARNI */
         .loading-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.9); z-index: 1050; display: none; align-items: center; justify-content: center; flex-direction: column;}
@@ -86,14 +86,25 @@
     <!-- Kunci Lokal / Layar PIN -->
     <div id="lock-screen">
         <div class="lock-card" id="view-login">
-            <img src="logovotedigital.png" alt="Logo" style="height: 60px; width: auto; margin-bottom: 10px; border-radius: 12px;">
+            <img src="logovotedigital.png" alt="Logo" style="height: 55px; width: auto; margin-bottom: 8px; border-radius: 12px;">
             <h4 class="fw-bold mb-1">VOTEKU DIGITAL</h4>
-            <div class="mb-3"><span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="bi bi-shield-fill-check"></i> Secure Pro Verified</span></div>
-            <p class="text-muted small mb-3">Masukkan PIN untuk membuka aplikasi</p>
+            <div class="mb-2"><span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="bi bi-shield-fill-check"></i> Secure Pro Verified</span></div>
+            
+            <!-- BANNER / TOMBOL INSTAL APLIKASI -->
+            <div id="install-banner" class="alert alert-warning py-2 px-3 mb-3 d-none text-start shadow-sm border border-warning" style="font-size: 0.85rem;">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <i class="bi bi-phone-fill text-warning fs-5 me-1"></i> <b>Pasang Aplikasi</b> ke Layar Utama HP
+                    </div>
+                    <button class="btn btn-warning btn-sm fw-bold text-dark px-2 py-1 shadow-sm" id="btn-install" style="font-size: 0.75rem;">INTELEK / INSTAL</button>
+                </div>
+            </div>
+
+            <p class="text-muted small mb-2">Masukkan PIN untuk membuka aplikasi</p>
             <input type="password" id="pin-input" class="form-control mb-3 text-center py-2 fs-5" placeholder="••••••••" onkeypress="if(event.key === 'Enter') unlockApp()">
-            <button class="btn btn-primary w-100 py-2 mb-3 fw-bold rounded-pill" onclick="unlockApp()"><i class="bi bi-lock-fill"></i> Masuk Aplikasi</button>
-            <a href="#" onclick="showForgotView(true)" class="text-decoration-none text-primary small fw-bold d-block mb-4"><i class="bi bi-question-circle"></i> Lupa PIN?</a>
-            <div class="text-muted small border-top pt-3">Powered by Ari GPM</div>
+            <button class="btn btn-primary w-100 py-2 mb-2 fw-bold rounded-pill" onclick="unlockApp()"><i class="bi bi-lock-fill"></i> Masuk Aplikasi</button>
+            <a href="#" onclick="showForgotView(true)" class="text-decoration-none text-primary small fw-bold d-block mb-3"><i class="bi bi-question-circle"></i> Lupa PIN?</a>
+            <div class="text-muted small border-top pt-2">Powered by Ari GPM</div>
         </div>
 
         <div class="lock-card" id="view-setup" style="display: none;">
@@ -147,7 +158,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.6 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.7.7 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
             </div>
         </div>
@@ -370,7 +381,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V175', 'VOTEKU_V174', 'VOTEKU_V173', 'VOTEKU_V172', 'VOTEKU_V171'];
+            const oldKeys = ['VOTEKU_V176', 'VOTEKU_V175', 'VOTEKU_V174', 'VOTEKU_V173', 'VOTEKU_V172'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -384,6 +395,33 @@
 
         let confirmCallback = null;
         let alertCallback = null;
+        let deferredPrompt = null;
+
+        // --- MANAJER BANNER PWA INSTALL ---
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const banner = document.getElementById('install-banner');
+            if (banner) banner.classList.remove('d-none');
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnInstall = document.getElementById('btn-install');
+            if (btnInstall) {
+                btnInstall.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        if (outcome === 'accepted') {
+                            document.getElementById('install-banner').classList.add('d-none');
+                        }
+                        deferredPrompt = null;
+                    } else {
+                        showCustomAlert("Untuk menginstal aplikasi, ketuk menu titik tiga (⋮) di browser Anda lalu pilih <b>'Tambahkan ke Layar Utama'</b> atau <b>'Instal Aplikasi'</b>.", "Cara Instal", "primary");
+                    }
+                });
+            }
+        });
 
         function showCustomAlert(msg, title = "Info", type = "primary", onOk = null) {
             document.getElementById('ui-alert-title').innerText = title; document.getElementById('ui-alert-msg').innerHTML = msg;
@@ -506,7 +544,6 @@
             );
         }
 
-        // --- FUNGSI HAPUS ACARA SATU PER SATU (IKON SAMPAH) ---
         function deleteElectionUI(electionId, electionTitle) {
             showCustomConfirm(`Yakin ingin menghapus acara <b>"${electionTitle}"</b> beserta seluruh token dan suaranya dari server?`, "Hapus Acara", async () => {
                 try {
@@ -785,7 +822,7 @@
                             <div class="col-6">
                                 <div class="p-2 bg-light rounded border h-100">
                                     <p class="small text-dark fw-bold mb-1 text-center" style="font-size:0.7rem;"><i class="bi bi-bar-chart"></i> Link Hasil</p>
-                                    <button class="btn btn-sm btn-outline-secondary w-100 fw-bold" style="font-size:0.75rem;" onclick="navigator.clipboard.writeText('${shareLinkHasil}'); showToast('Link Hasil Disalin!');"><i class="bi bi-link"></i> Salin Link</button>
+                                    <button class="btn btn-sm btn-outline-secondary w-100 fw-bold" style="font-size:0.75rem;" onclick="navigator.clipboard.writeText('${shareLinkHasil}'); showToast('Link Disalin!');"><i class="bi bi-link"></i> Salin Link</button>
                                 </div>
                             </div>
                         </div>
