@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.8.3</title>
+    <title>VOTEKU DIGITAL - v1.8.4</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -161,7 +161,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.8.3 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.8.4 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
             </div>
         </div>
@@ -210,11 +210,9 @@
                     <input type="text" id="share-vote-selection" class="form-control form-control-lg border-primary text-center fw-bold" placeholder="Ketik nama atau pilih di bawah..." oninput="filterKandidat('share')">
                 </div>
 
-                <!-- CHIPS KANDIDAT DINAMIS -->
                 <div class="mb-4 flex-grow-1">
                     <label class="fw-bold small text-dark mb-2">Daftar Kandidat (Klik untuk memilih):</label>
                     <div id="share-kandidat-chips" class="d-flex flex-wrap gap-2 justify-content-center align-content-start">
-                        <!-- Chips akan dirender di sini -->
                     </div>
                 </div>
 
@@ -234,8 +232,11 @@
                     <h4 class="fw-bold text-success mb-0" id="share-hasil-title">Hasil Pemilihan</h4>
                     <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.7rem;"><i class="bi bi-arrow-repeat"></i> Live Update</span>
                 </div>
-                <p class="text-muted small mb-3" id="share-hasil-total">Memuat total suara...</p>
+                <p class="text-muted small mb-2" id="share-hasil-total">Memuat total suara...</p>
                 
+                <!-- CONTAINER 10 BESAR -->
+                <div id="share-leaderboard"></div>
+
                 <!-- CONTAINER GRAFIK DINAMIS MEMBESAR KE BAWAH -->
                 <div style="position: relative; width: 100%; min-height: 300px;" id="share-chart-wrapper">
                     <canvas id="chartShareHasil"></canvas>
@@ -280,8 +281,11 @@
                 <select class="form-select mb-0 fw-bold border-primary" id="select-hasil" onchange="autoFetchResults()"></select>
             </div>
             <div class="card p-3 text-center shadow-sm">
-                <div class="fw-bold text-success mb-3" id="lbl-total-suara">Total Suara: 0</div>
+                <div class="fw-bold text-success mb-2" id="lbl-total-suara">Total Suara: 0</div>
                 
+                <!-- CONTAINER 10 BESAR -->
+                <div id="admin-leaderboard"></div>
+
                 <!-- CONTAINER GRAFIK DINAMIS MEMBESAR KE BAWAH -->
                 <div style="position: relative; width: 100%; min-height: 300px;" id="admin-chart-wrapper">
                     <canvas id="chartHasil"></canvas>
@@ -339,7 +343,7 @@
         </div>
     </div>
 
-    <!-- MODAL BILIK SUARA ADMIN (FULLSCREEN DI MOBILE) -->
+    <!-- MODAL BILIK SUARA ADMIN -->
     <div class="modal fade" id="voteModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-fullscreen-md-down modal-dialog-scrollable">
             <div class="modal-content">
@@ -387,7 +391,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V182', 'VOTEKU_V181', 'VOTEKU_V180', 'VOTEKU_V179'];
+            const oldKeys = ['VOTEKU_V183', 'VOTEKU_V182', 'VOTEKU_V181', 'VOTEKU_V180'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -595,7 +599,6 @@
             setTimeout(() => { window.location.href = window.location.pathname + "?vote=" + electionId + "&token=" + tokenStr; }, 300);
         }
 
-        // FUNGSI UNTUK MENYARING CHIP KANDIDAT
         function filterKandidat(type) {
             const inputVal = document.getElementById(type + '-vote-selection').value.toLowerCase();
             const container = document.getElementById(type + '-kandidat-chips');
@@ -690,6 +693,43 @@
             }
         }
 
+        // ==========================================
+        // FUNGSI RENDER LEADERBOARD 10 BESAR
+        // ==========================================
+        function renderLeaderboard(containerId, resultsData) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const sortedEntries = Object.entries(resultsData).sort((a, b) => b[1] - a[1]);
+            const top10 = sortedEntries.slice(0, 10);
+            
+            let html = `
+                <div class="mb-4 text-start bg-white border border-warning rounded p-2 shadow-sm">
+                    <div class="fw-bold text-warning mb-2 border-bottom pb-1" style="font-size: 0.9rem;">
+                        <i class="bi bi-trophy-fill"></i> Peringkat 10 Besar Sementara
+                    </div>
+            `;
+            
+            top10.forEach((entry, index) => {
+                let badgeClass = "bg-secondary text-white"; // default peringkat 4-10
+                if (index === 0) badgeClass = "bg-warning text-dark border border-warning"; // Emas
+                else if (index === 1) badgeClass = "bg-info text-white"; // Perak / Biru Terang
+                else if (index === 2) badgeClass = "bg-danger text-white"; // Perunggu / Merah
+                
+                html += `
+                    <div class="d-flex justify-content-between align-items-center mb-1 pb-1 border-bottom border-light">
+                        <span class="small fw-bold text-truncate text-dark" style="max-width: 80%;">
+                            <span class="badge ${badgeClass} me-2" style="width:25px">${index + 1}</span> ${entry[0]}
+                        </span>
+                        <span class="badge bg-primary rounded-pill px-2">${entry[1]}</span>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
         async function initShareHasil(id) {
             shareActiveId = id;
             nav('share-hasil');
@@ -715,7 +755,7 @@
                 document.getElementById('share-hasil-title').innerText = "Hasil Pemilihan";
                 document.getElementById('share-hasil-total').innerText = `Total Suara Masuk: ${res.totalVotes}`;
                 
-                // MENGGUNAKAN FUNGSI RENDER BARU
+                renderLeaderboard('share-leaderboard', res.results);
                 renderBarChart('chartShareHasil', res.results);
             } catch(e) { 
                 if (!silent) {
@@ -725,7 +765,6 @@
             }
         }
 
-        // --- UTILS & CORE API ---
         function showToast(msg, color = "bg-success") {
             const t = document.getElementById('liveToast'); t.className = `toast align-items-center text-white border-0 ${color}`;
             document.getElementById('toast-msg').innerText = msg; new bootstrap.Toast(t).show();
@@ -957,34 +996,27 @@
 
                 document.getElementById('lbl-total-suara').innerText = `Total Suara Masuk: ${res.totalVotes}`;
                 
-                // MENGGUNAKAN FUNGSI RENDER BARU
+                renderLeaderboard('admin-leaderboard', res.results);
                 renderBarChart('chartHasil', res.results);
             } catch (err) { 
                 if (!silent) showToast(err.message, "bg-danger"); 
             }
         }
 
-        // ==========================================
-        // FUNGSI RENDER GRAFIK BARU (HORIZONTAL & SORTING)
-        // ==========================================
         function renderBarChart(canvasId, resultsData) {
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext('2d');
             
-            // 1. URUTKAN DATA DARI TERTINGGI KE TERENDAH
             const sortedEntries = Object.entries(resultsData).sort((a, b) => b[1] - a[1]);
             const labels = sortedEntries.map(e => e[0]);
             const values = sortedEntries.map(e => e[1]);
             
-            // 2. HITUNG TINGGI GRAFIK SECARA DINAMIS (Agar membesar ke bawah)
             const minHeight = 300;
-            const heightPerItem = 45; // 45px per bar/kandidat
+            const heightPerItem = 45; 
             const dynamicHeight = Math.max(minHeight, labels.length * heightPerItem);
             
-            // Set tinggi container induk dari canvas
             canvas.parentElement.style.height = dynamicHeight + 'px';
 
-            // Hancurkan grafik lama jika ada
             if (window[canvasId + 'Instance']) {
                 window[canvasId + 'Instance'].destroy();
             }
@@ -999,8 +1031,8 @@
                     datasets: [{ label: 'Suara', data: values, backgroundColor: backgroundColors, borderRadius: 4 }] 
                 }, 
                 options: { 
-                    indexAxis: 'y', // UBAH JADI HORIZONTAL (NAMA DI KIRI, BAR KE KANAN)
-                    maintainAspectRatio: false, // Izinkan grafik ditarik memanjang ke bawah
+                    indexAxis: 'y', 
+                    maintainAspectRatio: false, 
                     plugins: { 
                         legend: { display: false }, 
                         datalabels: { 
@@ -1008,12 +1040,12 @@
                             font: { weight: 'bold', size: 12 }, formatter: Math.round 
                         } 
                     }, 
-                    layout: { padding: { right: 30 } }, // Beri ruang di kanan agar angka tidak terpotong layar
+                    layout: { padding: { right: 30 } }, 
                     scales: { 
                         x: { beginAtZero: true, ticks: { stepSize: 1 } },
                         y: { 
                             ticks: { 
-                                autoSkip: false, // PAKSA TAMPILKAN SEMUA NAMA
+                                autoSkip: false, 
                                 font: { size: 11, weight: 'bold' } 
                             } 
                         } 
