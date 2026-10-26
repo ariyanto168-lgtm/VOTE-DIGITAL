@@ -1,9 +1,9 @@
 /**
  * VOTEKU DIGITAL - Service Worker
- * Versi: v1.8.4
+ * Versi: v1.8.6
  */
 
-const CACHE_NAME = 'voteku-cache-v1.8.4';
+const CACHE_NAME = 'voteku-cache-v1.8.6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
