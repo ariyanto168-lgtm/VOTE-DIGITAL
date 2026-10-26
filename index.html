@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.8.6</title>
+    <title>VOTEKU DIGITAL - v1.8.7</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -152,7 +152,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Admin Menu">v1.8.6 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Admin Menu">v1.8.7 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
                 <!-- BADGE OFFLINE SYNC -->
                 <span class="badge bg-danger d-none animate__animated animate__pulse animate__infinite" id="offline-badge" onclick="processOfflineQueue()" style="cursor:pointer;" title="Klik untuk sinkronisasi paksa">
@@ -214,7 +214,8 @@
                     <div id="share-kandidat-chips" class="d-flex flex-wrap gap-2 justify-content-center align-content-start"></div>
                 </div>
 
-                <div class="mb-4">
+                <!-- KOLOM TOKEN DISEMBUNYIKAN (d-none) AGAR PEMILIH AWAM TIDAK BINGUNG -->
+                <div class="mb-4 d-none">
                     <label class="fw-bold small text-dark mb-2"><i class="bi bi-key-fill"></i> Token Unik Anda:</label>
                     <input type="text" id="share-vote-token" class="form-control form-control-lg text-center text-uppercase fw-bold border-primary bg-light" placeholder="TOKEN RAHASIA" readonly>
                 </div>
@@ -377,6 +378,7 @@
                         </div>
                     </div>
 
+                    <!-- TOKEN ADMIN TETAP DITAMPILKAN KARENA ADMIN HARUS MENGISI MANUAL -->
                     <div class="mb-2">
                         <label class="fw-bold small text-dark mb-2">Token Pemilih:</label>
                         <input type="text" id="vote-token" class="form-control form-control-lg text-center text-uppercase fw-bold border-primary" placeholder="TOKEN UNIK" maxlength="10">
@@ -406,7 +408,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V185', 'VOTEKU_V184', 'VOTEKU_V183', 'VOTEKU_V182'];
+            const oldKeys = ['VOTEKU_V186', 'VOTEKU_V185', 'VOTEKU_V184', 'VOTEKU_V183'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -658,9 +660,6 @@
             }
         }
 
-        // ==========================================
-        // SISTEM OFFLINE-FIRST SYNCHRONIZATION 
-        // ==========================================
         function saveToOfflineQueue(payload) {
             let queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY)) || [];
             queue.push(payload);
@@ -689,15 +688,13 @@
 
             for (let i = 0; i < queue.length; i++) {
                 try {
-                    await apiCallSilent("submitVote", queue[i]); // Kirim ke server
-                    newQueue.splice(newQueue.indexOf(queue[i]), 1); // Jika sukses, buang dari antrean lokal
+                    await apiCallSilent("submitVote", queue[i]); 
+                    newQueue.splice(newQueue.indexOf(queue[i]), 1); 
                     syncedCount++;
                 } catch (e) {
-                    // Jika token kadaluarsa/salah, buang dari antrean agar tidak meloop terus
                     if (e.message.includes("SUDAH DIGUNAKAN") || e.message.includes("sudah digunakan") || e.message.includes("tidak valid")) {
                         newQueue.splice(newQueue.indexOf(queue[i]), 1);
                     }
-                    // Jika error karena jaringan putus, abaikan dan biarkan di antrean untuk dicoba lagi nanti
                 }
             }
             
@@ -709,7 +706,7 @@
         async function executeShareVote() {
             const rawVal = document.getElementById('share-vote-selection').value.trim();
             const tokenStr = document.getElementById('share-vote-token').value.trim().toUpperCase();
-            if (!rawVal || !tokenStr) return showCustomAlert("Harap klik salah satu nama kandidat dan pastikan token terisi!", "Peringatan", "warning");
+            if (!rawVal || !tokenStr) return showCustomAlert("Harap klik salah satu nama kandidat terlebih dahulu!", "Peringatan", "warning");
             
             const finalOption = currentShareOptions.find(o => o.toLowerCase() === rawVal.toLowerCase());
             if (!finalOption) return showCustomAlert("Kandidat yang Anda pilih tidak valid!", "Data Tidak Sah", "danger");
@@ -721,7 +718,6 @@
             const payload = { electionId: shareActiveId, option: finalOption, token: tokenStr, timestamp: Date.now() };
 
             try {
-                // Gunakan timeout yang sangat singkat (5 detik) agar UI tidak freeze lama saat traffic tinggi/sinyal jelek
                 const res = await apiCall("submitVote", payload, 5000); 
                 localStorage.setItem("VOTE_DONE_" + shareActiveId, "true");
                 showCustomAlert("<b>TERIMA KASIH!</b><br>" + res.message, "Suara Berhasil Masuk", "success", () => {
@@ -729,7 +725,6 @@
                 });
             } catch(err) { 
                 if (err.message === "OFFLINE_OR_TIMEOUT") {
-                    // LOGIKA OFFLINE-FIRST: Simpan ke LocalStorage dan arahkan user ke hasil
                     saveToOfflineQueue(payload);
                     localStorage.setItem("VOTE_DONE_" + shareActiveId, "true");
                     showCustomAlert("<b>KONEKSI TIDAK STABIL!</b><br>Jangan khawatir, suara Anda telah dimasukkan ke dalam <b>Brankas Offline</b> di perangkat ini dan akan terkirim otomatis ke server saat sinyal stabil.", "Suara Disimpan (Offline Mode)", "warning", () => {
@@ -757,12 +752,11 @@
             
             const payload = { electionId: activeVoteId, option: finalOption, token: tokenStr, timestamp: Date.now() };
             
-            // Langsung tutup modal agar bilik suara bisa cepat dipakai orang berikutnya tanpa freeze
             bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide(); 
             showToast("Memproses suara...", "bg-info");
 
             try {
-                const res = await apiCall("submitVote", payload, 5000); // Batas 5 detik untuk admin
+                const res = await apiCall("submitVote", payload, 5000);
                 showCustomAlert("Suara sah berhasil dimasukkan ke server!", "Berhasil", "success");
             } catch (err) { 
                 if (err.message === "OFFLINE_OR_TIMEOUT") {
@@ -774,9 +768,6 @@
             }
         }
 
-        // ==========================================
-        // RENDER FUNGSI (LEADERBOARD & CHART)
-        // ==========================================
         function renderLeaderboard(containerId, resultsData) {
             const container = document.getElementById(containerId);
             if (!container) return;
@@ -861,9 +852,6 @@
             }
         }
 
-        // ==========================================
-        // UTILS & CORE API
-        // ==========================================
         function showToast(msg, color = "bg-success") {
             const t = document.getElementById('liveToast'); t.className = `toast align-items-center text-white border-0 ${color}`;
             document.getElementById('toast-msg').innerText = msg; new bootstrap.Toast(t).show();
@@ -880,7 +868,6 @@
             if(pageId === 'hasil') { fetchElectionsForResults(); } else if (pageId === 'voting') { if(cachedElections.length === 0) fetchElectionsUI(); else renderVotingList(); }
         }
 
-        // DIUBAH: Penambahan customTimeout untuk mengatasi bottleneck saat banyak user
         async function apiCall(action, payload = {}, customTimeout = 15000) {
             if (!APP_DATA.apiUrl || APP_DATA.apiUrl === "") throw new Error("URL API Server Belum Dikonfigurasi.");
             if (APP_DATA.serverToken) payload.adminToken = APP_DATA.serverToken;
@@ -892,7 +879,6 @@
                 if (data.error) throw new Error(data.error); return data;
             } catch (err) { 
                 toggleLoading(false); 
-                // Deteksi jaringan mati atau request terlalu lambat
                 if (err.name === 'AbortError' || err.message.includes('fetch') || err.message.includes('NetworkError')) { 
                     throw new Error("OFFLINE_OR_TIMEOUT"); 
                 }
@@ -907,7 +893,7 @@
                 const res = await fetch(APP_DATA.apiUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, payload: payload }) });
                 const data = await res.json();
                 if (data.error) throw new Error(data.error); return data;
-            } catch (err) { throw err; } // Biarkan processOfflineQueue menangkap errornya
+            } catch (err) { throw err; } 
         }
 
         function applyBranding() {
