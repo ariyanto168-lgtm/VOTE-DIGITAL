@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.8.4</title>
+    <title>VOTEKU DIGITAL - v1.8.6</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -30,7 +30,6 @@
         #lock-screen { position: fixed; top:0; left:0; right:0; bottom:0; background: var(--primary); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;}
         .lock-card { background: #fff; padding: 25px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
         
-        /* LOADING: TEKS POWERED BY ARI GPM BERDENYUT WARNA-WARNI */
         .loading-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.9); z-index: 1050; display: none; align-items: center; justify-content: center; flex-direction: column;}
         .rainbow-pulse-text { font-weight: bold; font-size: 1.2rem; animation: colorPulseAnim 1.2s infinite alternate ease-in-out; }
         
@@ -43,7 +42,6 @@
 
         .premium-card { border: 2px solid #ffc107; background: #fffdf2; }
 
-        /* Custom Alert UI Modern */
         .custom-alert-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.2s; }
         .custom-alert-box { background: white; border-radius: 16px; width: 100%; max-width: 350px; text-align: center; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .custom-alert-header { padding: 20px 20px 10px; }
@@ -56,14 +54,12 @@
         
         .token-section { background-color: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 10px; margin-bottom: 15px; }
 
-        /* Tombol Kandidat Dinamis */
         .kandidat-chip { cursor: pointer; padding: 8px 16px; border: 2px solid var(--primary); border-radius: 25px; font-weight: bold; color: var(--primary); background: #ffffff; transition: all 0.2s ease-in-out; font-size: 0.9rem; flex-grow: 1; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
         .kandidat-chip:active { transform: scale(0.95); }
         .kandidat-chip.selected { background: var(--primary); color: #ffffff; box-shadow: 0 4px 8px rgba(2,119,189,0.3); border-color: var(--primary); }
     </style>
 </head>
 <body>
-    <!-- CUSTOM ALERT MODAL -->
     <div class="custom-alert-overlay" id="ui-alert">
         <div class="custom-alert-box">
             <div class="custom-alert-header" id="ui-alert-icon"><i class="bi bi-info-circle text-primary"></i></div>
@@ -75,7 +71,6 @@
         </div>
     </div>
 
-    <!-- CUSTOM CONFIRM MODAL -->
     <div class="custom-alert-overlay" id="ui-confirm">
         <div class="custom-alert-box">
             <div class="custom-alert-header"><i class="bi bi-exclamation-triangle-fill text-warning"></i></div>
@@ -88,7 +83,6 @@
         </div>
     </div>
 
-    <!-- Kunci Lokal / Layar PIN -->
     <div id="lock-screen">
         <div class="lock-card" id="view-login">
             <img src="logovotedigital.png" alt="Logo" style="height: 55px; width: auto; margin-bottom: 8px; border-radius: 12px;">
@@ -97,9 +91,7 @@
             
             <div id="install-banner" class="alert alert-warning py-2 px-3 mb-3 d-none text-start shadow-sm border border-warning" style="font-size: 0.85rem;">
                 <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <i class="bi bi-phone-fill text-warning fs-5 me-1"></i> <b>Pasang Aplikasi</b> ke Layar Utama
-                    </div>
+                    <div><i class="bi bi-phone-fill text-warning fs-5 me-1"></i> <b>Pasang Aplikasi</b></div>
                     <button class="btn btn-warning btn-sm fw-bold text-dark px-2 py-1 shadow-sm" id="btn-install" style="font-size: 0.75rem;">INSTAL</button>
                 </div>
             </div>
@@ -140,7 +132,6 @@
         </div>
     </div>
 
-    <!-- Modal Kamuflase Admin -->
     <div class="modal fade" id="kamuflaseModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content p-3 text-center">
@@ -161,8 +152,12 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Klik untuk menu admin">v1.8.4 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Admin Menu">v1.8.6 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
+                <!-- BADGE OFFLINE SYNC -->
+                <span class="badge bg-danger d-none animate__animated animate__pulse animate__infinite" id="offline-badge" onclick="processOfflineQueue()" style="cursor:pointer;" title="Klik untuk sinkronisasi paksa">
+                    <i class="bi bi-cloud-slash-fill"></i> <span id="offline-count">0</span> Antrean
+                </span>
             </div>
         </div>
 
@@ -179,6 +174,11 @@
         <div id="page-dashboard" class="page-section active">
             <div class="alert alert-success shadow-sm" id="auth-status-alert"><i class="bi bi-shield-fill-check text-success"></i> <b>Secure Pro Aktif</b> - Data otomatis tersinkronisasi</div>
             
+            <!-- INFO SISTEM OFFLINE -->
+            <div class="alert alert-info shadow-sm p-2 text-center" style="font-size: 0.8rem;">
+                <i class="bi bi-wifi-off"></i> <b>Sistem Offline Aktif:</b> Aplikasi ini tetap lancar saat tanpa sinyal atau traffic tinggi.
+            </div>
+
             <div class="row g-2 text-center mb-3">
                 <div class="col-6"><button class="btn btn-light w-100 py-3 border shadow-sm" onclick="nav('hasil')"><i class="bi bi-bar-chart fs-3 d-block text-success"></i><small>Lihat Hasil</small></button></div>
                 <div class="col-6"><button class="btn btn-light w-100 py-3 border shadow-sm premium-card" onclick="nav('premium')"><i class="bi bi-star-fill fs-3 d-block text-warning"></i><small>Paket & Harga</small></button></div>
@@ -191,7 +191,6 @@
                 <h4 class="fw-bold text-warning mb-1" id="share-portal-title">Pilih Token Masuk</h4>
                 <p class="text-muted small">Klik salah satu token yang tersedia di bawah ini untuk langsung masuk ke bilik suara.</p>
                 <hr>
-                
                 <div id="portal-token-list" class="d-flex flex-wrap justify-content-center gap-2 mt-2">
                     <p class="text-muted small">Memuat token dari server...</p>
                 </div>
@@ -212,8 +211,7 @@
 
                 <div class="mb-4 flex-grow-1">
                     <label class="fw-bold small text-dark mb-2">Daftar Kandidat (Klik untuk memilih):</label>
-                    <div id="share-kandidat-chips" class="d-flex flex-wrap gap-2 justify-content-center align-content-start">
-                    </div>
+                    <div id="share-kandidat-chips" class="d-flex flex-wrap gap-2 justify-content-center align-content-start"></div>
                 </div>
 
                 <div class="mb-4">
@@ -234,10 +232,7 @@
                 </div>
                 <p class="text-muted small mb-2" id="share-hasil-total">Memuat total suara...</p>
                 
-                <!-- CONTAINER 10 BESAR -->
                 <div id="share-leaderboard"></div>
-
-                <!-- CONTAINER GRAFIK DINAMIS MEMBESAR KE BAWAH -->
                 <div style="position: relative; width: 100%; min-height: 300px;" id="share-chart-wrapper">
                     <canvas id="chartShareHasil"></canvas>
                 </div>
@@ -259,7 +254,7 @@
             </div>
         </div>
 
-        <!-- DAFTAR VOTING & TOKEN MANAGEMENT TERINTEGRASI -->
+        <!-- DAFTAR VOTING -->
         <div id="page-voting" class="page-section">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold mb-0">Daftar Voting</h5>
@@ -270,7 +265,7 @@
             </div>
         </div>
 
-        <!-- HASIL (AUTO LOAD) ADMIN -->
+        <!-- HASIL ADMIN -->
         <div id="page-hasil" class="page-section">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h5 class="fw-bold mb-0">Hasil Voting Server</h5>
@@ -283,17 +278,37 @@
             <div class="card p-3 text-center shadow-sm">
                 <div class="fw-bold text-success mb-2" id="lbl-total-suara">Total Suara: 0</div>
                 
-                <!-- CONTAINER 10 BESAR -->
                 <div id="admin-leaderboard"></div>
-
-                <!-- CONTAINER GRAFIK DINAMIS MEMBESAR KE BAWAH -->
                 <div style="position: relative; width: 100%; min-height: 300px;" id="admin-chart-wrapper">
                     <canvas id="chartHasil"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- PENGATURAN & ADMIN -->
+        <!-- PREMIUM -->
+        <div id="page-premium" class="page-section">
+            <h5 class="fw-bold mb-3 text-warning"><i class="bi bi-stars"></i> Paket & Harga Token</h5>
+            
+            <div class="card p-3 mb-3 premium-card shadow">
+                <h6 class="fw-bold text-dark">Paket Acara <span class="badge bg-primary">Rp 50.000</span></h6>
+                <p class="small text-muted mb-2">Dapatkan kuota hingga 500 Token Pemilih per acara.</p>
+                <button class="btn btn-primary btn-sm w-100 mt-2" onclick="reqUpgrade('Acara')">Beli Paket Acara</button>
+            </div>
+            
+            <div class="card p-3 mb-3 border-success shadow" style="background:#f4fcf6;">
+                <h6 class="fw-bold text-success">Paket Komunitas <span class="badge bg-success">Rp 150.000</span></h6>
+                <p class="small text-muted mb-2">Kuota Token Pemilih Tanpa Batas (Unlimited) untuk acara besar.</p>
+                <button class="btn btn-success btn-sm w-100 mt-2" onclick="reqUpgrade('Komunitas')">Beli Paket Komunitas</button>
+            </div>
+            
+            <div class="card p-3 d-none border-info" id="payment-box">
+                <h6 class="fw-bold text-info border-bottom pb-2">Status Pembayaran</h6>
+                <small class="d-block mb-2">Invoice: <b id="inv-id"></b></small>
+                <button class="btn btn-info text-white w-100" onclick="verifyInvoice()">Verifikasi Pembayaran</button>
+            </div>
+        </div>
+
+        <!-- PENGATURAN -->
         <div id="page-pengaturan" class="page-section">
             <h5 class="fw-bold mb-3">Pengaturan & Admin</h5>
             
@@ -337,7 +352,6 @@
             <a href="#" class="nav-item" onclick="nav('pengaturan', this)"><i class="bi bi-gear"></i>Admin</a>
         </div>
 
-        <!-- Footer -->
         <div class="text-center py-3 text-muted" style="font-size: 0.8rem;">
             Powered by Ari GPM
         </div>
@@ -379,6 +393,7 @@
     <script>
         Chart.register(ChartDataLabels);
         const LOCAL_KEY = 'VOTEKU_APP_DATA'; 
+        const OFFLINE_QUEUE_KEY = 'VOTEKU_OFFLINE_QUEUE';
         
         const HARDCODED_API_URL = "https://script.google.com/macros/s/AKfycbwDi6KoankpHE2GPEgmD5dApMkiUl-gCsR44wb8f0dl70Coyt7X7Rswe3rPQcvFMsg/exec"; 
 
@@ -391,7 +406,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V183', 'VOTEKU_V182', 'VOTEKU_V181', 'VOTEKU_V180'];
+            const oldKeys = ['VOTEKU_V185', 'VOTEKU_V184', 'VOTEKU_V183', 'VOTEKU_V182'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -403,6 +418,7 @@
         let cachedElections = [], activeVoteId = null, shareActiveId = null;
         let currentShareOptions = [], currentAdminOptions = [];
         let autoRefreshTimer = null;
+        let syncWorkerTimer = null;
         
         let lastShareResultString = "";
         let lastAdminResultString = "";
@@ -434,6 +450,9 @@
                     }
                 });
             }
+            // Start the offline sync worker
+            updateOfflineBadge();
+            syncWorkerTimer = setInterval(processOfflineQueue, 8000);
         });
 
         function showCustomAlert(msg, title = "Info", type = "primary", onOk = null) {
@@ -490,11 +509,7 @@
                 if (inputPin === APP_DATA.pin) {
                     clearURLParams(); document.getElementById('lock-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; document.getElementById('main-bottom-nav').style.display = 'flex';
                     inputEl.value = ""; applyBranding(); nav('dashboard', document.querySelectorAll('.bottom-nav .nav-item')[0]);
-                    
-                    setTimeout(() => { 
-                        if(APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) { fetchElectionsUI(); } 
-                    }, 300);
-
+                    setTimeout(() => { if(APP_DATA.apiUrl && APP_DATA.apiUrl.includes("script.google.com")) { fetchElectionsUI(); } }, 300);
                 } else { showCustomAlert("PIN yang Anda masukkan salah!", "Akses Ditolak", "danger"); inputEl.value = ""; inputEl.focus(); }
             } catch(e) { showCustomAlert("Kesalahan Sistem: " + e.message, "Error", "danger"); }
         }
@@ -569,17 +584,13 @@
             try {
                 const res = await apiCall("getPublicTokens", { electionId: id });
                 document.getElementById('share-portal-title').innerText = "Portal Token: " + res.title;
-                
                 const container = document.getElementById('portal-token-list');
                 if(!res.tokens || res.tokens.length === 0) {
                     container.innerHTML = `<p class="text-danger fw-bold w-100 mt-3">Tidak ada token tersedia untuk acara ini.</p>`; return;
                 }
                 container.innerHTML = res.tokens.map(t => {
-                    if (t.is_used) {
-                        return `<button class="btn btn-secondary text-decoration-line-through opacity-75" disabled>${t.token} <i class="bi bi-x-circle-fill text-danger ms-1"></i></button>`;
-                    } else {
-                        return `<button class="btn btn-outline-success fw-bold" onclick="takeToken(this, '${t.token}', '${id}')">${t.token}</button>`;
-                    }
+                    if (t.is_used) return `<button class="btn btn-secondary text-decoration-line-through opacity-75" disabled>${t.token} <i class="bi bi-x-circle-fill text-danger ms-1"></i></button>`;
+                    return `<button class="btn btn-outline-success fw-bold" onclick="takeToken(this, '${t.token}', '${id}')">${t.token}</button>`;
                 }).join('');
             } catch (e) {
                 document.getElementById('portal-token-list').innerHTML = `<div class="alert alert-danger text-center">Gagal memuat token.<br><br><button class="btn btn-outline-danger btn-sm mt-2" onclick="location.reload()">Coba Lagi</button></div>`;
@@ -588,9 +599,7 @@
 
         function takeToken(btn, tokenStr, electionId) {
             if (localStorage.getItem("VOTE_DONE_" + electionId)) {
-                showCustomAlert("Perangkat ini sudah digunakan untuk mengirim suara.", "Akses Ditolak", "warning", () => {
-                    window.location.href = window.location.pathname + "?hasil=" + electionId;
-                }); return;
+                showCustomAlert("Perangkat ini sudah digunakan untuk mengirim suara.", "Akses Ditolak", "warning", () => { window.location.href = window.location.pathname + "?hasil=" + electionId; }); return;
             }
             btn.classList.replace('btn-outline-success', 'btn-secondary');
             btn.classList.add('text-decoration-line-through', 'opacity-75');
@@ -605,12 +614,7 @@
             if (container) {
                 const chips = container.getElementsByClassName('kandidat-chip');
                 for (let i = 0; i < chips.length; i++) {
-                    const text = chips[i].innerText.toLowerCase();
-                    if (text.includes(inputVal)) {
-                        chips[i].style.display = ""; 
-                    } else {
-                        chips[i].style.display = "none";
-                    }
+                    chips[i].style.display = chips[i].innerText.toLowerCase().includes(inputVal) ? "" : "none";
                 }
             }
         }
@@ -623,11 +627,8 @@
 
         async function initShareVoting(id, autoToken = null) {
             if(localStorage.getItem("VOTE_DONE_" + id)) {
-                showCustomAlert("Perangkat ini sudah digunakan untuk mengirim suara pada pemilihan ini.", "Akses Ditutup", "warning", () => {
-                    window.location.href = window.location.pathname + "?hasil=" + id;
-                }); return;
+                showCustomAlert("Perangkat ini sudah digunakan untuk mengirim suara pada pemilihan ini.", "Akses Ditutup", "warning", () => { window.location.href = window.location.pathname + "?hasil=" + id; }); return;
             }
-
             nav('share-vote');
             try {
                 const res = await apiCall("getElections");
@@ -650,20 +651,64 @@
                 document.getElementById('share-kandidat-chips').innerHTML = chipsHtml;
                 document.getElementById('share-vote-selection').value = ""; 
 
-                if (autoToken) {
-                    const tkInput = document.getElementById('share-vote-token');
-                    tkInput.value = autoToken;
-                }
+                if (autoToken) document.getElementById('share-vote-token').value = autoToken;
             } catch(e) { 
                 document.getElementById('share-vote-title').innerText = "Gagal Memuat Data"; 
                 document.getElementById('share-vote-desc').innerHTML = `Koneksi terganggu. <br><button class="btn btn-outline-primary mt-2 btn-sm" onclick="location.reload()">Coba Ulang</button>`;
             }
         }
 
+        // ==========================================
+        // SISTEM OFFLINE-FIRST SYNCHRONIZATION 
+        // ==========================================
+        function saveToOfflineQueue(payload) {
+            let queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY)) || [];
+            queue.push(payload);
+            localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+            updateOfflineBadge();
+        }
+
+        function updateOfflineBadge() {
+            let queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY)) || [];
+            const badge = document.getElementById('offline-badge');
+            const countLabel = document.getElementById('offline-count');
+            if (queue.length > 0) {
+                badge.classList.remove('d-none');
+                countLabel.innerText = queue.length;
+            } else {
+                badge.classList.add('d-none');
+            }
+        }
+
+        async function processOfflineQueue() {
+            let queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY)) || [];
+            if (queue.length === 0) return;
+
+            let newQueue = [...queue];
+            let syncedCount = 0;
+
+            for (let i = 0; i < queue.length; i++) {
+                try {
+                    await apiCallSilent("submitVote", queue[i]); // Kirim ke server
+                    newQueue.splice(newQueue.indexOf(queue[i]), 1); // Jika sukses, buang dari antrean lokal
+                    syncedCount++;
+                } catch (e) {
+                    // Jika token kadaluarsa/salah, buang dari antrean agar tidak meloop terus
+                    if (e.message.includes("SUDAH DIGUNAKAN") || e.message.includes("sudah digunakan") || e.message.includes("tidak valid")) {
+                        newQueue.splice(newQueue.indexOf(queue[i]), 1);
+                    }
+                    // Jika error karena jaringan putus, abaikan dan biarkan di antrean untuk dicoba lagi nanti
+                }
+            }
+            
+            localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(newQueue));
+            updateOfflineBadge();
+            if (syncedCount > 0) showToast(`${syncedCount} Suara antrean offline berhasil disinkronkan ke server!`);
+        }
+
         async function executeShareVote() {
             const rawVal = document.getElementById('share-vote-selection').value.trim();
             const tokenStr = document.getElementById('share-vote-token').value.trim().toUpperCase();
-            
             if (!rawVal || !tokenStr) return showCustomAlert("Harap klik salah satu nama kandidat dan pastikan token terisi!", "Peringatan", "warning");
             
             const finalOption = currentShareOptions.find(o => o.toLowerCase() === rawVal.toLowerCase());
@@ -671,30 +716,66 @@
             
             const btnSubmit = document.getElementById('btn-submit-vote');
             btnSubmit.disabled = true;
-            btnSubmit.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...`;
+            btnSubmit.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
+
+            const payload = { electionId: shareActiveId, option: finalOption, token: tokenStr, timestamp: Date.now() };
 
             try {
-                const res = await apiCall("submitVote", { electionId: shareActiveId, option: finalOption, token: tokenStr });
+                // Gunakan timeout yang sangat singkat (5 detik) agar UI tidak freeze lama saat traffic tinggi/sinyal jelek
+                const res = await apiCall("submitVote", payload, 5000); 
                 localStorage.setItem("VOTE_DONE_" + shareActiveId, "true");
                 showCustomAlert("<b>TERIMA KASIH!</b><br>" + res.message, "Suara Berhasil Masuk", "success", () => {
                     window.location.href = window.location.pathname + "?hasil=" + shareActiveId;
                 });
             } catch(err) { 
-                btnSubmit.disabled = false;
-                btnSubmit.innerHTML = `<i class="bi bi-send-check-fill"></i> KIRIM SUARA SAH`;
-                let errorMsg = err.message;
-                let onDismiss = null;
-                
-                if (errorMsg.includes("SUDAH DIGUNAKAN") || errorMsg.includes("sudah digunakan")) {
-                    errorMsg += "<br><br><b>Token terpakai. Anda akan diarahkan ke Portal untuk memilih Token lain.</b>";
-                    onDismiss = () => { window.location.href = window.location.pathname + "?portal=" + shareActiveId; };
+                if (err.message === "OFFLINE_OR_TIMEOUT") {
+                    // LOGIKA OFFLINE-FIRST: Simpan ke LocalStorage dan arahkan user ke hasil
+                    saveToOfflineQueue(payload);
+                    localStorage.setItem("VOTE_DONE_" + shareActiveId, "true");
+                    showCustomAlert("<b>KONEKSI TIDAK STABIL!</b><br>Jangan khawatir, suara Anda telah dimasukkan ke dalam <b>Brankas Offline</b> di perangkat ini dan akan terkirim otomatis ke server saat sinyal stabil.", "Suara Disimpan (Offline Mode)", "warning", () => {
+                        window.location.href = window.location.pathname + "?hasil=" + shareActiveId;
+                    });
+                } else {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = `<i class="bi bi-send-check-fill"></i> KIRIM SUARA SAH`;
+                    let errorMsg = err.message;
+                    let onDismiss = null;
+                    if (errorMsg.includes("SUDAH DIGUNAKAN") || errorMsg.includes("sudah digunakan")) {
+                        errorMsg += "<br><br><b>Token terpakai. Anda akan diarahkan ke Portal untuk memilih Token lain.</b>";
+                        onDismiss = () => { window.location.href = window.location.pathname + "?portal=" + shareActiveId; };
+                    }
+                    showCustomAlert(errorMsg, "Suara Ditolak", "danger", onDismiss); 
                 }
-                showCustomAlert(errorMsg, "Suara Ditolak", "danger", onDismiss); 
+            }
+        }
+
+        async function executeVote() {
+            const rawVal = document.getElementById('admin-vote-selection').value.trim(); const tokenStr = document.getElementById('vote-token').value.trim().toUpperCase();
+            if(!rawVal || !tokenStr) return showToast("Pilih salah satu kandidat dan masukkan token!", "bg-warning text-dark");
+            const finalOption = currentAdminOptions.find(o => o.toLowerCase() === rawVal.toLowerCase());
+            if (!finalOption) return showToast("Kandidat yang dipilih tidak valid!", "bg-danger text-white");
+            
+            const payload = { electionId: activeVoteId, option: finalOption, token: tokenStr, timestamp: Date.now() };
+            
+            // Langsung tutup modal agar bilik suara bisa cepat dipakai orang berikutnya tanpa freeze
+            bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide(); 
+            showToast("Memproses suara...", "bg-info");
+
+            try {
+                const res = await apiCall("submitVote", payload, 5000); // Batas 5 detik untuk admin
+                showCustomAlert("Suara sah berhasil dimasukkan ke server!", "Berhasil", "success");
+            } catch (err) { 
+                if (err.message === "OFFLINE_OR_TIMEOUT") {
+                    saveToOfflineQueue(payload);
+                    showCustomAlert("Koneksi tersendat akibat antrean server tinggi atau sinyal putus.<br><br><b>Suara aman di penyimpanan Offline!</b> Sistem akan terus mencoba mengirimkannya tanpa mengganggu Anda.", "Mode Sinkronisasi Aktif", "warning");
+                } else {
+                    showCustomAlert(err.message, "Suara Ditolak", "danger"); 
+                }
             }
         }
 
         // ==========================================
-        // FUNGSI RENDER LEADERBOARD 10 BESAR
+        // RENDER FUNGSI (LEADERBOARD & CHART)
         // ==========================================
         function renderLeaderboard(containerId, resultsData) {
             const container = document.getElementById(containerId);
@@ -711,10 +792,10 @@
             `;
             
             top10.forEach((entry, index) => {
-                let badgeClass = "bg-secondary text-white"; // default peringkat 4-10
-                if (index === 0) badgeClass = "bg-warning text-dark border border-warning"; // Emas
-                else if (index === 1) badgeClass = "bg-info text-white"; // Perak / Biru Terang
-                else if (index === 2) badgeClass = "bg-danger text-white"; // Perunggu / Merah
+                let badgeClass = "bg-secondary text-white"; 
+                if (index === 0) badgeClass = "bg-warning text-dark border border-warning"; 
+                else if (index === 1) badgeClass = "bg-info text-white"; 
+                else if (index === 2) badgeClass = "bg-danger text-white"; 
                 
                 html += `
                     <div class="d-flex justify-content-between align-items-center mb-1 pb-1 border-bottom border-light">
@@ -725,46 +806,64 @@
                     </div>
                 `;
             });
-
             html += `</div>`;
             container.innerHTML = html;
         }
 
-        async function initShareHasil(id) {
-            shareActiveId = id;
-            nav('share-hasil');
-            document.getElementById('share-hasil-total').innerText = "Memuat total suara...";
-            lastShareResultString = ""; 
-            await fetchShareHasilData(id);
+        function renderBarChart(canvasId, resultsData) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const sortedEntries = Object.entries(resultsData).sort((a, b) => b[1] - a[1]);
+            const labels = sortedEntries.map(e => e[0]);
+            const values = sortedEntries.map(e => e[1]);
+            
+            const minHeight = 300; const heightPerItem = 45; 
+            const dynamicHeight = Math.max(minHeight, labels.length * heightPerItem);
+            canvas.parentElement.style.height = dynamicHeight + 'px';
 
+            if (window[canvasId + 'Instance']) window[canvasId + 'Instance'].destroy();
+            
+            const cheerfulColors = ['#42a5f5', '#66bb6a', '#ff7043', '#ab47bc', '#ffee58', '#ec407a', '#26a69a'];
+            const backgroundColors = labels.map((_, index) => cheerfulColors[index % cheerfulColors.length]);
+
+            window[canvasId + 'Instance'] = new Chart(ctx, { 
+                type: 'bar', 
+                data: { labels: labels, datasets: [{ label: 'Suara', data: values, backgroundColor: backgroundColors, borderRadius: 4 }] }, 
+                options: { 
+                    indexAxis: 'y', maintainAspectRatio: false, 
+                    plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'right', color: '#333', font: { weight: 'bold', size: 12 }, formatter: Math.round } }, 
+                    layout: { padding: { right: 30 } }, 
+                    scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } }, y: { ticks: { autoSkip: false, font: { size: 11, weight: 'bold' } } } },
+                    animation: { duration: 800 } 
+                } 
+            });
+        }
+
+        async function initShareHasil(id) {
+            shareActiveId = id; nav('share-hasil'); document.getElementById('share-hasil-total').innerText = "Memuat total suara...";
+            lastShareResultString = ""; await fetchShareHasilData(id);
             if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-            autoRefreshTimer = setInterval(() => {
-                if (shareActiveId) { fetchShareHasilData(shareActiveId, true); }
-            }, 3000);
+            autoRefreshTimer = setInterval(() => { if (shareActiveId) { fetchShareHasilData(shareActiveId, true); } }, 3000);
         }
 
         async function fetchShareHasilData(id, silent = false) {
             try {
                 const res = silent ? await apiCallSilent("getResults", { electionId: id }) : await apiCall("getResults", { electionId: id });
                 if (!res) return;
-
                 const currentDataString = JSON.stringify(res.results);
                 if (silent && currentDataString === lastShareResultString) return; 
                 lastShareResultString = currentDataString;
-
                 document.getElementById('share-hasil-title').innerText = "Hasil Pemilihan";
                 document.getElementById('share-hasil-total').innerText = `Total Suara Masuk: ${res.totalVotes}`;
-                
-                renderLeaderboard('share-leaderboard', res.results);
-                renderBarChart('chartShareHasil', res.results);
+                renderLeaderboard('share-leaderboard', res.results); renderBarChart('chartShareHasil', res.results);
             } catch(e) { 
-                if (!silent) {
-                    document.getElementById('share-hasil-title').innerText = "Gagal Memuat Hasil"; 
-                    document.getElementById('share-hasil-total').innerHTML = `Koneksi terputus. <br><button class="btn btn-outline-secondary mt-2 btn-sm" onclick="location.reload()">Refresh Data</button>`;
-                }
+                if (!silent) { document.getElementById('share-hasil-title').innerText = "Gagal Memuat Hasil"; document.getElementById('share-hasil-total').innerHTML = `Koneksi terputus. <br><button class="btn btn-outline-secondary mt-2 btn-sm" onclick="location.reload()">Refresh Data</button>`; }
             }
         }
 
+        // ==========================================
+        // UTILS & CORE API
+        // ==========================================
         function showToast(msg, color = "bg-success") {
             const t = document.getElementById('liveToast'); t.className = `toast align-items-center text-white border-0 ${color}`;
             document.getElementById('toast-msg').innerText = msg; new bootstrap.Toast(t).show();
@@ -773,36 +872,30 @@
         function toggleLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
         
         function nav(pageId, element = null) {
-            if (pageId !== 'hasil' && pageId !== 'share-hasil') {
-                if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
-            }
-
-            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(`page-${pageId}`).classList.add('active');
-            if (element && element.classList.contains('nav-item')) {
-                document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active')); element.classList.add('active');
-            }
-            if(pageId === 'hasil') { fetchElectionsForResults(); } 
-            else if (pageId === 'voting') { 
-                if(cachedElections.length === 0) fetchElectionsUI(); else renderVotingList(); 
-            }
+            if (pageId !== 'hasil' && pageId !== 'share-hasil') { if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; } }
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (!targetPage) return; 
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active')); targetPage.classList.add('active');
+            if (element && element.classList.contains('nav-item')) { document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active')); element.classList.add('active'); }
+            if(pageId === 'hasil') { fetchElectionsForResults(); } else if (pageId === 'voting') { if(cachedElections.length === 0) fetchElectionsUI(); else renderVotingList(); }
         }
 
-        async function apiCall(action, payload = {}) {
+        // DIUBAH: Penambahan customTimeout untuk mengatasi bottleneck saat banyak user
+        async function apiCall(action, payload = {}, customTimeout = 15000) {
             if (!APP_DATA.apiUrl || APP_DATA.apiUrl === "") throw new Error("URL API Server Belum Dikonfigurasi.");
             if (APP_DATA.serverToken) payload.adminToken = APP_DATA.serverToken;
-            const controller = new AbortController(); const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const controller = new AbortController(); const timeoutId = setTimeout(() => controller.abort(), customTimeout);
             try {
                 toggleLoading(true);
-                const res = await fetch(APP_DATA.apiUrl, { 
-                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                    body: JSON.stringify({ action: action, payload: payload }), signal: controller.signal
-                });
+                const res = await fetch(APP_DATA.apiUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, payload: payload }), signal: controller.signal });
                 clearTimeout(timeoutId); const data = await res.json(); toggleLoading(false);
                 if (data.error) throw new Error(data.error); return data;
             } catch (err) { 
                 toggleLoading(false); 
-                if (err.name === 'AbortError' || err.message.includes('fetch')) { throw new Error("Koneksi lambat. Silakan coba lagi."); }
+                // Deteksi jaringan mati atau request terlalu lambat
+                if (err.name === 'AbortError' || err.message.includes('fetch') || err.message.includes('NetworkError')) { 
+                    throw new Error("OFFLINE_OR_TIMEOUT"); 
+                }
                 throw err; 
             }
         }
@@ -811,13 +904,10 @@
             if (!APP_DATA.apiUrl) return;
             if (APP_DATA.serverToken) payload.adminToken = APP_DATA.serverToken;
             try {
-                const res = await fetch(APP_DATA.apiUrl, { 
-                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                    body: JSON.stringify({ action: action, payload: payload })
-                });
+                const res = await fetch(APP_DATA.apiUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, payload: payload }) });
                 const data = await res.json();
                 if (data.error) throw new Error(data.error); return data;
-            } catch (err) { console.warn("Silent refresh warning:", err.message); }
+            } catch (err) { throw err; } // Biarkan processOfflineQueue menangkap errornya
         }
 
         function applyBranding() {
@@ -935,17 +1025,6 @@
             new bootstrap.Modal(document.getElementById('voteModal')).show();
         }
 
-        async function executeVote() {
-            const rawVal = document.getElementById('admin-vote-selection').value.trim(); const tokenStr = document.getElementById('vote-token').value.trim().toUpperCase();
-            if(!rawVal || !tokenStr) return showToast("Pilih salah satu kandidat dan masukkan token!", "bg-warning text-dark");
-            const finalOption = currentAdminOptions.find(o => o.toLowerCase() === rawVal.toLowerCase());
-            if (!finalOption) return showToast("Kandidat yang dipilih tidak valid!", "bg-danger text-white");
-            try {
-                const res = await apiCall("submitVote", { electionId: activeVoteId, option: finalOption, token: tokenStr });
-                bootstrap.Modal.getInstance(document.getElementById('voteModal')).hide(); showCustomAlert("Suara sah berhasil dimasukkan ke server!", "Berhasil", "success");
-            } catch (err) { showCustomAlert(err.message, "Suara Ditolak", "danger"); }
-        }
-
         async function handleInlineGenerateToken(electionId) {
             const countInput = document.getElementById(`inline-token-count-${electionId}`);
             const count = parseInt(countInput.value);
@@ -1003,58 +1082,6 @@
             }
         }
 
-        function renderBarChart(canvasId, resultsData) {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext('2d');
-            
-            const sortedEntries = Object.entries(resultsData).sort((a, b) => b[1] - a[1]);
-            const labels = sortedEntries.map(e => e[0]);
-            const values = sortedEntries.map(e => e[1]);
-            
-            const minHeight = 300;
-            const heightPerItem = 45; 
-            const dynamicHeight = Math.max(minHeight, labels.length * heightPerItem);
-            
-            canvas.parentElement.style.height = dynamicHeight + 'px';
-
-            if (window[canvasId + 'Instance']) {
-                window[canvasId + 'Instance'].destroy();
-            }
-            
-            const cheerfulColors = ['#42a5f5', '#66bb6a', '#ff7043', '#ab47bc', '#ffee58', '#ec407a', '#26a69a'];
-            const backgroundColors = labels.map((_, index) => cheerfulColors[index % cheerfulColors.length]);
-
-            window[canvasId + 'Instance'] = new Chart(ctx, { 
-                type: 'bar', 
-                data: { 
-                    labels: labels, 
-                    datasets: [{ label: 'Suara', data: values, backgroundColor: backgroundColors, borderRadius: 4 }] 
-                }, 
-                options: { 
-                    indexAxis: 'y', 
-                    maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { display: false }, 
-                        datalabels: { 
-                            anchor: 'end', align: 'right', color: '#333', 
-                            font: { weight: 'bold', size: 12 }, formatter: Math.round 
-                        } 
-                    }, 
-                    layout: { padding: { right: 30 } }, 
-                    scales: { 
-                        x: { beginAtZero: true, ticks: { stepSize: 1 } },
-                        y: { 
-                            ticks: { 
-                                autoSkip: false, 
-                                font: { size: 11, weight: 'bold' } 
-                            } 
-                        } 
-                    },
-                    animation: { duration: 800 } 
-                } 
-            });
-        }
-        
         async function reqUpgrade(planName) {
             try {
                 const res = await apiCall("createInvoice", { plan: planName });
