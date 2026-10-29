@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOTEKU DIGITAL - v1.8.7</title>
+    <title>VOTEKU DIGITAL - v1.8.8</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0277bd">
@@ -152,7 +152,7 @@
             <h5 id="ui-app-name" class="fw-bold mb-0">VOTEKU DIGITAL</h5>
             <small class="d-block text-white-50" id="ui-branding-subtitle">Sistem Voting Aman</small>
             <div class="mt-1 d-flex justify-content-center align-items-center gap-1">
-                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Admin Menu">v1.8.7 <i class="bi bi-key-fill text-muted"></i></span>
+                <span class="badge bg-light text-dark" style="cursor: pointer;" onclick="triggerKamuflase()" title="Admin Menu">v1.8.8 <i class="bi bi-key-fill text-muted"></i></span>
                 <span class="badge bg-warning text-dark" id="badge-plan"><i class="bi bi-shield-fill-check text-success"></i> <span id="lbl-plan">Secure Pro</span></span>
                 <!-- BADGE OFFLINE SYNC -->
                 <span class="badge bg-danger d-none animate__animated animate__pulse animate__infinite" id="offline-badge" onclick="processOfflineQueue()" style="cursor:pointer;" title="Klik untuk sinkronisasi paksa">
@@ -174,7 +174,6 @@
         <div id="page-dashboard" class="page-section active">
             <div class="alert alert-success shadow-sm" id="auth-status-alert"><i class="bi bi-shield-fill-check text-success"></i> <b>Secure Pro Aktif</b> - Data otomatis tersinkronisasi</div>
             
-            <!-- INFO SISTEM OFFLINE -->
             <div class="alert alert-info shadow-sm p-2 text-center" style="font-size: 0.8rem;">
                 <i class="bi bi-wifi-off"></i> <b>Sistem Offline Aktif:</b> Aplikasi ini tetap lancar saat tanpa sinyal atau traffic tinggi.
             </div>
@@ -214,7 +213,6 @@
                     <div id="share-kandidat-chips" class="d-flex flex-wrap gap-2 justify-content-center align-content-start"></div>
                 </div>
 
-                <!-- KOLOM TOKEN DISEMBUNYIKAN (d-none) AGAR PEMILIH AWAM TIDAK BINGUNG -->
                 <div class="mb-4 d-none">
                     <label class="fw-bold small text-dark mb-2"><i class="bi bi-key-fill"></i> Token Unik Anda:</label>
                     <input type="text" id="share-vote-token" class="form-control form-control-lg text-center text-uppercase fw-bold border-primary bg-light" placeholder="TOKEN RAHASIA" readonly>
@@ -247,8 +245,14 @@
                 <form onsubmit="handleBuatVoting(event)">
                     <input type="text" class="form-control mb-2" id="v-judul" required placeholder="Judul Voting">
                     <textarea class="form-control mb-2" id="v-desc" placeholder="Deskripsi Singkat"></textarea>
+                    
+                    <!-- LABEL PENJELAS WAKTU MULAI & BERAKHIR -->
+                    <label class="small text-muted fw-bold mb-1"><i class="bi bi-calendar-event"></i> Waktu Mulai:</label>
                     <input type="datetime-local" class="form-control mb-2" id="v-start" required>
-                    <input type="datetime-local" class="form-control mb-2" id="v-end" required>
+                    
+                    <label class="small text-muted fw-bold mb-1"><i class="bi bi-calendar-x"></i> Waktu Berakhir:</label>
+                    <input type="datetime-local" class="form-control mb-3" id="v-end" required>
+                    
                     <input type="text" class="form-control mb-3" id="v-opsi" required placeholder="Opsi A, Opsi B, Opsi C (Gunakan koma)">
                     <button type="submit" class="btn btn-primary w-100"><i class="bi bi-cloud-arrow-up"></i> TERBITKAN KE SERVER</button>
                 </form>
@@ -378,7 +382,6 @@
                         </div>
                     </div>
 
-                    <!-- TOKEN ADMIN TETAP DITAMPILKAN KARENA ADMIN HARUS MENGISI MANUAL -->
                     <div class="mb-2">
                         <label class="fw-bold small text-dark mb-2">Token Pemilih:</label>
                         <input type="text" id="vote-token" class="form-control form-control-lg text-center text-uppercase fw-bold border-primary" placeholder="TOKEN UNIK" maxlength="10">
@@ -408,7 +411,7 @@
         let APP_DATA = JSON.parse(localStorage.getItem(LOCAL_KEY));
         
         if (!APP_DATA) {
-            const oldKeys = ['VOTEKU_V186', 'VOTEKU_V185', 'VOTEKU_V184', 'VOTEKU_V183'];
+            const oldKeys = ['VOTEKU_V187', 'VOTEKU_V186', 'VOTEKU_V185', 'VOTEKU_V184'];
             for(let key of oldKeys) { let oldData = localStorage.getItem(key); if(oldData) { APP_DATA = JSON.parse(oldData); break; } }
         }
         if (!APP_DATA || !APP_DATA.pin) { APP_DATA = DEFAULT_DATA; } 
@@ -452,7 +455,6 @@
                     }
                 });
             }
-            // Start the offline sync worker
             updateOfflineBadge();
             syncWorkerTimer = setInterval(processOfflineQueue, 8000);
         });
